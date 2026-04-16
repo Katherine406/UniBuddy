@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "leaflet-routing-machine";
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -510,6 +512,10 @@ export function PicturesAndMapScreen() {
   const watchIdRef = useRef<number | null>(null);
   const firstFixRef = useRef(false);
 
+  // Live routing demo: cache current position & routing control
+  const currentPositionRef = useRef<L.LatLngExpression | null>(null);
+  const routingControlRef = useRef<any>(null);
+
   // Route planning states
   const [routePlanning, setRoutePlanning] = useState(false);
   const [routeReady, setRouteReady] = useState(false);
@@ -609,6 +615,7 @@ export function PicturesAndMapScreen() {
       leafletMapRef.current.remove();
       leafletMapRef.current = null;
     }
+    clearRouting();
     userMarkerRef.current = null;
     accuracyCircleRef.current = null;
     leafletHostRef.current = null;
@@ -623,6 +630,8 @@ export function PicturesAndMapScreen() {
   const updateUserPosition = (lat: number, lng: number, accuracy: number) => {
     const map = leafletMapRef.current;
     if (!map) return;
+
+    currentPositionRef.current = [lat, lng];
 
     const acc = Math.max(Number(accuracy) || 0, 5);
     if (userMarkerRef.current && accuracyCircleRef.current) {
@@ -687,6 +696,14 @@ export function PicturesAndMapScreen() {
     setLocationStatus(mapCopy.locating);
   };
 
+  const clearRouting = () => {
+    const map = leafletMapRef.current;
+    if (map && routingControlRef.current) {
+      map.removeControl(routingControlRef.current);
+    }
+    routingControlRef.current = null;
+  };
+
   useEffect(() => {
     if (mapTab === "live") {
       const map = ensureLeafletMap();
@@ -711,14 +728,74 @@ export function PicturesAndMapScreen() {
 
   const handlePlanRoute = () => {
     if (routePlanning || routeReady) return;
+
+    const map = ensureLeafletMap();
+    if (!map) return;
+
+    // 没有定位时先尝试开启定位，让用户再点一次
+    if (!currentPositionRef.current) {
+      startTracking();
+      setLocationStatus(
+        lang === "zh"
+          ? "正在获取当前位置，请允许定位后再点击一次“开始路径规划”"
+          : "Getting your current location. Please allow location and tap again.",
+      );
+      return;
+    }
+
+    // demo：终点先统一用校园中心点
+    const destinationLatLng = L.latLng(XJTLU_CENTER[0], XJTLU_CENTER[1]);
+    const startLatLng = L.latLng(currentPositionRef.current as L.LatLngExpression);
+
+    clearRouting();
+
     setRoutePlanning(true);
-    setTimeout(() => {
+    setRouteReady(false);
+
+    const routing = (L as any).Routing.control({
+      waypoints: [startLatLng, destinationLatLng],
+      lineOptions: {
+        styles: [
+          { color: "#4B9EF7", weight: 8, opacity: 0.35 },
+          { color: "#2350D8", weight: 4, opacity: 0.95 },
+        ],
+      },
+      addWaypoints: false,
+      draggableWaypoints: false,
+      routeWhileDragging: false,
+      show: false,
+      fitSelectedRoutes: true,
+      createMarker: () => null,
+      router: (L as any).Routing.osrmv1({
+        serviceUrl: "https://router.project-osrm.org/route/v1",
+        profile: "foot",
+      }),
+    }).addTo(map);
+
+    routing.on("routesfound", (e: any) => {
+      const route = e.routes && e.routes[0];
+      if (!route) {
+        setRoutePlanning(false);
+        return;
+      }
       setRoutePlanning(false);
       setRouteReady(true);
-      setTimeout(() => {
+      window.setTimeout(() => {
         routeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 120);
-    }, 1800);
+      }, 150);
+    });
+
+    routing.on("routingerror", () => {
+      setRoutePlanning(false);
+      setRouteReady(false);
+      setLocationStatus(
+        lang === "zh"
+          ? "路线规划失败，请稍后重试（可能是 OSRM 公共服务暂时不可用）"
+          : "Routing failed. Please try again later (OSRM public service might be unavailable).",
+      );
+    });
+
+    routingControlRef.current = routing;
   };
 
   const getLocale = (room: typeof classrooms[0]) => room[lang];
