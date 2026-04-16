@@ -29,19 +29,8 @@ const FavoritesContext = createContext<FavoritesCtx>({
 });
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
-  const [favorites, setFavorites] = useState<SavedRoute[]>([
-    {
-      id: "freshman",
-      title: "新生入门路线",
-      emoji: "🌱",
-      type: "recommended",
-      duration: "30 min",
-      stops: ["东门入口", "行政楼", "图书馆", "中心广场"],
-      bg: "#A8D4FF",
-      tagBg: "#4B9EF7",
-      tagLabel: "推荐",
-    },
-  ]);
+  // 默认不预置任何“已收藏路线”，避免首次进入就显示已收藏数据
+  const [favorites, setFavorites] = useState<SavedRoute[]>([]);
 
   const addFavorite = (r: SavedRoute) =>
     setFavorites((prev) => (prev.find((f) => f.id === r.id) ? prev : [...prev, r]));
