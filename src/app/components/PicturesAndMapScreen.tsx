@@ -588,7 +588,7 @@ export function PicturesAndMapScreen() {
           {mapTab === "map" ? (
             <div>
               <div style={{ position: "relative", borderRadius: "12px", overflow: "hidden", border: `2px solid ${C.navy}`, boxShadow: `3px 3px 0 ${C.navy}`, backgroundColor: "#E8EEF6" }}>
-                <img src="/campus-map.jpg" alt="XJTLU campus map" style={{ width: "100%", height: "auto", display: "block" }} />
+                <img src={`${import.meta.env.BASE_URL}campus-map.jpg`} alt="XJTLU campus map" style={{ width: "100%", height: "auto", display: "block" }} />
                 {campusMapHotspots.map((pin) => (
                   <button
                     key={pin.id}
