@@ -7,7 +7,7 @@ export function RootLayout() {
   return (
     <LanguageProvider>
       <CameraProvider>
-        <div className="p-4">
+        <div>
           <Outlet />
         </div>
       </CameraProvider>
