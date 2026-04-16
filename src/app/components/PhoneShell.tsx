@@ -50,35 +50,24 @@ export function PhoneShell({
 
 /* ── Camera overlay rendered inside every PhoneShell ── */
 function CameraOverlay() {
-  const { showCamera, closeCamera, photos, addPhotos } = useCamera();
+  const { showCamera, closeCamera, photos, addPhotos, lastUnlockedStampId } = useCamera();
   const { t } = useLanguage();
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const albumInputRef = useRef<HTMLInputElement>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const prevCountRef = useRef(photos.length);
+  const prevUnlockedStampIdRef = useRef<number | null>(lastUnlockedStampId);
 
-  /* show a stamp-unlock toast when photo count grows */
+  /* show a stamp-unlock toast when a new badge is unlocked */
   useEffect(() => {
-    const prev = prevCountRef.current;
-    const curr = photos.length;
-    if (curr > prev) {
-      const unlocked = curr; // 1-based index of newly unlocked stamp
-      if (unlocked <= 12) {
-        const stampKeys = [
-          "s_library","s_square","s_gate","s_gym",
-          "s_canteen","s_lake","s_art","s_research",
-          "s_maker","s_history","s_dorm","s_admin",
-        ];
-        // stamps 1–4 are pre-checked; photos unlock from stamp 5 onward
-        const stampIdx = 4 + (curr - 1); // index into stampKeys
-        if (stampIdx < stampKeys.length) {
-          setToast(t("camera_stamp_unlocked", { name: t(stampKeys[stampIdx]) }));
-          setTimeout(() => setToast(null), 2800);
-        }
-      }
+    if (
+      lastUnlockedStampId != null &&
+      lastUnlockedStampId !== prevUnlockedStampIdRef.current
+    ) {
+      setToast(t("camera_stamp_unlocked"));
+      setTimeout(() => setToast(null), 2800);
     }
-    prevCountRef.current = curr;
-  }, [photos.length]);
+    prevUnlockedStampIdRef.current = lastUnlockedStampId;
+  }, [lastUnlockedStampId, t]);
 
   const handleCamera = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
