@@ -515,6 +515,7 @@ export function PicturesAndMapScreen() {
   // Live routing demo: cache current position & routing control
   const currentPositionRef = useRef<L.LatLngExpression | null>(null);
   const routingControlRef = useRef<any>(null);
+  const pendingRouteRef = useRef(false);
 
   // Route planning states
   const [routePlanning, setRoutePlanning] = useState(false);
@@ -661,6 +662,12 @@ export function PicturesAndMapScreen() {
     } else {
       map.panTo([lat, lng], { animate: false });
     }
+
+    // If the user already clicked "Start route", the first GPS fix will trigger the routing demo.
+    if (pendingRouteRef.current) {
+      startOsrmRoutingFromLatLng([lat, lng]);
+    }
+
     setLocationStatus(mapCopy.locatingWithAccuracy(Math.round(acc)));
   };
 
@@ -704,6 +711,83 @@ export function PicturesAndMapScreen() {
     routingControlRef.current = null;
   };
 
+  function startOsrmRoutingFromLatLng(startLatLng: L.LatLngExpression) {
+    const map = ensureLeafletMap();
+    if (!map) {
+      pendingRouteRef.current = true;
+      return;
+    }
+
+    clearRouting();
+    setRoutePlanning(true);
+    setRouteReady(false);
+
+    const destinationLatLng = L.latLng(XJTLU_CENTER[0], XJTLU_CENTER[1]);
+    let routing: any;
+    try {
+      routing = (L as any).Routing.control({
+        waypoints: [L.latLng(startLatLng), destinationLatLng],
+        lineOptions: {
+          styles: [
+            { color: "#4B9EF7", weight: 8, opacity: 0.35 },
+            { color: "#2350D8", weight: 4, opacity: 0.95 },
+          ],
+        },
+        addWaypoints: false,
+        draggableWaypoints: false,
+        routeWhileDragging: false,
+        show: false,
+        fitSelectedRoutes: true,
+        createMarker: () => null,
+        router: (L as any).Routing.osrmv1({
+          serviceUrl: "https://router.project-osrm.org/route/v1",
+          profile: "foot",
+        }),
+      }).addTo(map);
+    } catch (err) {
+      pendingRouteRef.current = false;
+      setRoutePlanning(false);
+      setRouteReady(false);
+      const msg = err instanceof Error ? err.message : String(err);
+      setLocationStatus(
+        lang === "zh"
+          ? `路线规划异常：${msg}`
+          : `Routing exception: ${msg}`,
+      );
+      return;
+    }
+
+    pendingRouteRef.current = false;
+
+    routing.on("routesfound", (e: any) => {
+      const route = e.routes && e.routes[0];
+      if (!route) {
+        setRoutePlanning(false);
+        setRouteReady(false);
+        pendingRouteRef.current = false;
+        return;
+      }
+      setRoutePlanning(false);
+      setRouteReady(true);
+      window.setTimeout(() => {
+        routeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 150);
+    });
+
+    routing.on("routingerror", () => {
+      setRoutePlanning(false);
+      setRouteReady(false);
+      setLocationStatus(
+        lang === "zh"
+          ? "路线规划失败，请稍后重试（可能是 OSRM 公共服务暂时不可用）"
+          : "Routing failed. Please try again later (OSRM public service might be unavailable).",
+      );
+      pendingRouteRef.current = false;
+    });
+
+    routingControlRef.current = routing;
+  }
+
   useEffect(() => {
     if (mapTab === "live") {
       const map = ensureLeafletMap();
@@ -726,76 +810,41 @@ export function PicturesAndMapScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handlePlanRoute = () => {
-    if (routePlanning || routeReady) return;
+  useEffect(() => {
+    if (mapTab !== "live") return;
+    if (!pendingRouteRef.current) return;
 
-    const map = ensureLeafletMap();
-    if (!map) return;
-
-    // 没有定位时先尝试开启定位，让用户再点一次
+    // 若还没拿到定位，继续等 watchPosition 的第一帧
     if (!currentPositionRef.current) {
       startTracking();
-      setLocationStatus(
-        lang === "zh"
-          ? "正在获取当前位置，请允许定位后再点击一次“开始路径规划”"
-          : "Getting your current location. Please allow location and tap again.",
-      );
       return;
     }
 
-    // demo：终点先统一用校园中心点
-    const destinationLatLng = L.latLng(XJTLU_CENTER[0], XJTLU_CENTER[1]);
-    const startLatLng = L.latLng(currentPositionRef.current as L.LatLngExpression);
+    startOsrmRoutingFromLatLng(currentPositionRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapTab]);
 
-    clearRouting();
+  const handlePlanRoute = () => {
+    if (routePlanning || routeReady) return;
+    pendingRouteRef.current = true;
 
-    setRoutePlanning(true);
-    setRouteReady(false);
-
-    const routing = (L as any).Routing.control({
-      waypoints: [startLatLng, destinationLatLng],
-      lineOptions: {
-        styles: [
-          { color: "#4B9EF7", weight: 8, opacity: 0.35 },
-          { color: "#2350D8", weight: 4, opacity: 0.95 },
-        ],
-      },
-      addWaypoints: false,
-      draggableWaypoints: false,
-      routeWhileDragging: false,
-      show: false,
-      fitSelectedRoutes: true,
-      createMarker: () => null,
-      router: (L as any).Routing.osrmv1({
-        serviceUrl: "https://router.project-osrm.org/route/v1",
-        profile: "foot",
-      }),
-    }).addTo(map);
-
-    routing.on("routesfound", (e: any) => {
-      const route = e.routes && e.routes[0];
-      if (!route) {
-        setRoutePlanning(false);
-        return;
-      }
-      setRoutePlanning(false);
-      setRouteReady(true);
-      window.setTimeout(() => {
-        routeSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 150);
-    });
-
-    routing.on("routingerror", () => {
-      setRoutePlanning(false);
+    // demo：规划需要 live 地图容器（leafletHostRef）存在；因此先切到 live
+    if (mapTab !== "live") {
+      setRoutePlanning(true);
       setRouteReady(false);
-      setLocationStatus(
-        lang === "zh"
-          ? "路线规划失败，请稍后重试（可能是 OSRM 公共服务暂时不可用）"
-          : "Routing failed. Please try again later (OSRM public service might be unavailable).",
-      );
-    });
+      setMapTab("live");
+      return;
+    }
 
-    routingControlRef.current = routing;
+    // 若已在 live 但还没定位，则先拿定位
+    if (!currentPositionRef.current) {
+      setRoutePlanning(true);
+      setRouteReady(false);
+      startTracking();
+      return;
+    }
+
+    startOsrmRoutingFromLatLng(currentPositionRef.current);
   };
 
   const getLocale = (room: typeof classrooms[0]) => room[lang];
