@@ -318,7 +318,7 @@ const en: Texts = {
   profile_edit: "Edit", profile_save: "Save",
   profile_name_default: "Unnamed User",
   s_library: "Library", s_square: "Square", s_gate: "North Gate",
-  s_gym: "Gymnasium", s_canteen: "Canteen", s_lake: "South Lake",
+  s_gym: "Gymnasium", s_canteen: "Canteen", s_lake: "Central Lake",
   s_art: "Art Center", s_research: "Research Bldg", s_maker: "Makerspace",
   s_history: "History Hall", s_dorm: "Dormitory", s_admin: "Admin Bldg",
   b_gate: "North Gate", b_admin: "Admin Bldg-FB", b_library: "Library-CB", b_square: "Square",
