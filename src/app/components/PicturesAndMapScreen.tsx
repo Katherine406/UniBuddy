@@ -312,8 +312,8 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
   },
   cb: {
     type: "📍 地标建筑",
-    title: "中央楼",
-    subtitle: "中央楼",
+    title: "中心楼",
+    subtitle: "中心楼",
     desc: "校园核心功能区，汇集学习支持、职业发展与学生服务资源。",
     story: "图书馆楼层提供自习空间，楼内还有心理咨询、IT 帮助台、就业中心等服务。",
     tags: ["地标", "校园故事", "拍照点"],
