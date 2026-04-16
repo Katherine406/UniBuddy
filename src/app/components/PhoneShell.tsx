@@ -196,37 +196,8 @@ function CameraOverlay() {
 
 /* ─── iOS-style status bar ─── */
 export function StatusBar({ dark = false }: { dark?: boolean }) {
-  const c = dark ? "white" : "#0E1B4D";
-  return (
-    <div
-      className="flex justify-between items-center px-6 pt-3 pb-1 flex-shrink-0"
-      style={{ position: "relative", zIndex: 10 }}
-    >
-      <span style={{ fontSize: "15px", fontWeight: 800, color: c }}>9:41</span>
-      <div
-        className="absolute left-1/2 -translate-x-1/2 rounded-full"
-        style={{ top: "8px", width: "118px", height: "34px", backgroundColor: "#0E1B4D" }}
-      />
-      <div className="flex items-center gap-1.5">
-        <svg width="17" height="12" viewBox="0 0 17 12" fill={c}>
-          <rect x="0" y="4" width="3" height="8" rx="0.8" opacity="0.4" />
-          <rect x="4.5" y="2.5" width="3" height="9.5" rx="0.8" opacity="0.7" />
-          <rect x="9" y="1" width="3" height="11" rx="0.8" opacity="0.9" />
-          <rect x="13.5" y="0" width="3" height="12" rx="0.8" />
-        </svg>
-        <svg width="15" height="12" viewBox="0 0 15 12" fill={c}>
-          <path d="M7.5 2.4C9.8 2.4 11.9 3.4 13.3 5L14.8 3.4C13 1.3 10.4 0 7.5 0C4.6 0 2 1.3 0.2 3.4L1.7 5C3.1 3.4 5.2 2.4 7.5 2.4Z" />
-          <path d="M7.5 5.5C9 5.5 10.3 6.1 11.3 7.1L12.8 5.5C11.4 4.1 9.5 3.2 7.5 3.2C5.5 3.2 3.6 4.1 2.2 5.5L3.7 7.1C4.7 6.1 6 5.5 7.5 5.5Z" />
-          <circle cx="7.5" cy="10" r="1.8" />
-        </svg>
-        <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
-          <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke={c} strokeOpacity="0.5" />
-          <rect x="2" y="2" width="16" height="8" rx="2" fill={c} />
-          <path d="M23 4.5V7.5C23.8 7.2 24.5 6.4 24.5 6C24.5 5.6 23.8 4.8 23 4.5Z" fill={c} fillOpacity="0.4" />
-        </svg>
-      </div>
-    </div>
-  );
+  void dark;
+  return null;
 }
 
 /* ─── Reusable comic card ─── */
