@@ -24,11 +24,11 @@ L.Icon.Default.mergeOptions({
 });
 
 const photoDefs = [
-  { id: 1, titleKey: "photo_square",   tagKey: "tag_square"   },
-  { id: 2, titleKey: "photo_library",  tagKey: "tag_academic" },
-  { id: 3, titleKey: "photo_path",     tagKey: "tag_nature"   },
-  { id: 4, titleKey: "photo_teaching", tagKey: "tag_building" },
-  { id: 5, titleKey: "photo_sports",   tagKey: "tag_sports"   },
+  { id: 1, titleKey: "photo_square",   tagKey: "tag_square",   fileName: "Square.jpg"   },
+  { id: 2, titleKey: "photo_library",  tagKey: "tag_academic", fileName: "Academic.jpg" },
+  { id: 3, titleKey: "photo_path",     tagKey: "tag_nature",   fileName: "Nature.jpg"   },
+  { id: 4, titleKey: "photo_teaching", tagKey: "tag_building", fileName: "Building.jpg" },
+  { id: 5, titleKey: "photo_sports",   tagKey: "tag_sports",   fileName: "Sports.jpg"   },
 ];
 
 const campusMapHotspots = [
@@ -744,15 +744,11 @@ export function PicturesAndMapScreen() {
         <SectionLabel color={C.yellow} text={t("map_photos")} />
 
         <div style={{ position: "relative", borderRadius: "16px", overflow: "hidden", height: "192px", border: `2.5px solid ${C.navy}`, boxShadow: `4px 4px 0 ${C.navy}`, marginBottom: "10px" }}>
-          {/* Placeholder: replace with <img> when photo is ready */}
-          <div style={{ width: "100%", height: "100%", backgroundColor: "#FFFFFF", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="3" />
-              <circle cx="8.5" cy="8.5" r="1.5" />
-              <path d="M21 15l-5-5L5 21" />
-            </svg>
-            <span style={{ fontSize: "10px", fontWeight: 700, color: "#CBD5E1" }}>{t(photoDefs[cur].titleKey)}</span>
-          </div>
+          <img
+            src={`${import.meta.env.BASE_URL}${photoDefs[cur].fileName}`}
+            alt={t(photoDefs[cur].titleKey)}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+          />
           <div style={{ position: "absolute", top: "10px", left: "10px", backgroundColor: C.yellow, border: `2px solid ${C.navy}`, borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: 900, color: C.navy, boxShadow: `2px 2px 0 ${C.navy}` }}>
             {t(photoDefs[cur].tagKey)}
           </div>
@@ -771,12 +767,11 @@ export function PicturesAndMapScreen() {
         <div style={{ display: "flex", gap: "8px", marginBottom: "6px" }}>
           {photoDefs.map((p, i) => (
             <button key={p.id} onClick={() => setCur(i)} style={{ flex: 1, height: "48px", borderRadius: "10px", overflow: "hidden", border: i === cur ? `2.5px solid ${C.navy}` : `2px solid ${C.pale}`, opacity: i === cur ? 1 : 0.55, boxShadow: i === cur ? `2px 2px 0 ${C.navy}` : "none", cursor: "pointer", padding: 0, backgroundColor: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              {/* Placeholder thumbnail */}
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="3" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <path d="M21 15l-5-5L5 21" />
-              </svg>
+              <img
+                src={`${import.meta.env.BASE_URL}${p.fileName}`}
+                alt={t(p.titleKey)}
+                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              />
             </button>
           ))}
         </div>
