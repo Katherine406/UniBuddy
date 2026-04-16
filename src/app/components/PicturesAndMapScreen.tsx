@@ -28,7 +28,7 @@ const photoDefs = [
   { id: 2, titleKey: "photo_library",  tagKey: "tag_academic", fileName: "Academic.jpg" },
   { id: 3, titleKey: "photo_path",     tagKey: "tag_nature",   fileName: "Nature.jpg"   },
   { id: 4, titleKey: "photo_teaching", tagKey: "tag_building", fileName: "Building.jpg" },
-  { id: 5, titleKey: "photo_sports",   tagKey: "tag_sports",   fileName: "Sports.jpg"      },
+  { id: 5, titleKey: "photo_sports",   tagKey: "tag_sports",   fileName: "Sports.jpg"   },
 ];
 
 const campusMapHotspots = [
@@ -312,8 +312,8 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
   },
   cb: {
     type: "📍 地标建筑",
-    title: "中心楼",
-    subtitle: "中心楼",
+    title: "中央楼",
+    subtitle: "中央楼",
     desc: "校园核心功能区，汇集学习支持、职业发展与学生服务资源。",
     story: "图书馆楼层提供自习空间，楼内还有心理咨询、IT 帮助台、就业中心等服务。",
     tags: ["地标", "校园故事", "拍照点"],
@@ -762,7 +762,7 @@ export function PicturesAndMapScreen() {
         {/* ── Gallery ── */}
         <SectionLabel color={C.yellow} text={t("map_photos")} />
 
-        <div style={{ position: "relative", borderRadius: "16px", overflow: "hidden", height: "192px", border: `2.5px solid ${C.navy}`, boxShadow: `4px 4px 0 ${C.navy}`, marginBottom: "10px" }}>
+        <div style={{ position: "relative", borderRadius: "16px", overflow: "hidden", aspectRatio: "16 / 10", minHeight: "192px", border: `2.5px solid ${C.navy}`, boxShadow: `4px 4px 0 ${C.navy}`, marginBottom: "10px", backgroundColor: "#D8EEFF" }}>
           <img
             src={`${import.meta.env.BASE_URL}${photoDefs[cur].fileName}`}
             alt={t(photoDefs[cur].titleKey)}
@@ -782,7 +782,7 @@ export function PicturesAndMapScreen() {
         {/* Thumbnails */}
         <div style={{ display: "flex", gap: "8px", marginBottom: "6px" }}>
           {photoDefs.map((p, i) => (
-            <button key={p.id} onClick={() => setCur(i)} style={{ flex: 1, height: "48px", borderRadius: "10px", overflow: "hidden", border: i === cur ? `2.5px solid ${C.navy}` : `2px solid ${C.pale}`, opacity: i === cur ? 1 : 0.55, boxShadow: i === cur ? `2px 2px 0 ${C.navy}` : "none", cursor: "pointer", padding: 0, backgroundColor: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <button key={p.id} onClick={() => setCur(i)} style={{ flex: 1, aspectRatio: "5 / 3", minHeight: "48px", borderRadius: "10px", overflow: "hidden", border: i === cur ? `2.5px solid ${C.navy}` : `2px solid ${C.pale}`, opacity: i === cur ? 1 : 0.55, boxShadow: i === cur ? `2px 2px 0 ${C.navy}` : "none", cursor: "pointer", padding: 0, backgroundColor: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <img
                 src={`${import.meta.env.BASE_URL}${p.fileName}`}
                 alt={t(p.titleKey)}
@@ -893,7 +893,7 @@ export function PicturesAndMapScreen() {
                 ref={leafletHostRef}
                 style={{
                   width: "100%",
-                  height: "220px",
+                  height: "clamp(220px, 34vh, 320px)",
                   borderRadius: "12px",
                   border: `2px solid ${C.navy}`,
                   boxShadow: `3px 3px 0 ${C.navy}`,
