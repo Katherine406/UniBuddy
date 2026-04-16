@@ -20,18 +20,25 @@ export function SplashScreen() {
   ];
 
   return (
-    <div className="flex items-center justify-center min-h-screen" style={{ backgroundColor: "#A8D4FF" }}>
+    <div
+      className="min-h-screen w-full"
+      style={{
+        minHeight: "100dvh",
+        backgroundColor: "#A8D4FF",
+        paddingTop: "env(safe-area-inset-top)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+        paddingLeft: "env(safe-area-inset-left)",
+        paddingRight: "env(safe-area-inset-right)",
+      }}
+    >
       <div
         style={{
-          width: "390px",
-          height: "844px",
+          width: "100%",
+          minHeight: "100dvh",
           backgroundColor: "#DCF0FF",
           fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
           position: "relative",
           overflow: "hidden",
-          borderRadius: "36px",
-          border: "3px solid #0E1B4D",
-          boxShadow: "6px 6px 0px #0E1B4D",
           ...dotsBg,
         }}
       >
@@ -66,17 +73,6 @@ export function SplashScreen() {
         </div>
         <div style={{ position: "absolute", top: "260px", left: "50px" }}>
           <Burst size={28} color="#FFD93D" />
-        </div>
-
-        {/* ── Status bar ── */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 20, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 24px 0" }}>
-          <span style={{ fontSize: "15px", fontWeight: 800, color: "white" }}>9:41</span>
-          <div style={{ backgroundColor: "#0E1B4D", borderRadius: "20px", width: "118px", height: "34px" }} />
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <svg width="17" height="12" viewBox="0 0 17 12" fill="white"><rect x="0" y="4" width="3" height="8" rx="0.8" opacity="0.5" /><rect x="4.5" y="2.5" width="3" height="9.5" rx="0.8" opacity="0.7" /><rect x="9" y="1" width="3" height="11" rx="0.8" opacity="0.9" /><rect x="13.5" y="0" width="3" height="12" rx="0.8" /></svg>
-            <svg width="15" height="12" viewBox="0 0 15 12" fill="white"><path d="M7.5 2.4C9.8 2.4 11.9 3.4 13.3 5L14.8 3.4C13 1.3 10.4 0 7.5 0C4.6 0 2 1.3 0.2 3.4L1.7 5C3.1 3.4 5.2 2.4 7.5 2.4Z" /><path d="M7.5 5.5C9 5.5 10.3 6.1 11.3 7.1L12.8 5.5C11.4 4.1 9.5 3.2 7.5 3.2C5.5 3.2 3.6 4.1 2.2 5.5L3.7 7.1C4.7 6.1 6 5.5 7.5 5.5Z" /><circle cx="7.5" cy="10" r="1.8" /></svg>
-            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="white" strokeOpacity="0.5" /><rect x="2" y="2" width="16" height="8" rx="2" fill="white" /><path d="M23 4.5V7.5C23.8 7.2 24.5 6.4 24.5 6C24.5 5.6 23.8 4.8 23 4.5Z" fill="white" fillOpacity="0.4" /></svg>
-          </div>
         </div>
 
         {/* ── Big logo / campus emoji ── */}
@@ -213,10 +209,6 @@ export function SplashScreen() {
             ))}
           </div>
 
-          {/* Home indicator */}
-          <div style={{ display: "flex", justifyContent: "center", marginTop: "auto", paddingTop: "12px" }}>
-            <div style={{ width: "130px", height: "4px", backgroundColor: "#0E1B4D", borderRadius: "4px" }} />
-          </div>
         </div>
       </div>
     </div>
