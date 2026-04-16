@@ -64,7 +64,6 @@ interface CampusLocationInfo {
   story: string;
   tags: string[];
   bestFor: string;
-  time: string;
   access: string;
 }
 
@@ -77,7 +76,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "The LS building is divided into the north building and the south building. LSS is the south building and LSN is the north building.",
     tags: ["Lab", "North Campus", "Science"],
     bestFor: "STEM labs · research visits",
-    time: "5–8 min",
     access: "Verify lifts and ramps on site",
   },
   fb: {
@@ -88,7 +86,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "FB offers many small classrooms and open discussion areas. The ground floor also houses a convenience store and a Subway.",
     tags: ["Teaching", "Core Courses", "Landmark"],
     bestFor: "New students · core courses",
-    time: "5–10 min",
     access: "Verify lifts and ramps on site",
   },
   cb: {
@@ -99,7 +96,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "The library floors provide study desks, and the building includes key student services such as counselling, IT helpdesk, career center, and one-stop service.",
     tags: ["Iconic", "Campus Story", "Photo Spot"],
     bestFor: "All visitors · main story stop",
-    time: "8–12 min",
     access: "Lifts and ramps—verify on site",
   },
   sa: {
@@ -110,7 +106,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "For rooms on the first floor, the west entrance (facing CB) is more direct. The east entrance leads directly to elevators.",
     tags: ["Science", "Cluster A"],
     bestFor: "STEM classes",
-    time: "5–8 min",
     access: "Verify on site",
   },
   sb: {
@@ -121,7 +116,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "For first-floor rooms, the east entrance (facing North Foundation) is more direct. The west entrance leads to elevators.",
     tags: ["Science", "Cluster B"],
     bestFor: "Labs and seminars",
-    time: "5–8 min",
     access: "Verify on site",
   },
   sc: {
@@ -132,7 +126,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "For first-floor rooms, enter from the west side facing CB. The east entrance connects more directly to elevators.",
     tags: ["Science", "Cluster C"],
     bestFor: "Group work · study hops",
-    time: "5–8 min",
     access: "Verify on site",
   },
   sd: {
@@ -143,7 +136,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "For first-floor rooms, the east entrance (towards North Foundation) is usually easier. The west entrance leads to elevators.",
     tags: ["Science", "Cluster D"],
     bestFor: "Moving between clusters",
-    time: "5–8 min",
     access: "Verify on site",
   },
   pb: {
@@ -154,7 +146,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "The entrance is located on the east side, adjacent to the shop.",
     tags: ["Public", "Events", "Services"],
     bestFor: "Guests · event info",
-    time: "6–10 min",
     access: "Verify on site",
   },
   ma: {
@@ -165,7 +156,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "MA and MB are interconnected, allowing access to the other building from every floor.",
     tags: ["Math", "Academic"],
     bestFor: "Math and statistics",
-    time: "5–8 min",
     access: "Verify on site",
   },
   mb: {
@@ -176,7 +166,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "MA and MB are interconnected, allowing access to the other building from every floor.",
     tags: ["Math", "Academic"],
     bestFor: "Seminars · office hours",
-    time: "5–8 min",
     access: "Verify on site",
   },
   ee: {
@@ -187,7 +176,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "EE and EB are connected. Transit to the adjacent building is available on specific floors.",
     tags: ["EEE", "Lab", "Innovation"],
     bestFor: "Engineering visits · lab tours",
-    time: "8–12 min",
     access: "Lab areas may need booking—verify",
   },
   eb: {
@@ -198,7 +186,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "EE and EB are connected. Transit to the adjacent building is available on specific floors.",
     tags: ["Engineering", "Project-based"],
     bestFor: "Project studios · workshops",
-    time: "8–12 min",
     access: "Verify on site",
   },
   ir: {
@@ -209,7 +196,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "The entrance is located on the east-south side, near the right side of the underground passage.",
     tags: ["Research", "International"],
     bestFor: "Academic visits and activity discussions",
-    time: "6–10 min",
     access: "All floors",
   },
   ia: {
@@ -220,7 +206,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "The entrance is located on the west-south side, near the left side of the underground passage.",
     tags: ["Conference", "Bilingual", "Guests"],
     bestFor: "International visitor & conference reception",
-    time: "6–10 min",
     access: "All floors",
   },
   hs: {
@@ -231,7 +216,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "This area often hosts reading clubs and debate activities.",
     tags: ["Humanities", "Seminar", "Culture"],
     bestFor: "Humanities courses",
-    time: "6–10 min",
     access: "All floors",
   },
   es: {
@@ -242,7 +226,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "The entrance is located on the east-north side.",
     tags: ["Interdisciplinary", "Future"],
     bestFor: "Environmental and interdisciplinary majors",
-    time: "6–10 min",
     access: "All floors",
   },
   db: {
@@ -253,7 +236,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "The entrance is on the west-north side, behind HS.",
     tags: ["Design", "Studio", "Exhibition"],
     bestFor: "Design majors & exhibitions",
-    time: "8–14 min",
     access: "Studio areas follow department rules",
   },
   bs: {
@@ -264,7 +246,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "Main entrance is on the east side; north and south entries are also available.",
     tags: ["Business", "Case Study", "Career"],
     bestFor: "Business students & career exploration",
-    time: "8–12 min",
     access: "All floors",
   },
   as: {
@@ -275,7 +256,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "The entrance is located on the east-south side, behind IR.",
     tags: ["Media", "Creative", "Studio"],
     bestFor: "Film, TV, and creative courses",
-    time: "8–12 min",
     access: "Most floors open; some rooms may be closed",
   },
   gym: {
@@ -286,7 +266,6 @@ const campusLocationInfo: Record<string, CampusLocationInfo> = {
     story: "Entrances are available on both west and east sides.",
     tags: ["Sports", "Events", "Wellness"],
     bestFor: "Sports and event viewing",
-    time: "20–40 min",
     access: "By appointment",
   },
 };
@@ -300,7 +279,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "LS 由南北两栋组成，LSS 为南楼，LSN 为北楼。",
     tags: ["实验室", "北校区", "科学"],
     bestFor: "理工实验课 · 科研参访",
-    time: "5–8 分钟",
     access: "无障碍通行请以现场设施为准",
   },
   fb: {
@@ -311,7 +289,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "FB 内有大量小教室与开放讨论区，一层设有便利店与 Subway。",
     tags: ["教学", "基础课程", "地标"],
     bestFor: "新生 · 基础课",
-    time: "5–10 分钟",
     access: "无障碍通行请以现场设施为准",
   },
   cb: {
@@ -322,7 +299,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "图书馆楼层提供自习空间，楼内还有心理咨询、IT 帮助台、就业中心等服务。",
     tags: ["地标", "校园故事", "拍照点"],
     bestFor: "所有来访者 · 校园主线打卡",
-    time: "8–12 分钟",
     access: "设有电梯与坡道，细节以现场为准",
   },
   sa: {
@@ -333,7 +309,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "一层教室建议从西门（朝向 CB）进入更近，东门可直达电梯。",
     tags: ["理科", "A 组团"],
     bestFor: "理工课程",
-    time: "5–8 分钟",
     access: "通行信息请以现场为准",
   },
   sb: {
@@ -344,7 +319,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "去一层教室从东门（朝向北校区基础楼）更方便，西门更靠近电梯。",
     tags: ["理科", "B 组团"],
     bestFor: "实验课与研讨课",
-    time: "5–8 分钟",
     access: "通行信息请以现场为准",
   },
   sc: {
@@ -355,7 +329,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "一层教室建议从西侧（朝 CB）进入，东侧入口更靠近电梯。",
     tags: ["理科", "C 组团"],
     bestFor: "小组学习 · 教学穿梭",
-    time: "5–8 分钟",
     access: "通行信息请以现场为准",
   },
   sd: {
@@ -366,7 +339,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "一层教室通常从东门（朝北基础楼）更便捷，西门可到电梯。",
     tags: ["理科", "D 组团"],
     bestFor: "组团之间快速通行",
-    time: "5–8 分钟",
     access: "通行信息请以现场为准",
   },
   pb: {
@@ -377,7 +349,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "主要入口位于东侧，临近商店区域。",
     tags: ["公共", "活动", "服务"],
     bestFor: "访客 · 活动信息",
-    time: "6–10 分钟",
     access: "通行信息请以现场为准",
   },
   ma: {
@@ -388,7 +359,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "MA 与 MB 楼层互通，可在各层前往相邻楼栋。",
     tags: ["数学", "学术"],
     bestFor: "数学与统计课程",
-    time: "5–8 分钟",
     access: "通行信息请以现场为准",
   },
   mb: {
@@ -399,7 +369,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "MA 与 MB 楼层互通，可在各层前往相邻楼栋。",
     tags: ["数学", "学术"],
     bestFor: "研讨课 · 答疑时段",
-    time: "5–8 分钟",
     access: "通行信息请以现场为准",
   },
   ee: {
@@ -410,7 +379,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "EE 与 EB 在部分楼层连通，可在楼内换楼。",
     tags: ["电子电气", "实验", "创新"],
     bestFor: "工程参访 · 实验课",
-    time: "8–12 分钟",
     access: "部分实验区需预约，请以现场安排为准",
   },
   eb: {
@@ -421,7 +389,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "EE 与 EB 在部分楼层互通，可在楼内换楼。",
     tags: ["工程", "项目制"],
     bestFor: "项目课程 · 工作坊",
-    time: "8–12 分钟",
     access: "通行信息请以现场为准",
   },
   ir: {
@@ -432,7 +399,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "入口位于东南侧，靠近地下通道右侧。",
     tags: ["科研", "国际"],
     bestFor: "学术参访与交流",
-    time: "6–10 分钟",
     access: "全楼层可达",
   },
   ia: {
@@ -443,7 +409,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "入口位于西南侧，靠近地下通道左侧。",
     tags: ["会议", "双语", "接待"],
     bestFor: "国际访客与会议接待",
-    time: "6–10 分钟",
     access: "全楼层可达",
   },
   hs: {
@@ -454,7 +419,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "这里常举办读书会、辩论与人文活动。",
     tags: ["人文", "研讨", "文化"],
     bestFor: "人文社科课程",
-    time: "6–10 分钟",
     access: "全楼层可达",
   },
   es: {
@@ -465,7 +429,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "入口位于建筑东北侧。",
     tags: ["交叉学科", "未来方向"],
     bestFor: "环境与交叉学科专业",
-    time: "6–10 分钟",
     access: "全楼层可达",
   },
   db: {
@@ -476,7 +439,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "入口位于西北侧，靠近 HS 后方。",
     tags: ["设计", "工作室", "展览"],
     bestFor: "设计专业与作品展示",
-    time: "8–14 分钟",
     access: "工作室区域遵循院系管理规则",
   },
   bs: {
@@ -487,7 +449,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "主入口在东侧，北侧与南侧也可进入。",
     tags: ["商科", "案例教学", "职业发展"],
     bestFor: "商科学生 · 职业探索",
-    time: "8–12 分钟",
     access: "全楼层可达",
   },
   as: {
@@ -498,7 +459,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "入口位于东南侧，靠近 IR 后方。",
     tags: ["媒体", "创意", "工作室"],
     bestFor: "影视与创意课程",
-    time: "8–12 分钟",
     access: "大部分楼层开放，个别房间可能受限",
   },
   gym: {
@@ -509,7 +469,6 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
     story: "东西两侧均设有入口。",
     tags: ["运动", "活动", "健康"],
     bestFor: "运动锻炼与赛事观赛",
-    time: "20–40 分钟",
     access: "需预约",
   },
 };
@@ -876,11 +835,8 @@ export function PicturesAndMapScreen() {
               </div>
 
               <div style={{ marginTop: "8px", padding: "10px", borderRadius: "10px", backgroundColor: C.white, border: `2px solid ${C.navy}`, boxShadow: `2px 2px 0 ${C.pale}` }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <span style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898" }}>{activeLocation?.type ?? mapCopy.clickHint}</span>
-                  <span style={{ backgroundColor: C.ice, border: `1.5px solid ${C.navy}`, borderRadius: "999px", padding: "2px 8px", fontSize: "10px", fontWeight: 800, color: C.navy }}>
-                    {activeLocation?.time ?? "-"}
-                  </span>
                 </div>
                 <p style={{ marginTop: "5px", fontSize: "14px", fontWeight: 900, color: C.navy }}>
                   {activeLocation?.title ?? mapCopy.notReady}
