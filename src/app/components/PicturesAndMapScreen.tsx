@@ -401,6 +401,16 @@ export function PicturesAndMapScreen() {
     setLocationStatus(message);
   };
 
+  const destroyLeafletMap = () => {
+    if (leafletMapRef.current) {
+      leafletMapRef.current.remove();
+      leafletMapRef.current = null;
+    }
+    userMarkerRef.current = null;
+    accuracyCircleRef.current = null;
+    leafletHostRef.current = null;
+  };
+
   const resetLiveMapView = () => {
     const map = ensureLeafletMap();
     if (!map) return;
@@ -483,6 +493,7 @@ export function PicturesAndMapScreen() {
       }
     } else {
       stopTracking(mapCopy.switchedBack);
+      destroyLeafletMap();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapTab, mapCopy.switchedBack]);
@@ -490,10 +501,7 @@ export function PicturesAndMapScreen() {
   useEffect(() => {
     return () => {
       stopTracking(mapCopy.stopLocating);
-      if (leafletMapRef.current) {
-        leafletMapRef.current.remove();
-        leafletMapRef.current = null;
-      }
+      destroyLeafletMap();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -609,7 +617,7 @@ export function PicturesAndMapScreen() {
 
         <ComicCard style={{ overflow: "hidden", position: "relative", backgroundColor: C.ice, marginBottom: "18px", padding: "10px" }}>
           {mapTab === "map" ? (
-            <div>
+            <div key="campus-map-tab">
               <div style={{ position: "relative", borderRadius: "12px", overflow: "hidden", border: `2px solid ${C.navy}`, boxShadow: `3px 3px 0 ${C.navy}`, backgroundColor: "#E8EEF6" }}>
                 <img src={`${import.meta.env.BASE_URL}campus-map.jpg`} alt="XJTLU campus map" style={{ width: "100%", height: "auto", display: "block" }} />
                 {campusMapHotspots.map((pin) => (
@@ -688,7 +696,7 @@ export function PicturesAndMapScreen() {
               </div>
             </div>
           ) : (
-            <div>
+            <div key="live-map-tab">
               <div
                 ref={leafletHostRef}
                 style={{
