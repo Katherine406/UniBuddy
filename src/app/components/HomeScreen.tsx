@@ -81,7 +81,7 @@ export function HomeScreen() {
   const [activePerspective, setActivePerspective] = useState<SchoolPerspective>("freshman");
   const [userComments, setUserComments] = useState<UserSchoolComment[]>([]);
   const [draftText, setDraftText] = useState("");
-  const [isCommentsExpanded, setIsCommentsExpanded] = useState(true);
+  const [isCommentsExpanded, setIsCommentsExpanded] = useState(false);
 
   useEffect(() => {
     try {
@@ -214,13 +214,33 @@ export function HomeScreen() {
             </div>
           </ComicCard>
 
+        <SectionLabel color={C.yellow} text={t("home_nav")} icon={<IconSparkle size={18} />} />
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "18px" }}>
+          {navCardDefs.map((card) => (
+            <button
+              key={card.id}
+              onClick={() => navigate(card.path)}
+              style={{ backgroundColor: card.bg, border: `2.5px solid ${C.navy}`, borderRadius: "16px", boxShadow: `4px 4px 0 ${C.navy}`, padding: "14px 12px", textAlign: "left", cursor: "pointer", display: "flex", flexDirection: "column", gap: "6px", minHeight: "108px" }}
+              onMouseDown={(e) => (e.currentTarget.style.transform = "translate(2px,2px)")}
+              onMouseUp={(e) => (e.currentTarget.style.transform = "translate(0,0)")}
+            >
+              <div style={{ display: "inline-block", backgroundColor: card.tagBg, border: `1.5px solid ${C.navy}`, borderRadius: "6px", padding: "1px 7px", fontSize: "10px", fontWeight: 900, color: C.white, letterSpacing: "0.5px", alignSelf: "flex-start" }}>
+                {card.tag}
+              </div>
+              <span style={{ fontSize: "30px" }}>{card.emoji}</span>
+              <span style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>{t(card.labelKey)}</span>
+            </button>
+          ))}
+        </div>
+
         <SectionLabel
           color={C.yellow}
           text={lang === "zh" ? "学校评论（全校视角）" : "School Comments (All Campus)"}
           icon={<IconBell size={18} />}
         />
 
-        <ComicCard style={{ padding: "14px", backgroundColor: C.white, marginBottom: "18px" }}>
+        <ComicCard style={{ padding: "14px", backgroundColor: "#F1EEFF", marginBottom: "18px" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "10px", marginBottom: "10px" }}>
             <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
               <span style={{ fontSize: "22px", lineHeight: 1, marginTop: "2px" }}>💬</span>
@@ -411,26 +431,6 @@ export function HomeScreen() {
             </>
           )}
         </ComicCard>
-
-        <SectionLabel color={C.yellow} text={t("home_nav")} icon={<IconSparkle size={18} />} />
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "18px" }}>
-          {navCardDefs.map((card) => (
-            <button
-              key={card.id}
-              onClick={() => navigate(card.path)}
-              style={{ backgroundColor: card.bg, border: `2.5px solid ${C.navy}`, borderRadius: "16px", boxShadow: `4px 4px 0 ${C.navy}`, padding: "14px 12px", textAlign: "left", cursor: "pointer", display: "flex", flexDirection: "column", gap: "6px", minHeight: "108px" }}
-              onMouseDown={(e) => (e.currentTarget.style.transform = "translate(2px,2px)")}
-              onMouseUp={(e) => (e.currentTarget.style.transform = "translate(0,0)")}
-            >
-              <div style={{ display: "inline-block", backgroundColor: card.tagBg, border: `1.5px solid ${C.navy}`, borderRadius: "6px", padding: "1px 7px", fontSize: "10px", fontWeight: 900, color: C.white, letterSpacing: "0.5px", alignSelf: "flex-start" }}>
-                {card.tag}
-              </div>
-              <span style={{ fontSize: "30px" }}>{card.emoji}</span>
-              <span style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>{t(card.labelKey)}</span>
-            </button>
-          ))}
-        </div>
 
         <SectionLabel color={C.sky} text={t("home_stamp_section")} icon={<IconStamp size={18} filled />} />
 
