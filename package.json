@@ -67,7 +67,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-leaflet": "^4.2.1",
-    "leaflet-routing-machine": "^3.2.12"
+    "leaflet-routing-machine": "3.2.12"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.1.12",
