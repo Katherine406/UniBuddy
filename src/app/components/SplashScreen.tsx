@@ -21,7 +21,7 @@ export function SplashScreen() {
 
   return (
     <div
-      className="min-h-screen w-full"
+      className="flex min-h-screen w-full justify-center"
       style={{
         minHeight: "100dvh",
         backgroundColor: "#A8D4FF",
@@ -34,11 +34,15 @@ export function SplashScreen() {
       <div
         style={{
           width: "100%",
+          maxWidth: "560px",
           minHeight: "100dvh",
           backgroundColor: "#DCF0FF",
           fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
           position: "relative",
           overflow: "hidden",
+          borderRadius: "clamp(0px, 2vw, 28px)",
+          border: "3px solid #0E1B4D",
+          boxShadow: "0 18px 40px rgba(14, 27, 77, 0.18)",
           ...dotsBg,
         }}
       >
@@ -49,7 +53,7 @@ export function SplashScreen() {
             top: 0,
             left: 0,
             right: 0,
-            height: "420px",
+            height: "clamp(320px, 42vh, 420px)",
             backgroundColor: "#2350D8",
             borderBottom: "3px solid #0E1B4D",
             overflow: "hidden",
@@ -79,8 +83,8 @@ export function SplashScreen() {
         <div style={{ position: "absolute", top: "95px", left: "50%", transform: "translateX(-50%)", zIndex: 10, textAlign: "center" }}>
           <div
             style={{
-              width: "130px",
-              height: "130px",
+              width: "clamp(112px, 24vw, 130px)",
+              height: "clamp(112px, 24vw, 130px)",
               backgroundColor: "#FFFBF0",
               border: "3px solid #0E1B4D",
               borderRadius: "32px",
@@ -88,7 +92,7 @@ export function SplashScreen() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: "72px",
+              fontSize: "clamp(56px, 12vw, 72px)",
               margin: "0 auto",
             }}
           >🎓</div>
@@ -101,12 +105,12 @@ export function SplashScreen() {
             bottom: 0,
             left: 0,
             right: 0,
-            height: "440px",
+            height: "clamp(400px, 46vh, 460px)",
             backgroundColor: "#FFFBF0",
             borderTop: "3px solid #0E1B4D",
             borderTopLeftRadius: "32px",
             borderTopRightRadius: "32px",
-            padding: "40px 28px 28px",
+            padding: "clamp(32px, 5vw, 40px) clamp(20px, 5vw, 28px) 28px",
             display: "flex",
             flexDirection: "column",
           }}
@@ -134,7 +138,7 @@ export function SplashScreen() {
           <div style={{ marginBottom: "8px" }}>
             <span
               style={{
-                fontSize: "58px",
+                fontSize: "clamp(44px, 10vw, 58px)",
                 fontWeight: 900,
                 letterSpacing: "-2.2px",
                 lineHeight: 1,
