@@ -28,7 +28,7 @@ const photoDefs = [
   { id: 2, titleKey: "photo_library",  tagKey: "tag_academic", fileName: "Academic.jpg" },
   { id: 3, titleKey: "photo_path",     tagKey: "tag_nature",   fileName: "Nature.jpg"   },
   { id: 4, titleKey: "photo_teaching", tagKey: "tag_building", fileName: "Building.jpg" },
-  { id: 5, titleKey: "photo_sports",   tagKey: "tag_sports",   fileName: "Gym.jpg"      },
+  { id: 5, titleKey: "photo_sports",   tagKey: "tag_sports",   fileName: "Sports.jpg"      },
 ];
 
 const campusMapHotspots = [
