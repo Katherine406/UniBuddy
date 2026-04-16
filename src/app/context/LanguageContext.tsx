@@ -172,10 +172,10 @@ const zh: Texts = {
   mystery_note_overnight: "夜间学习可优先此点位",
   nav_start_pt: "出发点",
   // Photo tags
-  tag_square: "name1", tag_academic: "name2", tag_nature: "name3", tag_building: "name4", tag_sports: "name5",
+  tag_square: "广场", tag_academic: "学术", tag_nature: "自然", tag_building: "建筑", tag_sports: "体育馆",
   // Photo titles
-  photo_square: "photo1", photo_library: "photo2", photo_path: "photo3",
-  photo_teaching: "photo4", photo_sports: "photo5",
+  photo_square: "Square", photo_library: "Academic", photo_path: "Nature",
+  photo_teaching: "Building", photo_sports: "Gym",
   // Map pins
   pin_library: "图书馆", pin_square: "广场", pin_teaching: "教学楼",
   pin_canteen: "食堂", pin_gym: "体育馆",
@@ -368,9 +368,9 @@ const en: Texts = {
   mystery_note_add_more: "Add more stops by blossom condition",
   mystery_note_overnight: "Recommended for late-night study",
   nav_start_pt: "Starting point",
-  tag_square: "Square", tag_academic: "Academic", tag_nature: "Nature", tag_building: "Building", tag_sports: "Sports",
-  photo_square: "Square", photo_library: "Library", photo_path: "Campus Path",
-  photo_teaching: "Teaching Bldg", photo_sports: "Sports Field",
+  tag_square: "Square", tag_academic: "Academic", tag_nature: "Nature", tag_building: "Building", tag_sports: "Gym",
+  photo_square: "Square", photo_library: "Academic", photo_path: "Nature",
+  photo_teaching: "Building", photo_sports: "Gym",
   pin_library: "Library", pin_square: "Square", pin_teaching: "Teaching Bldg",
   pin_canteen: "Canteen", pin_gym: "Gymnasium",
   cl_sa: "Science Bldg A (SA)", cl_sb: "Science Bldg B (SB)", cl_cb: "Central Bldg (CB)",
