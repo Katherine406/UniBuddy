@@ -81,6 +81,7 @@ export function HomeScreen() {
   const [activePerspective, setActivePerspective] = useState<SchoolPerspective>("freshman");
   const [userComments, setUserComments] = useState<UserSchoolComment[]>([]);
   const [draftText, setDraftText] = useState("");
+  const [isCommentsExpanded, setIsCommentsExpanded] = useState(true);
 
   useEffect(() => {
     try {
@@ -232,162 +233,186 @@ export function HomeScreen() {
                 </p>
               </div>
             </div>
-          </div>
-
-          <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
             <button
               type="button"
-              onClick={() => setActivePerspective("freshman")}
+              onClick={() => setIsCommentsExpanded((prev) => !prev)}
               style={{
-                flex: 1,
-                height: "36px",
-                borderRadius: "12px",
-                cursor: "pointer",
-                backgroundColor: activePerspective === "freshman" ? C.royal : C.white,
-                color: activePerspective === "freshman" ? C.white : "#4B6898",
+                flexShrink: 0,
+                minWidth: "74px",
+                height: "32px",
+                padding: "0 10px",
+                borderRadius: "10px",
+                backgroundColor: C.ice,
                 border: `2px solid ${C.navy}`,
-                boxShadow: activePerspective === "freshman" ? `3px 3px 0 ${C.navy}` : `2px 2px 0 ${C.pale}`,
-                fontSize: "12px",
-                fontWeight: 900,
-              }}
-            >
-              🌱 {lang === "zh" ? "新生视角" : "Freshman"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setActivePerspective("visitor")}
-              style={{
-                flex: 1,
-                height: "36px",
-                borderRadius: "12px",
-                cursor: "pointer",
-                backgroundColor: activePerspective === "visitor" ? C.royal : C.white,
-                color: activePerspective === "visitor" ? C.white : "#4B6898",
-                border: `2px solid ${C.navy}`,
-                boxShadow: activePerspective === "visitor" ? `3px 3px 0 ${C.navy}` : `2px 2px 0 ${C.pale}`,
-                fontSize: "12px",
-                fontWeight: 900,
-              }}
-            >
-              🌍 {lang === "zh" ? "外来访客视角" : "Visitor"}
-            </button>
-          </div>
-
-          <div style={{ backgroundColor: "#F8FCFF", border: `1.5px solid ${C.pale}`, borderRadius: "14px", padding: "10px", marginBottom: "12px" }}>
-            <textarea
-              value={draftText}
-              onChange={(e) => setDraftText(e.target.value)}
-              rows={3}
-              placeholder={lang === "zh" ? "写下你的看法（按上方视角发布）" : "Write your thoughts (post under the selected perspective)"}
-              style={{
-                width: "100%",
-                backgroundColor: C.white,
-                border: `2.5px solid ${C.navy}`,
-                borderRadius: "12px",
-                padding: "10px 10px",
-                fontSize: "13px",
-                fontWeight: 600,
+                boxShadow: `2px 2px 0 ${C.navy}`,
                 color: C.navy,
-                outline: "none",
-                resize: "none",
-                boxSizing: "border-box",
+                fontSize: "11px",
+                fontWeight: 900,
+                cursor: "pointer",
               }}
-            />
-
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "10px", gap: "10px" }}>
-              <p style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898", margin: 0 }}>
-                {lang === "zh" ? "发布后会展示在该视角下" : "Your comment will appear under this perspective"}
-              </p>
-              <button
-                type="button"
-                onClick={handlePostComment}
-                disabled={!draftText.trim()}
-                style={{
-                  height: "34px",
-                  padding: "0 14px",
-                  borderRadius: "12px",
-                  cursor: !draftText.trim() ? "not-allowed" : "pointer",
-                  backgroundColor: !draftText.trim() ? "#B7C7E9" : C.royal,
-                  border: `2px solid ${C.navy}`,
-                  boxShadow: !draftText.trim() ? "none" : `2px 2px 0 ${C.navy}`,
-                  color: C.white,
-                  fontSize: "12px",
-                  fontWeight: 900,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {lang === "zh" ? "发布" : "Post"}
-              </button>
-            </div>
+            >
+              {isCommentsExpanded
+                ? (lang === "zh" ? "收起" : "Collapse")
+                : (lang === "zh" ? "展开" : "Expand")}
+            </button>
           </div>
 
-          <div style={{ borderTop: `2px solid ${C.pale}`, paddingTop: "10px" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {(["freshman", "visitor"] as const).map((p) => {
-                const systemList = SYSTEM_SCHOOL_COMMENTS[p];
-                const userList = p === "freshman" ? userCommentsForFreshman : userCommentsForVisitor;
-                const titleZh = p === "freshman" ? "新生视角" : "外来访客视角";
-                const titleEn = p === "freshman" ? "Freshman" : "Visitor";
-                return (
-                  <div
-                    key={p}
+          {isCommentsExpanded && (
+            <>
+              <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
+                <button
+                  type="button"
+                  onClick={() => setActivePerspective("freshman")}
+                  style={{
+                    flex: 1,
+                    height: "36px",
+                    borderRadius: "12px",
+                    cursor: "pointer",
+                    backgroundColor: activePerspective === "freshman" ? C.royal : C.white,
+                    color: activePerspective === "freshman" ? C.white : "#4B6898",
+                    border: `2px solid ${C.navy}`,
+                    boxShadow: activePerspective === "freshman" ? `3px 3px 0 ${C.navy}` : `2px 2px 0 ${C.pale}`,
+                    fontSize: "12px",
+                    fontWeight: 900,
+                  }}
+                >
+                  🌱 {lang === "zh" ? "新生视角" : "Freshman"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActivePerspective("visitor")}
+                  style={{
+                    flex: 1,
+                    height: "36px",
+                    borderRadius: "12px",
+                    cursor: "pointer",
+                    backgroundColor: activePerspective === "visitor" ? C.royal : C.white,
+                    color: activePerspective === "visitor" ? C.white : "#4B6898",
+                    border: `2px solid ${C.navy}`,
+                    boxShadow: activePerspective === "visitor" ? `3px 3px 0 ${C.navy}` : `2px 2px 0 ${C.pale}`,
+                    fontSize: "12px",
+                    fontWeight: 900,
+                  }}
+                >
+                  🌍 {lang === "zh" ? "外来访客视角" : "Visitor"}
+                </button>
+              </div>
+
+              <div style={{ backgroundColor: "#F8FCFF", border: `1.5px solid ${C.pale}`, borderRadius: "14px", padding: "10px", marginBottom: "12px" }}>
+                <textarea
+                  value={draftText}
+                  onChange={(e) => setDraftText(e.target.value)}
+                  rows={3}
+                  placeholder={lang === "zh" ? "写下你的看法（按上方视角发布）" : "Write your thoughts (post under the selected perspective)"}
+                  style={{
+                    width: "100%",
+                    backgroundColor: C.white,
+                    border: `2.5px solid ${C.navy}`,
+                    borderRadius: "12px",
+                    padding: "10px 10px",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    color: C.navy,
+                    outline: "none",
+                    resize: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "10px", gap: "10px" }}>
+                  <p style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898", margin: 0 }}>
+                    {lang === "zh" ? "发布后会展示在该视角下" : "Your comment will appear under this perspective"}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handlePostComment}
+                    disabled={!draftText.trim()}
                     style={{
-                      backgroundColor: "#F8FCFF",
-                      border: `1.5px solid ${C.pale}`,
-                      borderRadius: "14px",
-                      padding: "10px",
+                      height: "34px",
+                      padding: "0 14px",
+                      borderRadius: "12px",
+                      cursor: !draftText.trim() ? "not-allowed" : "pointer",
+                      backgroundColor: !draftText.trim() ? "#B7C7E9" : C.royal,
+                      border: `2px solid ${C.navy}`,
+                      boxShadow: !draftText.trim() ? "none" : `2px 2px 0 ${C.navy}`,
+                      color: C.white,
+                      fontSize: "12px",
+                      fontWeight: 900,
+                      whiteSpace: "nowrap",
                     }}
                   >
-                    <p style={{ fontSize: "12px", fontWeight: 900, color: C.navy, marginBottom: "8px" }}>
-                      {p === "freshman" ? "🌱" : "🌍"} {lang === "zh" ? titleZh : titleEn}
-                    </p>
+                    {lang === "zh" ? "发布" : "Post"}
+                  </button>
+                </div>
+              </div>
 
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "160px", overflowY: "auto", paddingRight: "4px" }}>
-                      <p style={{ fontSize: "11px", fontWeight: 900, color: "#4B6898", marginBottom: "-2px" }}>
-                        {lang === "zh" ? "系统评论" : "System comments"}
-                      </p>
-                      {systemList.map((c, idx) => (
-                        <div
-                          key={`sys-${p}-${idx}`}
-                          style={{ backgroundColor: C.ice, border: `1.5px solid ${C.pale}`, borderRadius: "12px", padding: "10px" }}
-                        >
-                          <p style={{ fontSize: "12px", fontWeight: 900, color: C.navy, marginBottom: "4px" }}>
-                            {lang === "zh" ? c.zh : c.en}
+              <div style={{ borderTop: `2px solid ${C.pale}`, paddingTop: "10px" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                  {(["freshman", "visitor"] as const).map((p) => {
+                    const systemList = SYSTEM_SCHOOL_COMMENTS[p];
+                    const allUserList = p === "freshman" ? userCommentsForFreshman : userCommentsForVisitor;
+                    const userList = allUserList.filter((c) => c.textLang === lang);
+                    const titleZh = p === "freshman" ? "新生视角" : "外来访客视角";
+                    const titleEn = p === "freshman" ? "Freshman" : "Visitor";
+                    return (
+                      <div
+                        key={p}
+                        style={{
+                          backgroundColor: "#F8FCFF",
+                          border: `1.5px solid ${C.pale}`,
+                          borderRadius: "14px",
+                          padding: "10px",
+                        }}
+                      >
+                        <p style={{ fontSize: "12px", fontWeight: 900, color: C.navy, marginBottom: "8px" }}>
+                          {p === "freshman" ? "🌱" : "🌍"} {lang === "zh" ? titleZh : titleEn}
+                        </p>
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "160px", overflowY: "auto", paddingRight: "4px" }}>
+                          <p style={{ fontSize: "11px", fontWeight: 900, color: "#4B6898", marginBottom: "-2px" }}>
+                            {lang === "zh" ? "系统评论" : "System comments"}
                           </p>
-                          <p style={{ fontSize: "11px", fontWeight: 700, color: "#4B6898", marginBottom: 0 }}>
-                            {lang === "zh" ? c.en : c.zh}
+                          {systemList.map((c, idx) => (
+                            <div
+                              key={`sys-${p}-${idx}`}
+                              style={{ backgroundColor: C.ice, border: `1.5px solid ${C.pale}`, borderRadius: "12px", padding: "10px" }}
+                            >
+                              <p style={{ fontSize: "12px", fontWeight: 900, color: C.navy, marginBottom: 0 }}>
+                                {lang === "zh" ? c.zh : c.en}
+                              </p>
+                            </div>
+                          ))}
+
+                          <p style={{ fontSize: "11px", fontWeight: 900, color: "#4B6898", marginTop: "2px", marginBottom: "-2px" }}>
+                            {lang === "zh" ? `你的评论（${userList.length}）` : `Your notes (${userList.length})`}
                           </p>
+
+                          {userList.length === 0 ? (
+                            <div style={{ backgroundColor: C.cream, border: `1.5px dashed ${C.pale}`, borderRadius: "12px", padding: "10px" }}>
+                              <p style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898", marginBottom: 0 }}>
+                                {lang === "zh" ? "当前语言下还没有评论，快来补充吧！" : "No comments in this language yet—be the first to add one."}
+                              </p>
+                            </div>
+                          ) : (
+                            userList.map((c) => (
+                              <div key={c.id} style={{ backgroundColor: "#FFF0F0", border: `1.5px solid ${C.coral}`, borderRadius: "12px", padding: "10px" }}>
+                                <p style={{ fontSize: "12px", fontWeight: 900, color: C.navy, marginBottom: "4px" }}>
+                                  {c.text}
+                                </p>
+                                <p style={{ fontSize: "11px", fontWeight: 700, color: "#4B6898", marginBottom: 0 }}>
+                                  {formatCommentTime(c.createdAt)}
+                                </p>
+                              </div>
+                            ))
+                          )}
                         </div>
-                      ))}
-
-                      <p style={{ fontSize: "11px", fontWeight: 900, color: "#4B6898", marginTop: "2px", marginBottom: "-2px" }}>
-                        {lang === "zh" ? `你的评论（${userList.length}）` : `Your notes (${userList.length})`}
-                      </p>
-
-                      {userList.length === 0 ? (
-                        <div style={{ backgroundColor: C.cream, border: `1.5px dashed ${C.pale}`, borderRadius: "12px", padding: "10px" }}>
-                          <p style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898", marginBottom: 0 }}>
-                            {lang === "zh" ? "还没有人发言，快来补充吧！" : "No notes yet—be the first to add one."}
-                          </p>
-                        </div>
-                      ) : (
-                        userList.map((c) => (
-                          <div key={c.id} style={{ backgroundColor: "#FFF0F0", border: `1.5px solid ${C.coral}`, borderRadius: "12px", padding: "10px" }}>
-                            <p style={{ fontSize: "12px", fontWeight: 900, color: C.navy, marginBottom: "4px" }}>
-                              {c.textLang === lang ? c.text : `${lang === "zh" ? "原文" : "Original"}: ${c.text}`}
-                            </p>
-                            <p style={{ fontSize: "11px", fontWeight: 700, color: "#4B6898", marginBottom: 0 }}>
-                              {c.textLang === "zh" ? "中文" : "EN"} · {formatCommentTime(c.createdAt)}
-                            </p>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
         </ComicCard>
 
         <SectionLabel color={C.yellow} text={t("home_nav")} icon={<IconSparkle size={18} />} />
