@@ -1,75 +1,76 @@
 # Clickable Interface Design (UniBuddy)
 
-An interactive prototype project for the XJTLU campus tour scenario, built on React + Vite.
-The project includes core functions such as campus maps, route exploration, blind box routes, custom routes, stamp collection and collection, etc. It is suitable for course presentation, interaction design demonstration and front-end prototype development.
+一个面向 **XJTLU 校园导览** 场景的可交互原型项目，基于 React + Vite 构建。  
+项目包含校园地图、路线探索、盲盒路线、自定义路线、集章与收藏等核心功能，适合用于课程展示、交互设计演示和前端原型开发。
 
-"Online design draft.
+## 在线设计稿
 
 - Figma: [Clickable-Interface-Design](https://www.figma.com/design/RLCy2VrVRj7BbKKFs5JFEj/Clickable-Interface-Design)
 
-## Feature Highlights
+## 功能亮点
 
-- ** Immersive Startup Page ** : The brand's first screen and guiding entry in a cartoonish style
-- ** Campus Homepage Navigation ** : Quickly access picture maps, route exploration, blind box routes, and custom routes
-- ** Classroom Search and Navigation Information ** : Supports searching by classroom number/building and viewing walking and floor guidance
-- ** Route Exploration System ** : Includes recommended routes, blind box routes (generated based on mood), and custom routes (multi-point planning)
-- ** Personal Center Capabilities ** : Route collection, check-in stamp collection, photo recording and progress display
-- ** Bilingual Chinese and English text ** : Built-in 'zh/en' copywriting resources for convenient international expansion
+- **沉浸式启动页**：卡通化风格的品牌首屏与引导入口
+- **校园主页导航**：快速进入图片地图、路线探索、盲盒路线、自定义路线
+- **教室搜索与导航信息**：支持按教室号/楼栋检索并查看步行与楼层指引
+- **路线探索系统**：包含推荐路线、盲盒路线（按心情生成）、自定义路线（多点规划）
+- **个人中心能力**：路线收藏、打卡集章、拍照记录与进度展示
+- **中英双语文本**：内置 `zh/en` 文案资源，方便国际化扩展
 
-## Technology Stack
+## 技术栈
 
-- ** Framework ** : React 18
-- "Build Tool" : Vite 6
-- ** Routing ** : React Router 7
-- ** Style ** : Tailwind CSS 4 + Custom CSS
-- ** Component Ecosystem ** : Radix UI, MUI, Lucide, Recharts, etc
+- **框架**：React 18
+- **构建工具**：Vite 6
+- **路由**：React Router 7
+- **样式**：Tailwind CSS 4 + 自定义 CSS
+- **组件生态**：Radix UI、MUI、Lucide、Recharts 等
 
-Get started quickly
+## 快速开始
 
-1) Install dependencies
+### 1) 安装依赖
 
 ```bash
 npm install
-` ` `
+```
 
-2) Start the development environment
+### 2) 启动开发环境
 
 ```bash
 npm run dev
-` ` `
+```
 
-3) Package the production version
+### 3) 打包生产版本
 
 ```bash
 npm run build
-` ` `
+```
 
-Project structure
+## 项目结构
 
 ```text
 Clickable_Interface_Design/
 ├─ src/
 │  ├─ app/
-│ │ ├─ components/ # Pages and common components
-│ │ ├─ context/ # Global State (Collection, language, camera, etc.)
-│ │ ├─ data/ # Campus/classroom and other static data
+│  │  ├─ components/      # 页面与通用组件
+│  │  ├─ context/         # 全局状态（收藏、语言、相机等）
+│  │  ├─ data/            # 校园/教室等静态数据
 │  │  ├─ App.tsx
-│ │ └─ routes.tsx # Route configuration
-│ ├─ styles/ # Global Styles and Themes
-│ └─ main.tsx # Application entry
+│  │  └─ routes.tsx       # 路由配置
+│  ├─ styles/             # 全局样式与主题
+│  └─ main.tsx            # 应用入口
 ├─ index.html
 ├─ package.json
 └─ vite.config.ts
-` ` `
+```
 
-## Scalable directions
+## 可扩展方向
 
-- Access real map API and real-time positioning (GPS) capabilities
-- Path planning algorithm upgrade (Obstacle avoidance, accessibility priority, congestion avoidance)
-Log in to the system and synchronize with the cloud (collection, check-in, photos)
-Replace the mock data with the backend service interface
+- 接入真实地图 API 与实时定位（GPS）能力
+- 路径规划算法升级（避障、无障碍优先、拥挤度避让）
+- 登录系统与云端同步（收藏、打卡、照片）
+- 将 mock 数据替换为后端服务接口
 
-"License"
+## 许可证
 
-The current repository does not declare an open source license.
-If you plan to distribute it publicly, it is recommended to supplement the 'LICENSE' file (such as MIT).
+当前仓库未声明开源许可证。  
+如果你计划公开分发，建议补充 `LICENSE` 文件（如 MIT）。
+  
