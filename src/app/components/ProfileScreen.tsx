@@ -243,7 +243,7 @@ export function ProfileScreen() {
       </div>
 
       {/* ── Content ── */}
-      <div className="flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: "120px" }}>
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: "28px" }}>
 
         {/* ── STAMPS TAB ── */}
         {activeTab === "stamps" && (
