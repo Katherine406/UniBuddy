@@ -87,28 +87,6 @@ function clampMapCenter(v: number, zoom: number) {
   return Math.min(100 - edge, Math.max(edge, v));
 }
 
-const demoRouteBuildingIds = ["fb", "cb", "sa", "sb", "sc", "sd"] as const;
-type DemoRouteBuildingId = (typeof demoRouteBuildingIds)[number];
-
-const demoRouteBuildingLabels: Record<DemoRouteBuildingId, string> = {
-  fb: "FB",
-  cb: "CB",
-  sa: "SA",
-  sb: "SB",
-  sc: "SC",
-  sd: "SD",
-};
-
-const demoRouteTargetIds = new Set<DemoRouteBuildingId>(["fb", "sa", "sb", "sc", "sd"]);
-
-function getDemoRouteTargetId(buildingCode: string): DemoRouteBuildingId | null {
-  const normalized = routePointAlias[buildingCode] ?? buildingCode;
-  if (normalized === "cb") return "cb";
-  return demoRouteTargetIds.has(normalized as DemoRouteBuildingId)
-    ? (normalized as DemoRouteBuildingId)
-    : null;
-}
-
 type MapTabKey = "map" | "live";
 type CampusConvenienceItem = { titleKey: string; icon: string; locationsKey: string };
 
@@ -1064,25 +1042,23 @@ export function PicturesAndMapScreen() {
             const locale = getLocale(selected);
             const destinationCode = extractBuildingCode(locale.building);
             const routeStart = getRouteMapPointByCode("cb") ?? { id: "cb", x: 42, y: 56 };
-            const demoRoutePins = demoRouteBuildingIds
-              .map((id) => {
-                const point = getRouteMapPointByCode(id);
-                if (!point) return null;
-                return { id, ...point };
-              })
-              .filter((pin): pin is { id: DemoRouteBuildingId; x: number; y: number } => pin !== null);
-            const targetId = getDemoRouteTargetId(destinationCode);
-            const routeEnd = targetId ? getRouteMapPointByCode(targetId) ?? routeStart : routeStart;
+            const routeEnd = getRouteMapPointByCode(destinationCode) ?? routeStart;
             const linePoints =
-              targetId && targetId !== "cb" && Math.abs(routeStart.y - routeEnd.y) > 1.5
+              routeEnd.id !== routeStart.id && Math.abs(routeStart.y - routeEnd.y) > 1.5
                 ? [routeStart, { id: "mid", x: routeEnd.x, y: routeStart.y }, routeEnd]
                 : [routeStart, routeEnd];
-            const mapZoom = 3.15;
-            const clampedCenterX = clampMapCenter(51, mapZoom);
-            const clampedCenterY = clampMapCenter(53, mapZoom);
+            const dx = routeEnd.x - routeStart.x;
+            const dy = routeEnd.y - routeStart.y;
+            const centerX = (routeStart.x + routeEnd.x) / 2;
+            const centerY = (routeStart.y + routeEnd.y) / 2;
+            const routeSpread = Math.abs(dx) + Math.abs(dy);
+            const mapZoom = Math.max(2.2, Math.min(3.1, 2.95 - routeSpread / 24));
+            const clampedCenterX = clampMapCenter(centerX, mapZoom);
+            const clampedCenterY = clampMapCenter(centerY, mapZoom);
             const mapShiftX = 50 - clampedCenterX * mapZoom;
             const mapShiftY = 50 - clampedCenterY * mapZoom;
-            const distanceMeters = Math.max(60, Math.round(Math.hypot(routeEnd.x - routeStart.x, routeEnd.y - routeStart.y) * 8));
+            const distanceMeters = Math.max(60, Math.round(Math.hypot(dx, dy) * 8));
+            const targetLabel = destinationCode ? destinationCode.toUpperCase() : (lang === "zh" ? "目标楼" : "Destination");
             return (
               <>
                 {/* Nav header */}
@@ -1221,6 +1197,21 @@ export function PicturesAndMapScreen() {
 
                       {/* Demo-style zoomed map with route arrow */}
                       <ComicCard style={{ padding: 0, overflow: "hidden", marginBottom: "10px" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: "8px",
+                            padding: "8px 10px",
+                            backgroundColor: C.white,
+                            borderBottom: `2px solid ${C.navy}`,
+                          }}
+                        >
+                          <span style={{ minWidth: "42px", height: "24px", borderRadius: "8px", backgroundColor: C.mint, border: `2px solid ${C.navy}`, boxShadow: `2px 2px 0 ${C.navy}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 900, color: C.navy }}>CB</span>
+                          <span style={{ fontSize: "16px", fontWeight: 900, color: C.royal }}>→</span>
+                          <span style={{ minWidth: "48px", height: "24px", borderRadius: "8px", backgroundColor: C.yellow, border: `2px solid ${C.navy}`, boxShadow: `2px 2px 0 ${C.navy}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 900, color: C.navy, padding: "0 10px" }}>{targetLabel}</span>
+                        </div>
                         <div style={{ position: "relative", height: "220px", backgroundColor: "#CFE8FF" }}>
                           <div
                             style={{
@@ -1266,43 +1257,6 @@ export function PicturesAndMapScreen() {
                                 fill="none"
                               />
                             </svg>
-
-                            {demoRoutePins.map((pin) => {
-                              const isStart = pin.id === "cb";
-                              const isTarget = !!targetId && pin.id === targetId;
-                              return (
-                                <div
-                                  key={pin.id}
-                                  style={{
-                                    position: "absolute",
-                                    left: `${pin.x}%`,
-                                    top: `${pin.y}%`,
-                                    transform: "translate(-50%, -50%)",
-                                    pointerEvents: "none",
-                                  }}
-                                >
-                                  <div
-                                    style={{
-                                      minWidth: "38px",
-                                      height: "24px",
-                                      borderRadius: "8px",
-                                      backgroundColor: isTarget ? C.yellow : isStart ? C.mint : "rgba(255,255,255,0.92)",
-                                      border: `2px solid ${C.navy}`,
-                                      boxShadow: `2px 2px 0 ${C.navy}`,
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      padding: "0 8px",
-                                      fontSize: "14px",
-                                      fontWeight: 900,
-                                      color: C.navy,
-                                    }}
-                                  >
-                                    {demoRouteBuildingLabels[pin.id]}
-                                  </div>
-                                </div>
-                              );
-                            })}
                           </div>
                         </div>
 
