@@ -142,7 +142,7 @@ export function MysteryRouteScreen() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: "90px" }}>
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: "28px" }}>
 
         {/* QUESTION */}
         {phase === "question" && (
