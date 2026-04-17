@@ -144,7 +144,7 @@ const zh: Texts = {
   // Recommended routes — stops（新生 / 家长 / 深度）
   stop_rec_north_sign: "北门 - 西交利物浦学校校牌打卡",
   stop_rec_white_pavilion_plaza: "小白亭广场",
-  stop_rec_orient_occident: "东西汇廊（The Orient & Occident Connector）",
+  stop_rec_orient_occident: "东西汇廊",
   stop_rec_lake_plaza: "中心湖广场",
   stop_rec_history_cb_g: "校史馆（CB G层）",
   stop_rec_ibss: "IBSS商学院",
