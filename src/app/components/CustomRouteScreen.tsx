@@ -70,10 +70,10 @@ function emojiForPin(id: string): string {
   if (id === "gym") return "🏟️";
   if (id === "fb") return "🏛️";
   if (id === "cb") return "📍";
-  if (id === "ls") return "🧪";
+  if (id === "pb") return "🧪";
   if (id === "as") return "🎬";
-  if (id === "eb") return "🧰";
   if (id === "ir") return "🔬";
+  if (id === "db") return "🏠";
   return "🏢";
 }
 
