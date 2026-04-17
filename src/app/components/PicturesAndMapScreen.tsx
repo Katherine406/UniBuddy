@@ -114,6 +114,11 @@ const campusConvenienceItems: CampusConvenienceItem[] = [
     icon: "🚬",
     locationsKey: "map_convenience_smoking_locs",
   },
+  {
+    titleKey: "map_convenience_lockers",
+    icon: "📦",
+    locationsKey: "map_convenience_lockers_locs",
+  },
 ];
 
 interface CampusLocationInfo {
