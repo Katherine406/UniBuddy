@@ -17,18 +17,47 @@ const C = {
 
 const routeDefs = [
   {
-    id: "freshman", titleKey: "route_freshman", duration: "30 min",
-    stopKeys: ["stop_gate", "stop_admin", "stop_library", "stop_square"],
+    id: "freshman",
+    titleKey: "route_freshman",
+    durationKey: "route_rec_dur_freshman",
+    stopKeys: [
+      "stop_rec_north_sign",
+      "stop_admin",
+      "stop_library",
+      "stop_rec_white_pavilion_plaza",
+      "stop_rec_orient_occident",
+      "stop_rec_lake_plaza",
+      "stop_gym",
+    ],
     emoji: "🌱", bg: C.pale, tagBg: C.sky,
   },
   {
-    id: "parent", titleKey: "route_parent", duration: "40 min",
-    stopKeys: ["stop_maingate", "stop_teaching_complex", "stop_dorm", "stop_gym", "stop_canteen"],
+    id: "parent",
+    titleKey: "route_parent",
+    durationKey: "route_rec_dur_parent",
+    stopKeys: [
+      "stop_rec_north_sign",
+      "stop_teaching_complex",
+      "stop_rec_orient_occident",
+      "stop_rec_lake_plaza",
+    ],
     emoji: "🏫", bg: C.cream, tagBg: C.yellow,
   },
   {
-    id: "deep", titleKey: "route_deep", duration: "35 min",
-    stopKeys: ["stop_history", "stop_art", "stop_lake", "stop_research"],
+    id: "deep",
+    titleKey: "route_deep",
+    durationKey: "route_rec_dur_deep",
+    stopKeys: [
+      "stop_rec_north_sign",
+      "stop_admin",
+      "stop_library",
+      "stop_rec_history_cb_g",
+      "stop_rec_white_pavilion_plaza",
+      "stop_rec_orient_occident",
+      "stop_rec_lake_plaza",
+      "stop_rec_ibss",
+      "stop_gym",
+    ],
     emoji: "✨", bg: C.mint + "55", tagBg: C.mint,
   },
 ];
@@ -121,6 +150,7 @@ export function RouteScreen() {
             const favored = isFavorite(routeDef.id);
             const stops = routeDef.stopKeys.map((k) => t(k));
             const title = t(routeDef.titleKey);
+            const durationLabel = t(routeDef.durationKey);
             return (
               <div key={routeDef.id}>
                 <button
@@ -143,7 +173,7 @@ export function RouteScreen() {
                     <p style={{ fontSize: "14px", fontWeight: 800, color: C.navy }}>{title}</p>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "3px" }}>
                       <IconClock size={12} color={C.royal} />
-                      <span style={{ fontSize: "11px", fontWeight: 700, color: C.royal }}>{routeDef.duration}</span>
+                      <span style={{ fontSize: "11px", fontWeight: 700, color: C.royal }}>{durationLabel}</span>
                       <IconPin size={12} color={C.royal} />
                       <span style={{ fontSize: "11px", fontWeight: 700, color: C.royal }}>{stops.length} {t("route_stops")}</span>
                     </div>
@@ -162,7 +192,7 @@ export function RouteScreen() {
                     {/* stops */}
                     <div style={{ backgroundColor: C.ice, border: `2px solid ${C.navy}`, borderRadius: "10px", padding: "10px 12px", marginBottom: "10px" }}>
                       {stops.map((stop, idx) => (
-                        <div key={stop} style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                        <div key={`${routeDef.id}-${idx}`} style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
                           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: "14px" }}>
                             <div style={{ width: "14px", height: "14px", borderRadius: "50%", backgroundColor: C.royal, border: `2px solid ${C.navy}`, marginTop: "3px", flexShrink: 0 }} />
                             {idx < stops.length - 1 && <div style={{ width: "2px", height: "18px", backgroundColor: C.navy + "40" }} />}
@@ -182,7 +212,7 @@ export function RouteScreen() {
                       <button
                         onClick={() => toggleFavorite({
                           id: routeDef.id, title, emoji: routeDef.emoji,
-                          type: "recommended", duration: routeDef.duration,
+                          type: "recommended", duration: durationLabel,
                           stops, bg: routeDef.bg, tagBg: routeDef.tagBg, tagLabel: t("type_recommended"),
                         })}
                         style={{
