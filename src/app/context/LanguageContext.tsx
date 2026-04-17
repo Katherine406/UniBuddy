@@ -141,6 +141,13 @@ const zh: Texts = {
   stop_track: "田径跑道", stop_basket: "篮球场", stop_pool: "游泳馆",
   stop_resources: "学术资源中心",
   stop_lakeside: "中心湖慧吧", stop_maingate: "主校门", stop_teaching_complex: "S教学楼群",
+  // Recommended routes — stops（新生 / 家长 / 深度）
+  stop_rec_north_sign: "北门 - 西交利物浦学校校牌打卡",
+  stop_rec_white_pavilion_plaza: "小白亭广场",
+  stop_rec_orient_occident: "东西汇廊（The Orient & Occident Connector）",
+  stop_rec_lake_plaza: "中心湖广场",
+  stop_rec_history_cb_g: "校史馆（CB G层）",
+  stop_rec_ibss: "IBSS商学院",
   // Mystery route stops (new)
   stop_food_south_north_hongyuan: "南北宏远",
   stop_food_tongfa: "同发食堂",
@@ -199,7 +206,10 @@ const zh: Texts = {
   cl_ee: "电子楼 (EE)", cl_ms: "数学楼 (MA)", cl_lb: "图书馆 (LB)",
   cl_ib: "国际楼 (IR)", cl_es: "工程楼 (EB)",
   // Route names
-  route_freshman: "新生入门路线", route_parent: "家长来访路线", route_deep: "深度探索路线",
+  route_freshman: "新生路线", route_parent: "家长来访路线", route_deep: "深度探索路线",
+  route_rec_dur_freshman: "约 45 分钟",
+  route_rec_dur_parent: "约 20 分钟",
+  route_rec_dur_deep: "约 55 分钟",
   // Camera overlay
   camera_title: "📸 校园拍照",
   camera_subtitle: "拍照打卡 · 解锁集章",
@@ -352,6 +362,13 @@ const en: Texts = {
   stop_track: "Running Track", stop_basket: "Basketball Court", stop_pool: "Swimming Pool",
   stop_resources: "Academic Resource Ctr",
   stop_lakeside: "Central Lake Wisdom Bar", stop_maingate: "Main Gate", stop_teaching_complex: "S Teaching Bldg Complex",
+  // Recommended routes — stops
+  stop_rec_north_sign: "North Gate – XJTLU campus sign photo spot",
+  stop_rec_white_pavilion_plaza: "White Pavilion Square",
+  stop_rec_orient_occident: "The Orient & Occident Connector",
+  stop_rec_lake_plaza: "Central Lake Plaza",
+  stop_rec_history_cb_g: "History Hall (CB, G/F)",
+  stop_rec_ibss: "IBSS Business School",
   // Mystery route stops (new)
   stop_food_south_north_hongyuan: "South/North Hongyuan",
   stop_food_tongfa: "Tongfa Canteen",
@@ -405,7 +422,10 @@ const en: Texts = {
   cl_sa: "Science Bldg A (SA)", cl_sb: "Science Bldg B (SB)", cl_cb: "Central Bldg (CB)",
   cl_ee: "Electronics Bldg (EE)", cl_ms: "Math Bldg (MS)", cl_lb: "Library (LB)",
   cl_ib: "International Bldg (IB)", cl_es: "Engineering Bldg (ES)",
-  route_freshman: "Freshman Orientation", route_parent: "Parent Visit", route_deep: "Deep Exploration",
+  route_freshman: "Freshman Route", route_parent: "Parent Visit Route", route_deep: "Deep Exploration Route",
+  route_rec_dur_freshman: "~45 min",
+  route_rec_dur_parent: "~20 min",
+  route_rec_dur_deep: "~55 min",
   // Camera overlay
   camera_title: "📸 Campus Photos",
   camera_subtitle: "Snap & Unlock Stamps",
