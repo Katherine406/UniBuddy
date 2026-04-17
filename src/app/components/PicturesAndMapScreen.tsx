@@ -754,7 +754,7 @@ export function PicturesAndMapScreen() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: "120px" }}>
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: "28px" }}>
 
         {/* ── Gallery ── */}
         <SectionLabel color={C.yellow} text={t("map_photos")} />
@@ -1122,7 +1122,7 @@ export function PicturesAndMapScreen() {
                   </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: "24px" }}>
+                <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: "24px" }}>
 
                   {/* Walk route */}
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
