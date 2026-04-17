@@ -159,7 +159,18 @@ export function HomeScreen() {
               <SpeechBubble style={{ marginBottom: "8px" }}>
                 <span style={{ fontSize: "12px", fontWeight: 800, color: C.navy }}>{t("home_welcome")} 👋</span>
               </SpeechBubble>
-              <h1 style={{ fontSize: "28px", fontWeight: 900, color: C.white, textShadow: `2px 2px 0 ${C.navy}`, marginTop: "14px" }}>
+              <h1
+                style={{
+                  fontSize: "28px",
+                  fontWeight: 900,
+                  marginTop: "14px",
+                  background: "linear-gradient(180deg, #5E78FF 0%, #3E57E8 45%, #2A3FD3 100%)",
+                  WebkitBackgroundClip: "text",
+                  backgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  textShadow: `0 2px 0 #1C2EA8, 2px 3px 0 rgba(14, 27, 77, 0.55)`,
+                }}
+              >
                 UniBuddy
               </h1>
             </div>
