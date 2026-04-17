@@ -64,14 +64,14 @@ const campusConvenienceItems: CampusConvenienceItem[] = [
     locationsKey: "map_convenience_onestop_locs",
   },
   {
-    titleKey: "map_convenience_sanitary",
-    icon: "🧴",
-    locationsKey: "map_convenience_sanitary_locs",
-  },
-  {
     titleKey: "map_convenience_umbrella",
     icon: "☂️",
     locationsKey: "map_convenience_umbrella_locs",
+  },
+  {
+    titleKey: "map_convenience_sanitary",
+    icon: "🧴",
+    locationsKey: "map_convenience_sanitary_locs",
   },
   {
     titleKey: "map_convenience_smoking",
