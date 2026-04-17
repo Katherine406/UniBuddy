@@ -1207,11 +1207,11 @@ export function PicturesAndMapScreen() {
                           <span style={{ fontSize: "12px", fontWeight: 900, color: C.royal }}>{lang === "zh" ? "到" : "to"}</span>
                           <span style={{ minWidth: "48px", height: "24px", borderRadius: "8px", backgroundColor: C.yellow, border: `2px solid ${C.navy}`, boxShadow: `2px 2px 0 ${C.navy}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 900, color: C.navy, padding: "0 10px" }}>{targetLabel}</span>
                         </div>
-                        <div style={{ position: "relative", height: "220px", backgroundColor: "#CFE8FF" }}>
+                        <div style={{ position: "relative", backgroundColor: "#CFE8FF" }}>
                           <img
                             src={routePreviewSrc}
                             alt={routePreviewAlt}
-                            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                            style={{ width: "100%", height: "auto", display: "block" }}
                           />
                           {!routePreviewFile && (
                             <div style={{ position: "absolute", left: "8px", right: "8px", bottom: "8px", borderRadius: "8px", backgroundColor: "rgba(255,255,255,0.92)", border: `1.5px solid ${C.pale}`, padding: "4px 6px", textAlign: "center" }}>
