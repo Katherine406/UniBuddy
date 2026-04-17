@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { PhoneShell, StatusBar, ComicCard, Burst } from "./PhoneShell";
 import { BottomNav } from "./BottomNav";
@@ -24,18 +24,19 @@ interface BuildingDef {
   catKey: string;
   color: string;
   bg: string;
-  x: number;
-  y: number;
+  /** 与校园地图标注一致的百分比坐标，用于直线距离与路径规划 */
+  mapX: number;
+  mapY: number;
 }
 
 function buildingDisplayLabel(b: BuildingDef, t: (key: string) => string) {
   return b.labelKey ? t(b.labelKey) : b.label;
 }
 
-const FIXED_START_ID = "cb";
+const DEFAULT_START_ID = "cb";
 
 // 自定义路线的“地标选择”，改为使用地图里已标注出来的点（与 `PicturesAndMapScreen` 的 pin 对齐）。
-// x/y 使用地图百分比坐标后会重新缩放到一个较小的网格，用于保持距离/时间计算的观感合理。
+// mapX/mapY 为地图上的百分比位置，用于欧氏距离（直线）近似步行距离。
 const campusMapHotspots = [
   { id: "ls", label: "LS", fullName: "Life Sciences", x: 32, y: 22, color: "#2d8f47" },
   { id: "fb", label: "FB", fullName: "Foundation Building", x: 41, y: 42, color: "#5ba3d4" },
@@ -69,19 +70,6 @@ const customDiningSpots = [
   { id: "east_hall", labelKey: "custom_d_east_hall", fullName: "East Hall", x: 46, y: 44, color: "#ff8a65" },
 ] as const;
 
-const boundsForScale = [...campusMapHotspots, ...customDiningSpots];
-
-const pinMinX = Math.min(...boundsForScale.map((p) => p.x));
-const pinMaxX = Math.max(...boundsForScale.map((p) => p.x));
-const pinMinY = Math.min(...boundsForScale.map((p) => p.y));
-const pinMaxY = Math.max(...boundsForScale.map((p) => p.y));
-
-const xRange = pinMaxX - pinMinX || 1;
-const yRange = pinMaxY - pinMinY || 1;
-
-const scaleX = (x: number) => ((x - pinMinX) / xRange) * 8; // 原来的自定义网格大约 0..8
-const scaleY = (y: number) => ((y - pinMinY) / yRange) * 6; // 原来的自定义网格大约 0..6
-
 function emojiForPin(id: string): string {
   if (id === "gym") return "🏟️";
   if (id === "fb") return "🏛️";
@@ -104,8 +92,8 @@ const fromCampus: BuildingDef[] = campusMapHotspots.map((pin: CampusMapHotspot) 
     catKey: isSports ? "cat_sports" : "cat_academic",
     color: pin.color,
     bg: isSports ? C.yellow : C.ice,
-    x: scaleX(pin.x),
-    y: scaleY(pin.y),
+    mapX: pin.x,
+    mapY: pin.y,
   };
 });
 
@@ -118,21 +106,26 @@ const fromDining: BuildingDef[] = customDiningSpots.map((pin) => ({
   catKey: "cat_dining",
   color: pin.color,
   bg: C.cream,
-  x: scaleX(pin.x),
-  y: scaleY(pin.y),
+  mapX: pin.x,
+  mapY: pin.y,
 }));
 
-const buildingDefs: BuildingDef[] = [...fromCampus, ...fromDining].sort((a, b) => {
-  if (a.id === FIXED_START_ID) return -1;
-  if (b.id === FIXED_START_ID) return 1;
-  return 0;
-});
+const buildingDefs: BuildingDef[] = [...fromCampus, ...fromDining];
 
 const categoryKeys = ["cat_all", "cat_academic", "cat_sports", "cat_dining"];
 
+/** 地图上两点直线距离（与标注坐标同单位：百分比） */
+function mapDist(a: BuildingDef, b: BuildingDef) {
+  return Math.hypot(a.mapX - b.mapX, a.mapY - b.mapY);
+}
+
+/**
+ * 从固定起点出发的最近邻贪心路径（在直线距离意义下的启发式最短近似）。
+ * 起点为 sel[0]，依次接当前未访问点中与上一点直线距离最近者。
+ */
 function generateRoute(sel: BuildingDef[]): BuildingDef[] {
   if (sel.length <= 2) return [...sel];
-  const d = (a: BuildingDef, b: BuildingDef) => Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+  const d = mapDist;
   const rem = [...sel.slice(1)]; const route = [sel[0]];
   while (rem.length) {
     const last = route[route.length - 1]; let mi = 0, md = Infinity;
@@ -142,13 +135,26 @@ function generateRoute(sel: BuildingDef[]): BuildingDef[] {
   return route;
 }
 
+/** 百分比距离 → 步行分钟（经验系数，与地图比例大致匹配观感） */
+function mapDistToWalkMinutes(a: BuildingDef, b: BuildingDef) {
+  const d = mapDist(a, b);
+  return Math.max(2, Math.round(d * 0.22));
+}
+
 function calcTime(route: BuildingDef[]): number {
   let time = 0;
   for (let i = 0; i < route.length - 1; i++) {
-    const a = route[i], b = route[i + 1];
-    time += Math.max(2, Math.round(Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2) * 4));
+    time += mapDistToWalkMinutes(route[i], route[i + 1]);
   }
   return time;
+}
+
+/** 将用户所选地点排成 [起点, …其余]，再交给 generateRoute */
+function selectionWithStart(selected: BuildingDef[], startId: string): BuildingDef[] {
+  const start = selected.find((b) => b.id === startId) ?? selected[0];
+  if (!start) return [];
+  const rest = selected.filter((b) => b.id !== start.id);
+  return [start, ...rest];
 }
 
 type Phase = "select" | "result";
@@ -157,15 +163,31 @@ export function CustomRouteScreen() {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { t } = useLanguage();
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set([FIXED_START_ID]));
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set([DEFAULT_START_ID]));
+  const [startId, setStartId] = useState(DEFAULT_START_ID);
   const [activeCatKey, setActiveCatKey] = useState("cat_all");
   const [phase, setPhase] = useState<Phase>("select");
   const [route, setRoute] = useState<BuildingDef[] | null>(null);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (selectedIds.size === 0) {
+      setStartId(DEFAULT_START_ID);
+      return;
+    }
+    if (!selectedIds.has(startId)) {
+      const next = buildingDefs.find((b) => selectedIds.has(b.id))?.id;
+      if (next) setStartId(next);
+    }
+  }, [selectedIds, startId]);
+
   const toggle = (id: string) => {
-    if (id === FIXED_START_ID) return;
-    setSelectedIds((p) => { const n = new Set(p); n.has(id) ? n.delete(id) : n.add(id); return n; });
+    setSelectedIds((p) => {
+      const n = new Set(p);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
   };
 
   const filtered = activeCatKey === "cat_all"
@@ -174,15 +196,25 @@ export function CustomRouteScreen() {
 
   const selectedBuildings = buildingDefs.filter((b) => selectedIds.has(b.id));
 
-  const routeId = `custom-${[...selectedIds].sort().join("-")}`;
+  const routeId = `custom-${startId}-${[...selectedIds].sort().join("-")}`;
   const fav = isFavorite(routeId);
 
   const handleGenerate = () => {
     if (selectedIds.size < 2) return;
     setLoading(true);
-    setTimeout(() => { setRoute(generateRoute(selectedBuildings)); setLoading(false); setPhase("result"); }, 900);
+    setTimeout(() => {
+      const ordered = selectionWithStart(selectedBuildings, startId);
+      setRoute(generateRoute(ordered));
+      setLoading(false);
+      setPhase("result");
+    }, 900);
   };
-  const handleReset = () => { setSelectedIds(new Set([FIXED_START_ID])); setRoute(null); setPhase("select"); };
+  const handleReset = () => {
+    setSelectedIds(new Set([DEFAULT_START_ID]));
+    setStartId(DEFAULT_START_ID);
+    setRoute(null);
+    setPhase("select");
+  };
 
   const total = route ? calcTime(route) : 0;
 
@@ -224,12 +256,16 @@ export function CustomRouteScreen() {
                   </div>
                 )}
               </div>
+              <p style={{ fontSize: "10px", fontWeight: 700, color: "#4B6898", marginBottom: "6px" }}>{t("custom_tap_set_start")}</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", minHeight: "28px" }}>
                 {selectedBuildings.map((b) => (
-                  <button key={b.id} onClick={() => toggle(b.id)} style={{ backgroundColor: b.bg, border: `2px solid ${b.color}`, borderRadius: "20px", padding: "2px 10px", display: "flex", alignItems: "center", gap: "4px", cursor: "pointer", boxShadow: `2px 2px 0 ${b.id === FIXED_START_ID ? "#aaa" : b.color}` }}>
+                  <button key={b.id} onClick={() => toggle(b.id)} style={{ backgroundColor: b.bg, border: `2px solid ${b.color}`, borderRadius: "20px", padding: "2px 10px", display: "flex", alignItems: "center", gap: "4px", cursor: "pointer", boxShadow: `2px 2px 0 ${b.id === startId ? "#aaa" : b.color}` }}>
                     <span style={{ fontSize: "12px" }}>{b.emoji}</span>
                     <span style={{ fontSize: "11px", fontWeight: 800, color: b.color }}>{buildingDisplayLabel(b, t)}</span>
-                    {b.id !== FIXED_START_ID && <span style={{ fontSize: "13px", fontWeight: 900, color: b.color, lineHeight: 1 }}>×</span>}
+                    {b.id === startId && (
+                      <span style={{ fontSize: "9px", fontWeight: 900, color: C.navy, backgroundColor: C.pale, borderRadius: "4px", padding: "0 4px" }}>{t("custom_start_pt")}</span>
+                    )}
+                    <span style={{ fontSize: "13px", fontWeight: 900, color: b.color, lineHeight: 1 }}>×</span>
                   </button>
                 ))}
               </div>
@@ -252,18 +288,22 @@ export function CustomRouteScreen() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginBottom: "14px" }}>
               {filtered.map((b) => {
                 const isSel = selectedIds.has(b.id);
-                const isFixed = b.id === FIXED_START_ID;
+                const isStart = isSel && b.id === startId;
                 return (
+                  <div key={b.id} style={{ position: "relative" }}>
                   <button
-                    key={b.id} onClick={() => toggle(b.id)}
+                    type="button"
+                    onClick={() => toggle(b.id)}
                     style={{
-                      height: "90px", position: "relative",
+                      width: "100%", height: "90px", position: "relative",
                       backgroundColor: isSel ? b.bg : C.white,
                       border: `2.5px solid ${isSel ? b.color : C.pale}`,
                       borderRadius: "14px",
                       boxShadow: isSel ? `3px 3px 0 ${b.color}` : `2px 2px 0 ${C.pale}`,
-                      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "3px",
+                      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px",
                       cursor: "pointer",
+                      padding: "4px 4px 6px",
+                      boxSizing: "border-box",
                     }}
                     onMouseDown={(e) => (e.currentTarget.style.transform = "translate(1px,1px)")}
                     onMouseUp={(e) => (e.currentTarget.style.transform = "translate(0,0)")}
@@ -273,13 +313,27 @@ export function CustomRouteScreen() {
                         <IconCheck size={9} color="white" />
                       </div>
                     )}
-                    {isFixed && (
+                    {isStart && (
                       <div style={{ position: "absolute", top: "3px", left: "5px", backgroundColor: C.pale, border: `1.5px solid ${C.navy}`, borderRadius: "6px", padding: "0 5px", fontSize: "9px", fontWeight: 900, color: C.navy }}>{t("custom_start_pt")}</div>
                     )}
-                    <span style={{ fontSize: "24px" }}>{b.emoji}</span>
-                    <span style={{ fontSize: "11px", fontWeight: 800, color: isSel ? b.color : C.navy, textAlign: "center" }}>{buildingDisplayLabel(b, t)}</span>
+                    <span style={{ fontSize: "22px" }}>{b.emoji}</span>
+                    <span style={{ fontSize: "11px", fontWeight: 800, color: isSel ? b.color : C.navy, textAlign: "center", lineHeight: 1.15 }}>{buildingDisplayLabel(b, t)}</span>
                     <span style={{ fontSize: "9px", fontWeight: 600, color: "#4B6898" }}>{t(b.catKey)}</span>
                   </button>
+                  {isSel && !isStart && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setStartId(b.id); }}
+                      style={{
+                        marginTop: "4px", width: "100%", height: "22px", borderRadius: "8px",
+                        border: `1.5px solid ${C.navy}`, backgroundColor: C.white, color: C.navy,
+                        fontSize: "9px", fontWeight: 900, cursor: "pointer", boxShadow: `1px 1px 0 ${C.pale}`,
+                      }}
+                    >
+                      {t("custom_set_start")}
+                    </button>
+                  )}
+                  </div>
                 );
               })}
             </div>
@@ -342,7 +396,7 @@ export function CustomRouteScreen() {
               {route.map((b, idx) => {
                 const isLast = idx === route.length - 1;
                 const next = !isLast ? route[idx + 1] : null;
-                const walk = next ? Math.max(2, Math.round(Math.sqrt((b.x - next.x) ** 2 + (b.y - next.y) ** 2) * 4)) : null;
+                const walk = next ? mapDistToWalkMinutes(b, next) : null;
                 return (
                   <div key={b.id} style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: "28px" }}>
