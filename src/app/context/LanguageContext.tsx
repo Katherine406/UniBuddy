@@ -91,6 +91,11 @@ const zh: Texts = {
   custom_start: "开始导览", custom_reselect: "重新选择", custom_start_pt: "起点",
   custom_n_places: "{n} 个地点",
   custom_back: "路线探索",
+  // Custom route — dining pins (bilingual via language toggle)
+  custom_d_south_hope: "南宏愿",
+  custom_d_north_hope: "北宏愿",
+  custom_d_west_hall: "西厅",
+  custom_d_east_hall: "东厅",
   // Profile
   profile_subtitle: "XJTLU · 大一新生",
   profile_stamps: "已集章", profile_photos: "已拍照", profile_favs: "收藏路线",
@@ -293,6 +298,10 @@ const en: Texts = {
   mystery_res_landmark: "Landmark Check-in Route", mystery_res_landmark_tag: "From lawn statues to the central lake",
   mystery_res_study: "Study Route", mystery_res_study_tag: "Covers both daily study zones and overnight classrooms",
   mystery_back: "Route Explorer",
+  custom_d_south_hope: "South Hope",
+  custom_d_north_hope: "North Hope",
+  custom_d_west_hall: "West Hall",
+  custom_d_east_hall: "East Hall",
   custom_title: "Custom Route", custom_subtitle: "Choose buildings · Smart route planning",
   custom_selected: "Selected", custom_min2: "at least 2", custom_ready: "Ready to generate",
   custom_all: "All",
