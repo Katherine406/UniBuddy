@@ -165,7 +165,7 @@ export function SplashScreen() {
               paddingLeft: "10px",
             }}
           >
-            {t("splash_subtitle")} 🗺️
+            {t("splash_subtitle")} 
           </p>
 
           {/* CTA button */}
