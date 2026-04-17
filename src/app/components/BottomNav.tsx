@@ -61,7 +61,7 @@ export function BottomNav({ activeTab }: BottomNavProps) {
 
   return (
     <div
-      className="absolute bottom-0 left-0 right-0"
+      className="relative z-20 w-full shrink-0"
       style={{
         backgroundColor: "#FFFBF0",
         borderTop: "2.5px solid #0E1B4D",
