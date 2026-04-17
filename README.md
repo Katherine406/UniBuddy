@@ -12,7 +12,7 @@ UniBuddy integrates map exploration, route discovery, gamified navigation, and p
   [https://katherine406.github.io/UniBuddy/](https://katherine406.github.io/UniBuddy/)
 
 * 🎨 **Portfolio Page**:
-  [https://katherine406.github.io/index.html](https://katherine406.github.io/index.html)
+  [https://katherine406.github.io](https://katherine406.github.io)
 
 ---
 
