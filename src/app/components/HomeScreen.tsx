@@ -154,7 +154,7 @@ export function HomeScreen() {
         <div style={{ position: "absolute", bottom: "-20px", left: "60px", width: "70px", height: "70px", borderRadius: "50%", backgroundColor: C.pale, border: `2px solid ${C.navy}`, opacity: 0.4 }} />
 
         <div style={{ position: "relative", zIndex: 1 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+          <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "flex-start", marginBottom: "12px" }}>
             <div>
               <SpeechBubble style={{ marginBottom: "8px" }}>
                 <span style={{ fontSize: "12px", fontWeight: 800, color: C.navy }}>{t("home_welcome")} 👋</span>
@@ -163,24 +163,6 @@ export function HomeScreen() {
                 UniBuddy
               </h1>
             </div>
-            {/* Search button */}
-            <button
-              onClick={openSearch}
-              style={{
-                width: "40px", height: "40px",
-                backgroundColor: C.white,
-                border: `2px solid ${C.navy}`,
-                borderRadius: "12px",
-                boxShadow: `2px 2px 0 ${C.navy}`,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                cursor: "pointer",
-              }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.navy} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="7" />
-                <path d="M16.5 16.5L21 21" />
-              </svg>
-            </button>
           </div>
 
           {/* Stats */}
