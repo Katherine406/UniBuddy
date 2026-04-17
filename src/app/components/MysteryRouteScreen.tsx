@@ -5,7 +5,7 @@ import { BottomNav } from "./BottomNav";
 import { useFavorites } from "../context/FavoritesContext";
 import { useLanguage } from "../context/LanguageContext";
 import {
-  IconPlay, IconReset, IconPin, IconHeart, IconBack,
+  IconPlay, IconPin, IconHeart, IconBack,
 } from "./ComicIcons";
 
 const C = {
@@ -113,8 +113,6 @@ export function MysteryRouteScreen() {
     setPhase("revealing");
     setTimeout(() => setPhase("result"), 1800);
   };
-  const handleReset = () => { setSelected(null); setPhase("question"); };
-
   const resultDef = selected ? routeResultsDefs[selected] : null;
   const selOpt = optionsDefs.find((o) => o.id === selected);
   const fav = resultDef ? isFavorite(resultDef.id) : false;
@@ -257,14 +255,6 @@ export function MysteryRouteScreen() {
                 onMouseUp={(e) => (e.currentTarget.style.transform = "translate(0,0)")}
               >
                 <IconHeart size={20} filled={fav} color={C.coral} />
-              </button>
-              <button
-                onClick={handleReset}
-                style={{ width: "50px", height: "50px", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: C.yellow, border: `2.5px solid ${C.navy}`, borderRadius: "14px", boxShadow: `4px 4px 0 ${C.navy}`, cursor: "pointer" }}
-                onMouseDown={(e) => (e.currentTarget.style.transform = "translate(2px,2px)")}
-                onMouseUp={(e) => (e.currentTarget.style.transform = "translate(0,0)")}
-              >
-                <IconReset size={20} />
               </button>
             </div>
           </>
