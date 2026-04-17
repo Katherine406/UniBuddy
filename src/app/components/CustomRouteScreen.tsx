@@ -16,6 +16,8 @@ const C = {
 
 interface BuildingDef {
   id: string;
+  /** 餐饮等需要随语言切换的名称（与 `label` 二选一展示） */
+  labelKey?: string;
   label: string;
   fullName: string;
   emoji: string;
@@ -24,6 +26,10 @@ interface BuildingDef {
   bg: string;
   x: number;
   y: number;
+}
+
+function buildingDisplayLabel(b: BuildingDef, t: (key: string) => string) {
+  return b.labelKey ? t(b.labelKey) : b.label;
 }
 
 const FIXED_START_ID = "cb";
@@ -55,10 +61,20 @@ const campusMapHotspots = [
 
 type CampusMapHotspot = (typeof campusMapHotspots)[number];
 
-const pinMinX = Math.min(...campusMapHotspots.map((p) => p.x));
-const pinMaxX = Math.max(...campusMapHotspots.map((p) => p.x));
-const pinMinY = Math.min(...campusMapHotspots.map((p) => p.y));
-const pinMaxY = Math.max(...campusMapHotspots.map((p) => p.y));
+/** 餐饮点位（与地图大致方位一致，用于距离估算；名称走 i18n） */
+const customDiningSpots = [
+  { id: "north_hope", labelKey: "custom_d_north_hope", fullName: "North Hope", x: 40, y: 28, color: "#ef5350" },
+  { id: "south_hope", labelKey: "custom_d_south_hope", fullName: "South Hope", x: 48, y: 78, color: "#e57373" },
+  { id: "west_hall", labelKey: "custom_d_west_hall", fullName: "West Hall", x: 36, y: 44, color: "#ff8a65" },
+  { id: "east_hall", labelKey: "custom_d_east_hall", fullName: "East Hall", x: 46, y: 44, color: "#ff8a65" },
+] as const;
+
+const boundsForScale = [...campusMapHotspots, ...customDiningSpots];
+
+const pinMinX = Math.min(...boundsForScale.map((p) => p.x));
+const pinMaxX = Math.max(...boundsForScale.map((p) => p.x));
+const pinMinY = Math.min(...boundsForScale.map((p) => p.y));
+const pinMaxY = Math.max(...boundsForScale.map((p) => p.y));
 
 const xRange = pinMaxX - pinMinX || 1;
 const yRange = pinMaxY - pinMinY || 1;
@@ -74,35 +90,45 @@ function emojiForPin(id: string): string {
   if (id === "as") return "🎬";
   if (id === "ir") return "🔬";
   if (id === "db") return "🏠";
+  if (id === "north_hope" || id === "south_hope" || id === "west_hall" || id === "east_hall") return "🍜";
   return "🏢";
 }
 
-const buildingDefs: BuildingDef[] = [...campusMapHotspots]
-  // 保证起点在 selectedBuildings 的第一位，从而让距离规划从固定起点开始
-  .sort((a: CampusMapHotspot, b: CampusMapHotspot) => {
-    if (a.id === FIXED_START_ID) return -1;
-    if (b.id === FIXED_START_ID) return 1;
-    return 0;
-  })
-  .map((pin: CampusMapHotspot) => {
-    const isSports = pin.id === "gym";
-    return {
-      id: pin.id,
-      label: pin.label,
-      fullName: pin.fullName,
-      emoji: emojiForPin(pin.id),
-      catKey: isSports ? "cat_sports" : "cat_academic",
-      color: pin.color,
-      bg: isSports ? C.yellow : C.ice,
-      x: scaleX(pin.x),
-      y: scaleY(pin.y),
-    };
-  });
+const fromCampus: BuildingDef[] = campusMapHotspots.map((pin: CampusMapHotspot) => {
+  const isSports = pin.id === "gym";
+  return {
+    id: pin.id,
+    label: pin.label,
+    fullName: pin.fullName,
+    emoji: emojiForPin(pin.id),
+    catKey: isSports ? "cat_sports" : "cat_academic",
+    color: pin.color,
+    bg: isSports ? C.yellow : C.ice,
+    x: scaleX(pin.x),
+    y: scaleY(pin.y),
+  };
+});
 
-const categoryKeys = [
-  "cat_all", "cat_academic", "cat_sports", "cat_leisure",
-  "cat_dining", "cat_arts", "cat_nature", "cat_living", "cat_culture", "cat_innovation",
-];
+const fromDining: BuildingDef[] = customDiningSpots.map((pin) => ({
+  id: pin.id,
+  labelKey: pin.labelKey,
+  label: "",
+  fullName: pin.fullName,
+  emoji: emojiForPin(pin.id),
+  catKey: "cat_dining",
+  color: pin.color,
+  bg: C.cream,
+  x: scaleX(pin.x),
+  y: scaleY(pin.y),
+}));
+
+const buildingDefs: BuildingDef[] = [...fromCampus, ...fromDining].sort((a, b) => {
+  if (a.id === FIXED_START_ID) return -1;
+  if (b.id === FIXED_START_ID) return 1;
+  return 0;
+});
+
+const categoryKeys = ["cat_all", "cat_academic", "cat_sports", "cat_dining"];
 
 function generateRoute(sel: BuildingDef[]): BuildingDef[] {
   if (sel.length <= 2) return [...sel];
@@ -202,7 +228,7 @@ export function CustomRouteScreen() {
                 {selectedBuildings.map((b) => (
                   <button key={b.id} onClick={() => toggle(b.id)} style={{ backgroundColor: b.bg, border: `2px solid ${b.color}`, borderRadius: "20px", padding: "2px 10px", display: "flex", alignItems: "center", gap: "4px", cursor: "pointer", boxShadow: `2px 2px 0 ${b.id === FIXED_START_ID ? "#aaa" : b.color}` }}>
                     <span style={{ fontSize: "12px" }}>{b.emoji}</span>
-                    <span style={{ fontSize: "11px", fontWeight: 800, color: b.color }}>{b.label}</span>
+                    <span style={{ fontSize: "11px", fontWeight: 800, color: b.color }}>{buildingDisplayLabel(b, t)}</span>
                     {b.id !== FIXED_START_ID && <span style={{ fontSize: "13px", fontWeight: 900, color: b.color, lineHeight: 1 }}>×</span>}
                   </button>
                 ))}
@@ -251,7 +277,7 @@ export function CustomRouteScreen() {
                       <div style={{ position: "absolute", top: "3px", left: "5px", backgroundColor: C.pale, border: `1.5px solid ${C.navy}`, borderRadius: "6px", padding: "0 5px", fontSize: "9px", fontWeight: 900, color: C.navy }}>{t("custom_start_pt")}</div>
                     )}
                     <span style={{ fontSize: "24px" }}>{b.emoji}</span>
-                    <span style={{ fontSize: "11px", fontWeight: 800, color: isSel ? b.color : C.navy, textAlign: "center" }}>{b.label}</span>
+                    <span style={{ fontSize: "11px", fontWeight: 800, color: isSel ? b.color : C.navy, textAlign: "center" }}>{buildingDisplayLabel(b, t)}</span>
                     <span style={{ fontSize: "9px", fontWeight: 600, color: "#4B6898" }}>{t(b.catKey)}</span>
                   </button>
                 );
@@ -328,7 +354,7 @@ export function CustomRouteScreen() {
                     <div style={{ flex: 1, paddingBottom: "8px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                         <span style={{ fontSize: "16px" }}>{b.emoji}</span>
-                        <span style={{ fontSize: "14px", fontWeight: 800, color: C.navy }}>{b.label}</span>
+                        <span style={{ fontSize: "14px", fontWeight: 800, color: C.navy }}>{buildingDisplayLabel(b, t)}</span>
                         <span style={{ backgroundColor: b.bg, border: `1.5px solid ${b.color}`, borderRadius: "6px", padding: "0 6px", fontSize: "10px", fontWeight: 800, color: b.color }}>{t(b.catKey)}</span>
                       </div>
                       {walk && (
@@ -360,7 +386,7 @@ export function CustomRouteScreen() {
                   id: routeId, title: t("custom_my_route").replace("🧩 ", ""),
                   emoji: "🧩", type: "custom",
                   duration: t("custom_walk", { n: total }),
-                  stops: route.map((b) => b.label),
+                  stops: route.map((b) => buildingDisplayLabel(b, t)),
                   bg: C.pale, tagBg: C.sky, tagLabel: t("type_custom"),
                 })}
                 style={{ width: "50px", height: "50px", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: fav ? "#FFF0F0" : C.white, border: `2.5px solid ${C.navy}`, borderRadius: "14px", boxShadow: `4px 4px 0 ${C.navy}`, cursor: "pointer" }}
