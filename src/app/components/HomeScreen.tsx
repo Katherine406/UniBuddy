@@ -169,7 +169,7 @@ export function HomeScreen() {
       </div>
 
       {/* ── Body ── */}
-      <div className="flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: "120px" }}>
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: "28px" }}>
 
         <ComicCard style={{ padding: "14px", backgroundColor: C.cream, marginBottom: "18px" }}>
             <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
@@ -526,7 +526,7 @@ export function HomeScreen() {
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: "24px" }}>
+              <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: "24px" }}>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
                   <div style={{ width: "4px", height: "18px", backgroundColor: C.royal, border: `1.5px solid ${C.navy}`, borderRadius: "2px" }} />
@@ -650,7 +650,7 @@ export function HomeScreen() {
               </div>
 
               {/* Results */}
-              <div className="flex-1 overflow-y-auto px-4 pt-3" style={{ paddingBottom: "20px" }}>
+              <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-3" style={{ paddingBottom: "20px" }}>
                 {query.trim() === "" && (
                   <p style={{ fontSize: "11px", fontWeight: 700, color: "#94A3B8", marginBottom: "10px" }}>
                     {t("home_search_hint")}
