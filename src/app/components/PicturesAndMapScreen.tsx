@@ -503,7 +503,6 @@ export function PicturesAndMapScreen() {
           startButton: "开始定位",
           stopButton: "停止定位",
           bestFor: "适合",
-          mapTip: "地图点位可点击查看简介；切到实时定位可显示你当前附近位置。",
           liveTip: "地图数据来自 OpenStreetMap，定位需浏览器授权且建议在 HTTPS 环境使用。",
         }
       : {
@@ -522,7 +521,6 @@ export function PicturesAndMapScreen() {
           startButton: "Start",
           stopButton: "Stop",
           bestFor: "Best for",
-          mapTip: "Pins are clickable for quick intros; switch to Live Location to see your nearby position.",
           liveTip: "Map data is provided by OpenStreetMap. Browser permission and HTTPS are recommended.",
         };
 
@@ -836,13 +834,6 @@ export function PicturesAndMapScreen() {
                     <p style={{ fontSize: "11px", color: C.navy, fontWeight: 800, marginTop: "1px", lineHeight: 1.45 }}>{activeLocation?.bestFor ?? "-"}</p>
                   </div>
                 </div>
-              </div>
-
-              <div style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", borderRadius: "10px", backgroundColor: C.white, border: `2px solid ${C.pale}` }}>
-                <div style={{ width: "24px", height: "24px", borderRadius: "50%", border: `2px solid ${C.navy}`, backgroundColor: C.royal, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <IconPin size={12} color={C.white} />
-                </div>
-                <p style={{ fontSize: "11px", fontWeight: 700, color: C.navy }}>{mapCopy.mapTip}</p>
               </div>
             </div>
           ) : (
