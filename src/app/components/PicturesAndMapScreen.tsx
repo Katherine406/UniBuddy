@@ -59,6 +59,11 @@ type CampusConvenienceItem = { titleKey: string; icon: string; locationsKey: str
 
 const campusConvenienceItems: CampusConvenienceItem[] = [
   {
+    titleKey: "map_convenience_onestop",
+    icon: "🏢",
+    locationsKey: "map_convenience_onestop_locs",
+  },
+  {
     titleKey: "map_convenience_sanitary",
     icon: "🧴",
     locationsKey: "map_convenience_sanitary_locs",
