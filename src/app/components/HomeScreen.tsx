@@ -165,19 +165,6 @@ export function HomeScreen() {
             </div>
           </div>
 
-          {/* Stats */}
-          <div style={{ display: "flex", gap: "8px" }}>
-            {[
-              { labelKey: "home_spots",  value: "18",               bg: C.pale,   color: C.royal },
-              { labelKey: "home_routes", value: "5",                bg: C.yellow, color: C.navy  },
-              { labelKey: "home_stamps", value: `${checkedCount}`,  bg: C.mint,   color: C.navy  },
-            ].map((s) => (
-              <div key={s.labelKey} style={{ flex: 1, backgroundColor: s.bg, border: `2px solid ${C.navy}`, borderRadius: "12px", boxShadow: `2px 2px 0 ${C.navy}`, padding: "8px 0", textAlign: "center" }}>
-                <p style={{ fontSize: "22px", fontWeight: 900, color: s.color, lineHeight: 1 }}>{s.value}</p>
-                <p style={{ fontSize: "11px", fontWeight: 700, color: C.navy, marginTop: "2px" }}>{t(s.labelKey)}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 
