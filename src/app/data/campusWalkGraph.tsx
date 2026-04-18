@@ -11,6 +11,10 @@ export const CAMPUS_WALK_EDGES: readonly [string, string][] = [
   ["cb", "sb"],
   ["cb", "sc"],
   ["cb", "sd"],
+  /** S 楼群内部互通（可在 SA/SB/SC/SD 之间穿行） */
+  ["sa", "sb"],
+  ["sb", "sc"],
+  ["sc", "sd"],
   ["sa", "pb"],
   ["sb", "ee"],
   ["sc", "ee"],
