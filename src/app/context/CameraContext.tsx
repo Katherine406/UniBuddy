@@ -1,5 +1,16 @@
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
+import { detectBuildingCode } from "../data/buildingOcr";
 import { PRE_UNLOCKED_STAMP_IDS, STAMP_DEFS, TOTAL_STAMPS } from "../data/stamps";
+import { runBuildingOcrOnFile } from "../utils/runBuildingOcr";
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result as string);
+    r.onerror = () => reject(new Error("read file"));
+    r.readAsDataURL(file);
+  });
+}
 
 export interface CapturedPhoto {
   id: number;
@@ -63,6 +74,10 @@ function getInitialCameraOnce() {
   return initialCameraCache;
 }
 
+export type CameraUnlockEvent =
+  | { id: number; kind: "building"; code: string; grantedStamp: boolean }
+  | { id: number; kind: "random" };
+
 interface CameraCtx {
   photos: CapturedPhoto[];
   showCamera: boolean;
@@ -72,6 +87,9 @@ interface CameraCtx {
   unlockedStampIds: number[];
   lastUnlockedStampId: number | null;
   stampCheckedCount: number;
+  ocrScanning: boolean;
+  lastUnlockEvent: CameraUnlockEvent | null;
+  dismissUnlockEvent: () => void;
 }
 
 const CameraContext = createContext<CameraCtx>({
@@ -83,6 +101,9 @@ const CameraContext = createContext<CameraCtx>({
   unlockedStampIds: PRE_UNLOCKED_STAMP_IDS,
   lastUnlockedStampId: null,
   stampCheckedCount: PRE_UNLOCKED_STAMP_IDS.length,
+  ocrScanning: false,
+  lastUnlockEvent: null,
+  dismissUnlockEvent: () => {},
 });
 
 export function CameraProvider({ children }: { children: ReactNode }) {
@@ -90,6 +111,14 @@ export function CameraProvider({ children }: { children: ReactNode }) {
   const [showCamera, setShowCamera] = useState(false);
   const [unlockedStampIds, setUnlockedStampIds] = useState<number[]>(() => getInitialCameraOnce().unlockedStampIds);
   const [lastUnlockedStampId, setLastUnlockedStampId] = useState<number | null>(null);
+  const [ocrScanning, setOcrScanning] = useState(false);
+  const [lastUnlockEvent, setLastUnlockEvent] = useState<CameraUnlockEvent | null>(null);
+  const stampIdsRef = useRef<number[]>(getInitialCameraOnce().unlockedStampIds);
+  const nextEventId = useRef(0);
+
+  useEffect(() => {
+    stampIdsRef.current = unlockedStampIds;
+  }, [unlockedStampIds]);
 
   useEffect(() => {
     saveCameraToStorage(photos, unlockedStampIds);
@@ -97,32 +126,55 @@ export function CameraProvider({ children }: { children: ReactNode }) {
 
   const openCamera = useCallback(() => setShowCamera(true), []);
   const closeCamera = useCallback(() => setShowCamera(false), []);
+  const dismissUnlockEvent = useCallback(() => setLastUnlockEvent(null), []);
 
   const addPhotos = useCallback((files: File[]) => {
     if (files.length === 0) return;
-
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const url = e.target?.result as string;
+    void (async () => {
+      setOcrScanning(true);
+      try {
+        for (const file of files) {
+        const url = await readFileAsDataUrl(file);
         setPhotos((prev) => [...prev, { id: Date.now() + Math.random(), url }]);
 
-        // Each new photo triggers unlocking 1 random *locked* stamp.
-        setUnlockedStampIds((prevUnlocked) => {
-          if (prevUnlocked.length >= TOTAL_STAMPS) return prevUnlocked;
+        let ocr = "";
+        try {
+          ocr = await runBuildingOcrOnFile(file);
+        } catch {
+          ocr = "";
+        }
+        const building = detectBuildingCode(ocr);
+        const eventId = ++nextEventId.current;
 
-          const lockedStampIds = STAMP_DEFS.map((s) => s.id).filter((id) => !prevUnlocked.includes(id));
-          if (lockedStampIds.length === 0) return prevUnlocked;
+        const prevStamps = stampIdsRef.current;
+        let newStamp: number | null = null;
+        if (prevStamps.length < TOTAL_STAMPS) {
+          const locked = STAMP_DEFS.map((s) => s.id).filter((id) => !prevStamps.includes(id));
+          if (locked.length) {
+            const unlockedId = locked[Math.floor(Math.random() * locked.length)];
+            newStamp = unlockedId;
+            const next = [...prevStamps, unlockedId].sort((a, b) => a - b);
+            stampIdsRef.current = next;
+            setUnlockedStampIds(next);
+            setLastUnlockedStampId(unlockedId);
+          }
+        }
 
-          const randomIndex = Math.floor(Math.random() * lockedStampIds.length);
-          const unlockedId = lockedStampIds[randomIndex];
-
-          setLastUnlockedStampId(unlockedId);
-          return [...prevUnlocked, unlockedId];
-        });
-      };
-      reader.readAsDataURL(file);
-    });
+        if (building) {
+          setLastUnlockEvent({
+            id: eventId,
+            kind: "building",
+            code: building,
+            grantedStamp: newStamp != null,
+          });
+        } else if (newStamp != null) {
+          setLastUnlockEvent({ id: eventId, kind: "random" });
+        }
+        }
+      } finally {
+        setOcrScanning(false);
+      }
+    })();
   }, []);
 
   const stampCheckedCount = unlockedStampIds.length;
@@ -138,6 +190,9 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         unlockedStampIds,
         lastUnlockedStampId,
         stampCheckedCount,
+        ocrScanning,
+        lastUnlockEvent,
+        dismissUnlockEvent,
       }}
     >
       {children}
