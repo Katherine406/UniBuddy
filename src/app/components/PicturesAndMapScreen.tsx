@@ -10,6 +10,8 @@ import { BottomNav } from "./BottomNav";
 import { IconBack, IconChevronLeft, IconChevronRight, IconNavigation, IconChevronRight as IconArrow } from "./ComicIcons";
 import { useLanguage } from "../context/LanguageContext";
 import { classrooms } from "../data/classroomData";
+import { campusMapHotspots } from "../data/campusMapHotspots";
+import { campusGraphCostToApproxMeters, campusWalkAdjacency, shortestCampusWalkPath } from "../data/campusWalkGraph";
 import { ImageZoomLightbox } from "./ImageZoomLightbox";
 
 const C = {
@@ -31,29 +33,6 @@ const photoDefs = [
   { id: 4, titleKey: "photo_teaching", tagKey: "tag_building", fileName: "Building.jpg" },
   { id: 5, titleKey: "photo_sports",   tagKey: "tag_sports",   fileName: "Sports.jpg"   },
 ];
-
-const campusMapHotspots = [
-  { id: "ls", label: "LS", fullName: "Life Sciences", x: 32, y: 22, color: "#2d8f47" },
-  { id: "fb", label: "FB", fullName: "Foundation Building", x: 41, y: 42, color: "#5ba3d4" },
-  { id: "cb", label: "CB", fullName: "Central Building", x: 42, y: 56, color: "#17316f" },
-  { id: "sa", label: "SA", fullName: "Science Building A", x: 54, y: 51, color: "#6abf69" },
-  { id: "sb", label: "SB", fullName: "Science Building B", x: 54, y: 55, color: "#6abf69" },
-  { id: "sc", label: "SC", fullName: "Science Building C", x: 54, y: 59, color: "#6abf69" },
-  { id: "sd", label: "SD", fullName: "Science Building D", x: 54, y: 63, color: "#6abf69" },
-  { id: "pb", label: "PB", fullName: "Public Building", x: 61, y: 53, color: "#e8a23a" },
-  { id: "ma", label: "MA", fullName: "Mathematics Building A", x: 67, y: 53, color: "#7e57c2" },
-  { id: "mb", label: "MB", fullName: "Mathematics Building B", x: 67, y: 57, color: "#7e57c2" },
-  { id: "ee", label: "EE", fullName: "Electrical & Electronic", x: 61, y: 63, color: "#26a69a" },
-  { id: "eb", label: "EB", fullName: "Engineering Building", x: 68, y: 61, color: "#3d8f5a" },
-  { id: "ir", label: "IR", fullName: "International Research Centre", x: 54, y: 73, color: "#c62828" },
-  { id: "ia", label: "IA", fullName: "International Academic Exchange", x: 63, y: 75, color: "#ef6c2a" },
-  { id: "hs", label: "HS", fullName: "Humanities & Social Sciences", x: 63, y: 83, color: "#8d6e63" },
-  { id: "es", label: "ES", fullName: "Emerging Sciences", x: 53, y: 92, color: "#d84315" },
-  { id: "db", label: "DB", fullName: "Design Building", x: 65, y: 90, color: "#795548" },
-  { id: "bs", label: "BS", fullName: "International Business School", x: 51, y: 83, color: "#c62828" },
-  { id: "as", label: "AS", fullName: "Film & Creative Technology", x: 45, y: 71, color: "#f9a825" },
-  { id: "gym", label: "GYM", fullName: "Gymnasium", x: 73, y: 75, color: "#263238" },
-] as const;
 
 type RouteMapPoint = { id: string; x: number; y: number };
 
@@ -519,12 +498,15 @@ export function PicturesAndMapScreen() {
   // Route planning states
   const [routePlanning, setRoutePlanning] = useState(false);
   const [routeReady, setRouteReady] = useState(false);
+  /** 教室导航路网起点（与示意图邻接表一致） */
+  const [routeNavStartId, setRouteNavStartId] = useState("cb");
   const routeSectionRef = useRef<HTMLDivElement>(null);
 
   // Reset route state whenever a different room is selected
   useEffect(() => {
     setRoutePlanning(false);
     setRouteReady(false);
+    setRouteNavStartId("cb");
   }, [selected]);
 
   const mapCopy =
@@ -1085,18 +1067,42 @@ export function PicturesAndMapScreen() {
           {(() => {
             const locale = getLocale(selected);
             const destinationCode = extractBuildingCode(locale.building);
-            const routeStart = getRouteMapPointByCode("cb") ?? { id: "cb", x: 42, y: 56 };
-            const routeEnd = getRouteMapPointByCode(destinationCode) ?? routeStart;
-            const dx = routeEnd.x - routeStart.x;
-            const dy = routeEnd.y - routeStart.y;
-            const distanceMeters = Math.max(60, Math.round(Math.hypot(dx, dy) * 8));
-            const targetLabel = destinationCode ? destinationCode.toUpperCase() : (lang === "zh" ? "目标楼" : "Destination");
+            const walkAdj = campusWalkAdjacency();
+            const endGraphId = (routePointAlias[destinationCode] ?? destinationCode).toLowerCase();
+            const graphRoute =
+              walkAdj.has(routeNavStartId) && walkAdj.has(endGraphId)
+                ? shortestCampusWalkPath(routeNavStartId, endGraphId)
+                : null;
+            const startPin = campusMapHotspots.find((h) => h.id === routeNavStartId);
+            const endPin = campusMapHotspots.find((h) => h.id === endGraphId);
+            const routeFromPoint = getRouteMapPointByCode(routeNavStartId) ?? { id: "cb", x: 42, y: 56 };
+            const routeToPoint = getRouteMapPointByCode(destinationCode) ?? routeFromPoint;
+            const dx = routeToPoint.x - routeFromPoint.x;
+            const dy = routeToPoint.y - routeFromPoint.y;
+            const distanceMeters = graphRoute
+              ? campusGraphCostToApproxMeters(graphRoute.cost)
+              : Math.max(60, Math.round(Math.hypot(dx, dy) * 8));
+            const targetLabel =
+              endPin?.label ??
+              (destinationCode ? destinationCode.toUpperCase() : lang === "zh" ? "目标楼" : "Destination");
+            const startLabel = startPin?.label ?? routeNavStartId.toUpperCase();
             const routePreviewFile = routePreviewImageByDestination[destinationCode];
-            const routePreviewSrc = `${import.meta.env.BASE_URL}${routePreviewFile ?? "campus-map.jpg"}`;
-            const routePreviewAlt =
-              routePreviewFile
-                ? `Route from CB to ${targetLabel}`
+            const campusMapSrc = `${import.meta.env.BASE_URL}campus-map.jpg`;
+            const routeMapSrc = graphRoute ? campusMapSrc : `${import.meta.env.BASE_URL}${routePreviewFile ?? "campus-map.jpg"}`;
+            const routePreviewAlt = graphRoute
+              ? `Route ${startLabel} → ${targetLabel}`
+              : routePreviewFile
+                ? `Route from ${startLabel} to ${targetLabel}`
                 : "XJTLU campus map navigation";
+            const polylinePoints =
+              graphRoute?.path
+                .map((nid) => {
+                  const p = campusMapHotspots.find((h) => h.id === nid);
+                  return p ? `${p.x},${p.y}` : "";
+                })
+                .filter(Boolean)
+                .join(" ") ?? "";
+            const graphStartOptions = campusMapHotspots.filter((h) => walkAdj.has(h.id));
             return (
               <>
                 {/* Nav header */}
@@ -1196,6 +1202,35 @@ export function PicturesAndMapScreen() {
                     </div>
                   </ComicCard>
 
+                  <ComicCard style={{ padding: "12px", marginTop: "14px", marginBottom: "2px", backgroundColor: C.white }}>
+                    <p style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898", marginBottom: "8px" }}>
+                      {t("nav_start_pt")} · {t("nav_graph_pick_hint")}
+                    </p>
+                    <select
+                      value={routeNavStartId}
+                      onChange={(e) => setRouteNavStartId(e.target.value)}
+                      style={{
+                        width: "100%",
+                        padding: "10px 12px",
+                        borderRadius: "12px",
+                        border: `2.5px solid ${C.navy}`,
+                        backgroundColor: C.cream,
+                        fontSize: "13px",
+                        fontWeight: 800,
+                        color: C.navy,
+                        boxShadow: `2px 2px 0 ${C.navy}`,
+                        cursor: "pointer",
+                        outline: "none",
+                      }}
+                    >
+                      {graphStartOptions.map((h) => (
+                        <option key={h.id} value={h.id}>
+                          {h.label} — {h.fullName}
+                        </option>
+                      ))}
+                    </select>
+                  </ComicCard>
+
                   <button
                     onClick={handlePlanRoute}
                     disabled={routePlanning || routeReady}
@@ -1232,6 +1267,33 @@ export function PicturesAndMapScreen() {
                         <span style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>🗺️ {t("nav_plan_route")}</span>
                       </div>
 
+                      <ComicCard style={{ padding: "12px", marginBottom: "10px", backgroundColor: C.white }}>
+                        <p style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898", marginBottom: "8px" }}>{t("nav_start_pt")}</p>
+                        <select
+                          value={routeNavStartId}
+                          onChange={(e) => setRouteNavStartId(e.target.value)}
+                          style={{
+                            width: "100%",
+                            padding: "10px 12px",
+                            borderRadius: "12px",
+                            border: `2.5px solid ${C.navy}`,
+                            backgroundColor: C.cream,
+                            fontSize: "13px",
+                            fontWeight: 800,
+                            color: C.navy,
+                            boxShadow: `2px 2px 0 ${C.navy}`,
+                            cursor: "pointer",
+                            outline: "none",
+                          }}
+                        >
+                          {graphStartOptions.map((h) => (
+                            <option key={h.id} value={h.id}>
+                              {h.label} — {h.fullName}
+                            </option>
+                          ))}
+                        </select>
+                      </ComicCard>
+
                       {/* Route preview image */}
                       <ComicCard style={{ padding: 0, overflow: "hidden", marginBottom: "10px" }}>
                         <div
@@ -1245,32 +1307,82 @@ export function PicturesAndMapScreen() {
                             borderBottom: `2px solid ${C.navy}`,
                           }}
                         >
-                          <span style={{ minWidth: "42px", height: "24px", borderRadius: "8px", backgroundColor: C.mint, border: `2px solid ${C.navy}`, boxShadow: `2px 2px 0 ${C.navy}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 900, color: C.navy }}>CB</span>
+                          <span style={{ minWidth: "42px", height: "24px", borderRadius: "8px", backgroundColor: C.mint, border: `2px solid ${C.navy}`, boxShadow: `2px 2px 0 ${C.navy}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 900, color: C.navy, padding: "0 8px" }}>{startLabel}</span>
                           <span style={{ fontSize: "12px", fontWeight: 900, color: C.royal }}>{lang === "zh" ? "到" : "to"}</span>
                           <span style={{ minWidth: "48px", height: "24px", borderRadius: "8px", backgroundColor: C.yellow, border: `2px solid ${C.navy}`, boxShadow: `2px 2px 0 ${C.navy}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: 900, color: C.navy, padding: "0 10px" }}>{targetLabel}</span>
                         </div>
                         <div style={{ position: "relative", backgroundColor: "#CFE8FF" }}>
                           <img
-                            src={routePreviewSrc}
+                            src={routeMapSrc}
                             alt={routePreviewAlt}
                             role="button"
                             tabIndex={0}
-                            onClick={() => setLightbox({ src: routePreviewSrc, alt: routePreviewAlt })}
+                            onClick={() => setLightbox({ src: routeMapSrc, alt: routePreviewAlt })}
                             onKeyDown={(e) => {
                               if (e.key === "Enter" || e.key === " ") {
                                 e.preventDefault();
-                                setLightbox({ src: routePreviewSrc, alt: routePreviewAlt });
+                                setLightbox({ src: routeMapSrc, alt: routePreviewAlt });
                               }
                             }}
                             style={{ width: "100%", height: "auto", display: "block", cursor: "pointer" }}
                           />
-                          {!routePreviewFile && (
+                          {graphRoute && polylinePoints && (
+                            <svg
+                              viewBox="0 0 100 100"
+                              preserveAspectRatio="none"
+                              aria-hidden
+                              style={{
+                                position: "absolute",
+                                left: 0,
+                                top: 0,
+                                width: "100%",
+                                height: "100%",
+                                pointerEvents: "none",
+                              }}
+                            >
+                              <polyline
+                                fill="none"
+                                stroke="#FFFFFF"
+                                strokeWidth={2.8}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                opacity={0.95}
+                                points={polylinePoints}
+                              />
+                              <polyline
+                                fill="none"
+                                stroke={C.royal}
+                                strokeWidth={1.4}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                points={polylinePoints}
+                              />
+                              {graphRoute.path.map((nid) => {
+                                const p = campusMapHotspots.find((h) => h.id === nid);
+                                if (!p) return null;
+                                const r = nid === routeNavStartId ? 2.2 : nid === endGraphId ? 2.2 : 1.2;
+                                const fill = nid === routeNavStartId ? C.mint : nid === endGraphId ? C.yellow : C.white;
+                                return (
+                                  <circle key={nid} cx={p.x} cy={p.y} r={r} fill={fill} stroke={C.navy} strokeWidth={0.45} />
+                                );
+                              })}
+                            </svg>
+                          )}
+                          {graphRoute ? (
+                            <div style={{ position: "absolute", left: "8px", right: "8px", bottom: "8px", borderRadius: "8px", backgroundColor: "rgba(255,255,255,0.94)", border: `1.5px solid ${C.pale}`, padding: "4px 6px", textAlign: "center" }}>
+                              <p style={{ fontSize: "10px", fontWeight: 700, color: "#4B6898" }}>{t("nav_path_highlight")}</p>
+                            </div>
+                          ) : !walkAdj.has(endGraphId) && destinationCode ? (
+                            <div style={{ position: "absolute", left: "8px", right: "8px", bottom: "8px", borderRadius: "8px", backgroundColor: "rgba(255,255,255,0.92)", border: `1.5px solid ${C.pale}`, padding: "4px 6px", textAlign: "center" }}>
+                              <p style={{ fontSize: "10px", fontWeight: 700, color: "#4B6898" }}>{t("nav_no_graph_path")}</p>
+                            </div>
+                          ) : !routePreviewFile ? (
                             <div style={{ position: "absolute", left: "8px", right: "8px", bottom: "8px", borderRadius: "8px", backgroundColor: "rgba(255,255,255,0.92)", border: `1.5px solid ${C.pale}`, padding: "4px 6px", textAlign: "center" }}>
                               <p style={{ fontSize: "10px", fontWeight: 700, color: "#4B6898" }}>
                                 {lang === "zh" ? "该楼路线图暂未上传，当前显示校园地图" : "Route image not uploaded yet, showing campus map."}
                               </p>
                             </div>
-                          )}
+                          ) : null}
                         </div>
 
                         {/* Route stats bar */}
