@@ -1346,74 +1346,7 @@ export function PicturesAndMapScreen() {
 
                 <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: "24px" }}>
 
-                  {/* Walk route */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
-                    <div style={{ width: "4px", height: "18px", backgroundColor: C.royal, border: `1.5px solid ${C.navy}`, borderRadius: "2px" }} />
-                    <span style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>{t("map_walk")}</span>
-                  </div>
-
-                  <ComicCard style={{ padding: "14px", marginBottom: "14px", backgroundColor: C.cream }}>
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      {locale.steps.map((step, i) => (
-                        <div key={i} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
-                            <div style={{
-                              width: "28px", height: "28px", borderRadius: "50%",
-                              backgroundColor: i === 0 ? C.mint : i === locale.steps.length - 1 ? C.royal : C.pale,
-                              border: `2px solid ${C.navy}`,
-                              display: "flex", alignItems: "center", justifyContent: "center",
-                              fontSize: "13px", fontWeight: 900,
-                              color: i === locale.steps.length - 1 ? C.white : C.navy,
-                            }}>
-                              {i === 0 ? "📍" : i === locale.steps.length - 1 ? "🏛️" : `${i}`}
-                            </div>
-                            {i < locale.steps.length - 1 && (
-                              <div style={{ width: "2px", height: "24px", backgroundColor: C.pale, margin: "3px 0" }} />
-                            )}
-                          </div>
-                          <div style={{ paddingTop: "4px", paddingBottom: i < locale.steps.length - 1 ? "8px" : "0" }}>
-                            <p style={{ fontSize: "13px", fontWeight: i === 0 || i === locale.steps.length - 1 ? 800 : 600, color: C.navy }}>
-                              {step.replace(/^[^\s]+\s/, "")}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ComicCard>
-
-                  {/* Floor guide */}
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
-                    <div style={{ width: "4px", height: "18px", backgroundColor: C.yellow, border: `1.5px solid ${C.navy}`, borderRadius: "2px" }} />
-                    <span style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>{t("map_floor_nav")}</span>
-                  </div>
-
-                  {/* Access card */}
-                  <ComicCard style={{ padding: "14px", marginBottom: "12px", backgroundColor: selected.access === "elevator" ? C.pale : selected.access === "stairs" ? "#E8D5FF" : C.mint + "55" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      <div style={{ width: "46px", height: "46px", flexShrink: 0, backgroundColor: C.white, border: `2.5px solid ${C.navy}`, borderRadius: "14px", boxShadow: `3px 3px 0 ${C.navy}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>
-                        {selected.access === "elevator" ? "🛗" : selected.access === "stairs" ? "🪜" : "🚶"}
-                      </div>
-                      <div>
-                        <p style={{ fontSize: "11px", fontWeight: 700, color: "#4B6898" }}>
-                          {selected.access === "elevator" ? t("map_elev") : selected.access === "stairs" ? t("map_stairs") : t("map_no_elev")}
-                        </p>
-                        <p style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>{locale.accessDetail}</p>
-                      </div>
-                    </div>
-                  </ComicCard>
-
-                  {/* Room guide */}
-                  <ComicCard style={{ padding: "14px", backgroundColor: C.ice }}>
-                    <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
-                      <span style={{ fontSize: "22px", flexShrink: 0 }}>📌</span>
-                      <div>
-                        <p style={{ fontSize: "12px", fontWeight: 700, color: "#4B6898", marginBottom: "4px" }}>{t("map_arrive")}</p>
-                        <p style={{ fontSize: "13px", fontWeight: 800, color: C.navy, lineHeight: 1.5 }}>{locale.floorGuide}</p>
-                      </div>
-                    </div>
-                  </ComicCard>
-
-                  <ComicCard style={{ padding: "12px", marginTop: "14px", marginBottom: "2px", backgroundColor: C.white }}>
+                  <ComicCard style={{ padding: "12px", marginBottom: "2px", backgroundColor: C.white }}>
                     <p style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898", marginBottom: "8px" }}>
                       {t("nav_start_pt")}
                     </p>
@@ -1478,35 +1411,8 @@ export function PicturesAndMapScreen() {
                         <span style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>🗺️ {t("nav_plan_route")}</span>
                       </div>
 
-                      <ComicCard style={{ padding: "12px", marginBottom: "10px", backgroundColor: C.white }}>
-                        <p style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898", marginBottom: "8px" }}>{t("nav_start_pt")}</p>
-                        <select
-                          value={routeNavStartId}
-                          onChange={(e) => setRouteNavStartId(e.target.value)}
-                          style={{
-                            width: "100%",
-                            padding: "10px 12px",
-                            borderRadius: "12px",
-                            border: `2.5px solid ${C.navy}`,
-                            backgroundColor: C.cream,
-                            fontSize: "13px",
-                            fontWeight: 800,
-                            color: C.navy,
-                            boxShadow: `2px 2px 0 ${C.navy}`,
-                            cursor: "pointer",
-                            outline: "none",
-                          }}
-                        >
-                          {graphStartOptions.map((h) => (
-                            <option key={h.id} value={h.id}>
-                              {h.label} — {h.fullName}
-                            </option>
-                          ))}
-                        </select>
-                      </ComicCard>
-
                       {/* Route preview image */}
-                      <ComicCard style={{ padding: 0, overflow: "hidden", marginBottom: "10px" }}>
+                      <ComicCard style={{ padding: 0, overflow: "hidden", marginBottom: "14px" }}>
                         <div
                           style={{
                             display: "flex",
@@ -1633,14 +1539,34 @@ export function PicturesAndMapScreen() {
                             <p style={{ fontSize: "9px", fontWeight: 700, color: "#4B6898", marginBottom: "2px" }}>{t("nav_distance")}</p>
                             <p style={{ fontSize: "15px", fontWeight: 900, color: C.navy }}>{`~${distanceMeters}m`}</p>
                           </div>
-                          <div style={{ width: "1px", height: "30px", backgroundColor: C.pale, margin: "0 8px" }} />
-                          <div style={{ flex: 1, textAlign: "center" }}>
-                            <div style={{
-                              display: "inline-block",
-                              backgroundColor: C.pale, border: `1.5px solid ${C.navy}`,
-                              borderRadius: "8px", padding: "3px 8px",
-                              fontSize: "9px", fontWeight: 800, color: C.navy,
-                            }}>{t("nav_walking")}</div>
+                        </div>
+                      </ComicCard>
+
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                        <div style={{ width: "4px", height: "18px", backgroundColor: C.yellow, border: `1.5px solid ${C.navy}`, borderRadius: "2px" }} />
+                        <span style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>{t("map_floor_nav")}</span>
+                      </div>
+
+                      <ComicCard style={{ padding: "14px", marginBottom: "12px", backgroundColor: selected.access === "elevator" ? C.pale : selected.access === "stairs" ? "#E8D5FF" : C.mint + "55" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                          <div style={{ width: "46px", height: "46px", flexShrink: 0, backgroundColor: C.white, border: `2.5px solid ${C.navy}`, borderRadius: "14px", boxShadow: `3px 3px 0 ${C.navy}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px" }}>
+                            {selected.access === "elevator" ? "🛗" : selected.access === "stairs" ? "🪜" : "🚶"}
+                          </div>
+                          <div>
+                            <p style={{ fontSize: "11px", fontWeight: 700, color: "#4B6898" }}>
+                              {selected.access === "elevator" ? t("map_elev") : selected.access === "stairs" ? t("map_stairs") : t("map_no_elev")}
+                            </p>
+                            <p style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>{locale.accessDetail}</p>
+                          </div>
+                        </div>
+                      </ComicCard>
+
+                      <ComicCard style={{ padding: "14px", backgroundColor: C.ice }}>
+                        <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                          <span style={{ fontSize: "22px", flexShrink: 0 }}>📌</span>
+                          <div>
+                            <p style={{ fontSize: "12px", fontWeight: 700, color: "#4B6898", marginBottom: "4px" }}>{t("map_arrive")}</p>
+                            <p style={{ fontSize: "13px", fontWeight: 800, color: C.navy, lineHeight: 1.5 }}>{locale.floorGuide}</p>
                           </div>
                         </div>
                       </ComicCard>
