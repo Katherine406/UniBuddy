@@ -282,7 +282,7 @@ const zh: Texts = {
   // Route planning (map overlay)
   nav_plan_route: "路线规划",
   nav_your_loc: "你在这里",
-  nav_est_walk: "预计步行",
+  nav_est_walk: "预计用时",
   nav_distance: "距离",
   nav_walking: "🚶 步行",
   nav_gps_coming: "实时 GPS 导航即将上线",
@@ -551,7 +551,7 @@ const en: Texts = {
   // Route planning (map overlay)
   nav_plan_route: "Plan Route",
   nav_your_loc: "You are here",
-  nav_est_walk: "Est. Walk",
+  nav_est_walk: "Est. time",
   nav_distance: "Distance",
   nav_walking: "🚶 Walking",
   nav_gps_coming: "Live GPS Navigation Coming Soon",
