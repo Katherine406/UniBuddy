@@ -1,11 +1,21 @@
-/** 对照片做英文 OCR，用于识别楼栋缩写（标牌以英文为主）；按需加载 tesseract 以减轻首屏体积 */
-export async function runBuildingOcrOnFile(file: File): Promise<string> {
+const silentLogger = () => {
+  /* 静默 */
+};
+
+/** 按界面语言选 OCR：英文模式优先 eng（英文标牌更稳），中文模式用 eng+chi_sim 兼顾中文；失败则降级 */
+export async function runBuildingOcrOnFile(file: File, lang: "zh" | "en"): Promise<string> {
   const { default: Tesseract } = await import("tesseract.js");
-  /** 中英双语标牌（如「国际科研中心」）需 chi_sim；英文缩写仍可读 */
-  const result = await Tesseract.recognize(file, "eng+chi_sim", {
-    logger: () => {
-      /* 静默；避免控制台刷屏 */
-    },
-  });
-  return typeof result.data.text === "string" ? result.data.text : "";
+  const chain: string[] =
+    lang === "zh" ? ["eng+chi_sim", "eng"] : ["eng", "eng+chi_sim"];
+
+  for (const langTag of chain) {
+    try {
+      const result = await Tesseract.recognize(file, langTag, { logger: silentLogger });
+      const text = typeof result.data.text === "string" ? result.data.text : "";
+      if (text.trim().length > 0) return text;
+    } catch {
+      /* 尝试下一种语言包 */
+    }
+  }
+  return "";
 }
