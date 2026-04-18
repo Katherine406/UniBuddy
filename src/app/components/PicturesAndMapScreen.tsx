@@ -509,11 +509,18 @@ export function PicturesAndMapScreen() {
     setRouteNavStartId("cb");
   }, [selected]);
 
+  const [mascotGuideOpen, setMascotGuideOpen] = useState(false);
+
   const mapCopy =
     lang === "zh"
       ? {
           clickHint: "点击地图点位查看简介",
           notReady: "该点位简介暂未配置",
+          mascotOpen: "打开校园讲解员",
+          mascotClose: "收起讲解员",
+          listenAgain: "重新朗读",
+          stopSpeak: "停止朗读",
+          speechTip: "语音由浏览器朗读，可随时点「停止」。音色因设备而异。",
           startLocating: "点击“开始定位”获取实时位置",
           locating: "正在获取当前位置...",
           locatingWithAccuracy: (meters: number) => `实时定位中，精度约 ${meters} 米`,
@@ -532,6 +539,11 @@ export function PicturesAndMapScreen() {
       : {
           clickHint: "Tap a map pin to view details",
           notReady: "Description for this spot is not ready yet",
+          mascotOpen: "Open campus guide",
+          mascotClose: "Hide guide",
+          listenAgain: "Read again",
+          stopSpeak: "Stop",
+          speechTip: "Uses your browser’s text-to-speech. Tap Stop anytime. Voice varies by device.",
           startLocating: 'Tap "Start" to get live location',
           locating: "Getting your current location...",
           locatingWithAccuracy: (meters: number) => `Live tracking, accuracy about ${meters} m`,
@@ -551,6 +563,45 @@ export function PicturesAndMapScreen() {
   const activeLocation =
     (lang === "zh" ? campusLocationInfoZh : campusLocationInfo)[activeHotspotId] ??
     campusLocationInfo[activeHotspotId];
+
+  const bodeSrc = `${import.meta.env.BASE_URL}bode.png`;
+
+  const speakBuildingIntro = () => {
+    if (!activeLocation) return;
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    speechSynthesis.cancel();
+    const bestLine =
+      activeLocation.bestFor?.trim() &&
+      (lang === "zh"
+        ? `${mapCopy.bestFor}：${activeLocation.bestFor}`
+        : `${mapCopy.bestFor}: ${activeLocation.bestFor}`);
+    const parts = [activeLocation.title, activeLocation.desc, activeLocation.story, bestLine].filter(Boolean) as string[];
+    const text = parts.join(lang === "zh" ? "。" : ". ");
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang === "zh" ? "zh-CN" : "en-US";
+    u.rate = 0.92;
+    speechSynthesis.speak(u);
+  };
+
+  const stopBuildingSpeech = () => {
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      speechSynthesis.cancel();
+    }
+  };
+
+  useEffect(() => {
+    stopBuildingSpeech();
+    setMascotGuideOpen(false);
+  }, [activeHotspotId]);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
   const XJTLU_CENTER: [number, number] = [31.2718, 120.7415];
   const LIVE_MAP_DEFAULT_ZOOM = 15;
   const LIVE_MAP_MAX_ZOOM = 18;
@@ -867,13 +918,146 @@ export function PicturesAndMapScreen() {
                 ))}
               </div>
 
-              <div style={{ marginTop: "8px", padding: "10px", borderRadius: "10px", backgroundColor: C.white, border: `2px solid ${C.navy}`, boxShadow: `2px 2px 0 ${C.pale}` }}>
+              <div
+                style={{
+                  marginTop: "8px",
+                  padding: "10px",
+                  borderRadius: "10px",
+                  backgroundColor: C.white,
+                  border: `2px solid ${C.navy}`,
+                  boxShadow: `2px 2px 0 ${C.pale}`,
+                  position: "relative",
+                  paddingRight: activeLocation ? "58px" : "10px",
+                }}
+              >
+                {activeLocation && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!mascotGuideOpen) {
+                        setMascotGuideOpen(true);
+                        speakBuildingIntro();
+                      } else {
+                        setMascotGuideOpen(false);
+                        stopBuildingSpeech();
+                      }
+                    }}
+                    aria-label={mascotGuideOpen ? mapCopy.mascotClose : mapCopy.mascotOpen}
+                    aria-expanded={mascotGuideOpen}
+                    style={{
+                      position: "absolute",
+                      top: "8px",
+                      right: "8px",
+                      width: "46px",
+                      height: "46px",
+                      padding: "4px",
+                      borderRadius: "14px",
+                      border: `2.5px solid ${C.navy}`,
+                      backgroundColor: C.cream,
+                      boxShadow: mascotGuideOpen ? `inset 2px 2px 0 ${C.pale}` : `2px 2px 0 ${C.navy}`,
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      zIndex: 2,
+                    }}
+                  >
+                    <img
+                      src={bodeSrc}
+                      alt=""
+                      style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", pointerEvents: "none" }}
+                    />
+                  </button>
+                )}
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <span style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898" }}>{activeLocation?.type ?? mapCopy.clickHint}</span>
                 </div>
                 <p style={{ marginTop: "5px", fontSize: "14px", fontWeight: 900, color: C.navy }}>
                   {activeLocation?.title ?? mapCopy.notReady}
                 </p>
+                {mascotGuideOpen && activeLocation && (
+                  <div
+                    style={{
+                      marginTop: "10px",
+                      marginBottom: "6px",
+                      padding: "12px",
+                      borderRadius: "12px",
+                      border: `2px dashed ${C.sky}`,
+                      backgroundColor: C.ice,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
+                    <img
+                      src={bodeSrc}
+                      alt=""
+                      style={{ width: "min(140px, 55vw)", height: "auto", display: "block", filter: "drop-shadow(2px 3px 0 rgba(14,27,77,0.12))" }}
+                    />
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", justifyContent: "center" }}>
+                      <button
+                        type="button"
+                        onClick={() => speakBuildingIntro()}
+                        style={{
+                          minHeight: "34px",
+                          padding: "0 14px",
+                          borderRadius: "10px",
+                          border: `2px solid ${C.navy}`,
+                          backgroundColor: C.royal,
+                          color: C.white,
+                          fontSize: "12px",
+                          fontWeight: 800,
+                          boxShadow: `2px 2px 0 ${C.navy}`,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {mapCopy.listenAgain}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={stopBuildingSpeech}
+                        style={{
+                          minHeight: "34px",
+                          padding: "0 14px",
+                          borderRadius: "10px",
+                          border: `2px solid ${C.navy}`,
+                          backgroundColor: C.white,
+                          color: C.navy,
+                          fontSize: "12px",
+                          fontWeight: 800,
+                          boxShadow: `2px 2px 0 ${C.pale}`,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {mapCopy.stopSpeak}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMascotGuideOpen(false);
+                          stopBuildingSpeech();
+                        }}
+                        style={{
+                          minHeight: "34px",
+                          padding: "0 14px",
+                          borderRadius: "10px",
+                          border: `2px solid ${C.pale}`,
+                          backgroundColor: C.cream,
+                          color: C.navy,
+                          fontSize: "12px",
+                          fontWeight: 800,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {mapCopy.mascotClose}
+                      </button>
+                    </div>
+                    <p style={{ margin: 0, fontSize: "10px", fontWeight: 600, color: "#4B6898", textAlign: "center", lineHeight: 1.45 }}>
+                      {mapCopy.speechTip}
+                    </p>
+                  </div>
+                )}
                 <p style={{ marginTop: "7px", fontSize: "11px", lineHeight: 1.45, color: C.navy }}>
                   {activeLocation?.desc ?? ""}
                 </p>
@@ -1204,7 +1388,7 @@ export function PicturesAndMapScreen() {
 
                   <ComicCard style={{ padding: "12px", marginTop: "14px", marginBottom: "2px", backgroundColor: C.white }}>
                     <p style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898", marginBottom: "8px" }}>
-                      {t("nav_start_pt")} 
+                      {t("nav_start_pt")}
                     </p>
                     <select
                       value={routeNavStartId}
