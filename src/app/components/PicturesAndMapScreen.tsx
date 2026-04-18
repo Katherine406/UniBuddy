@@ -517,7 +517,8 @@ export function PicturesAndMapScreen() {
           clickHint: "点击地图点位查看简介",
           notReady: "该点位简介暂未配置",
           mascotOpen: "打开校园讲解员",
-          mascotClose: "收起博德鸟讲解员",
+          mascotClose: "收起讲解员",
+          mascotVoiceHint: "点击听语音导览",
           listenAgain: "重新朗读",
           stopSpeak: "停止朗读",
           speechTip: "语音由浏览器朗读，可随时点「停止」。音色因设备而异。",
@@ -540,7 +541,8 @@ export function PicturesAndMapScreen() {
           clickHint: "Tap a map pin to view details",
           notReady: "Description for this spot is not ready yet",
           mascotOpen: "Open campus guide",
-          mascotClose: "Hide Bode Bird guide",
+          mascotClose: "Hide guide",
+          mascotVoiceHint: "Tap for voice tour",
           listenAgain: "Read again",
           stopSpeak: "Stop",
           speechTip: "Uses your browser’s text-to-speech. Tap Stop anytime. Voice varies by device.",
@@ -927,47 +929,72 @@ export function PicturesAndMapScreen() {
                   border: `2px solid ${C.navy}`,
                   boxShadow: `2px 2px 0 ${C.pale}`,
                   position: "relative",
-                  paddingRight: activeLocation ? "58px" : "10px",
+                  paddingRight: activeLocation ? (mascotGuideOpen ? "58px" : "min(calc(100% - 96px), 138px)") : "10px",
                 }}
               >
                 {activeLocation && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!mascotGuideOpen) {
-                        setMascotGuideOpen(true);
-                        speakBuildingIntro();
-                      } else {
-                        setMascotGuideOpen(false);
-                        stopBuildingSpeech();
-                      }
-                    }}
-                    aria-label={mascotGuideOpen ? mapCopy.mascotClose : mapCopy.mascotOpen}
-                    aria-expanded={mascotGuideOpen}
+                  <div
                     style={{
                       position: "absolute",
                       top: "8px",
                       right: "8px",
-                      width: "46px",
-                      height: "46px",
-                      padding: "4px",
-                      borderRadius: "14px",
-                      border: `2.5px solid ${C.navy}`,
-                      backgroundColor: C.cream,
-                      boxShadow: mascotGuideOpen ? `inset 2px 2px 0 ${C.pale}` : `2px 2px 0 ${C.navy}`,
-                      cursor: "pointer",
                       display: "flex",
+                      flexDirection: "row-reverse",
                       alignItems: "center",
-                      justifyContent: "center",
+                      gap: "6px",
+                      maxWidth: "calc(100% - 16px)",
                       zIndex: 2,
                     }}
                   >
-                    <img
-                      src={bodeSrc}
-                      alt=""
-                      style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", pointerEvents: "none" }}
-                    />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!mascotGuideOpen) {
+                          setMascotGuideOpen(true);
+                          speakBuildingIntro();
+                        } else {
+                          setMascotGuideOpen(false);
+                          stopBuildingSpeech();
+                        }
+                      }}
+                      aria-label={mascotGuideOpen ? mapCopy.mascotClose : mapCopy.mascotOpen}
+                      aria-expanded={mascotGuideOpen}
+                      style={{
+                        flexShrink: 0,
+                        width: "46px",
+                        height: "46px",
+                        padding: "4px",
+                        borderRadius: "14px",
+                        border: `2.5px solid ${C.navy}`,
+                        backgroundColor: C.cream,
+                        boxShadow: mascotGuideOpen ? `inset 2px 2px 0 ${C.pale}` : `2px 2px 0 ${C.navy}`,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <img
+                        src={bodeSrc}
+                        alt=""
+                        style={{ width: "100%", height: "100%", objectFit: "contain", display: "block", pointerEvents: "none" }}
+                      />
+                    </button>
+                    {!mascotGuideOpen && (
+                      <span
+                        style={{
+                          fontSize: "10px",
+                          fontWeight: 800,
+                          color: "#4B6898",
+                          lineHeight: 1.25,
+                          textAlign: "right",
+                          maxWidth: "min(92px, 28vw)",
+                        }}
+                      >
+                        {mapCopy.mascotVoiceHint}
+                      </span>
+                    )}
+                  </div>
                 )}
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <span style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898" }}>{activeLocation?.type ?? mapCopy.clickHint}</span>
