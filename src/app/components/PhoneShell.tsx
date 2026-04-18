@@ -47,24 +47,22 @@ export function PhoneShell({
 
 /* ── Camera overlay rendered inside every PhoneShell ── */
 function CameraOverlay() {
-  const { showCamera, closeCamera, photos, addPhotos, lastUnlockedStampId } = useCamera();
+  const { showCamera, closeCamera, photos, addPhotos, lastUnlockEvent, dismissUnlockEvent, ocrScanning } = useCamera();
   const { t } = useLanguage();
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const albumInputRef = useRef<HTMLInputElement>(null);
   const [toast, setToast] = useState<string | null>(null);
-  const prevUnlockedStampIdRef = useRef<number | null>(lastUnlockedStampId);
+  const prevEventIdRef = useRef<number | null>(null);
 
-  /* show a stamp-unlock toast when a new badge is unlocked */
   useEffect(() => {
-    if (
-      lastUnlockedStampId != null &&
-      lastUnlockedStampId !== prevUnlockedStampIdRef.current
-    ) {
+    if (!lastUnlockEvent) return;
+    if (lastUnlockEvent.id === prevEventIdRef.current) return;
+    prevEventIdRef.current = lastUnlockEvent.id;
+    if (lastUnlockEvent.kind === "random") {
       setToast(t("camera_stamp_unlocked"));
       setTimeout(() => setToast(null), 2800);
     }
-    prevUnlockedStampIdRef.current = lastUnlockedStampId;
-  }, [lastUnlockedStampId, t]);
+  }, [lastUnlockEvent, t]);
 
   const handleCamera = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -146,7 +144,7 @@ function CameraOverlay() {
 
       {/* Hint */}
       <p style={{ fontSize: "11px", fontWeight: 700, color: "#4B6898", textAlign: "center", padding: "8px 0 0" }}>
-        {t("camera_hint")}
+        {ocrScanning ? t("camera_ocr_working") : t("camera_hint")}
       </p>
 
       {/* Hidden inputs */}
@@ -184,7 +182,7 @@ function CameraOverlay() {
         )}
       </div>
 
-      {/* Stamp-unlock toast */}
+      {/* Stamp-unlock toast (仅未识别到楼宇缩写时) */}
       {toast && (
         <div style={{
           position: "absolute", bottom: "24px", left: "50%", transform: "translateX(-50%)",
@@ -198,6 +196,52 @@ function CameraOverlay() {
           <span style={{ fontSize: "22px" }}>🎉</span>
           <span style={{ fontSize: "13px", fontWeight: 900, color: C.yellow }}>{toast}</span>
           <style>{`@keyframes camToastIn { from { transform: translateX(-50%) translateY(16px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }`}</style>
+        </div>
+      )}
+
+      {/* 识别到楼宇缩写：弹窗 */}
+      {lastUnlockEvent?.kind === "building" && (
+        <div
+          role="dialog"
+          aria-modal
+          style={{
+            position: "absolute", inset: 0, zIndex: 20,
+            backgroundColor: "rgba(14, 27, 77, 0.45)",
+            display: "flex", alignItems: "center", justifyContent: "center", padding: "20px 16px",
+          }}
+          onClick={() => dismissUnlockEvent()}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: "100%", width: "100%", maxHeight: "min(72vh, 420px)", overflow: "auto",
+              backgroundColor: C.cream, border: `3px solid ${C.navy}`,
+              borderRadius: "20px", boxShadow: `6px 6px 0 ${C.navy}`,
+              padding: "20px 18px 16px",
+            }}
+          >
+            <p style={{ fontSize: "12px", fontWeight: 800, color: C.royal, marginBottom: "6px" }}>{t("ocr_unlock_title")}</p>
+            <h2 style={{ fontSize: "18px", fontWeight: 900, color: C.navy, lineHeight: 1.35, margin: "0 0 10px" }}>
+              {t("ocr_unlock_building", { name: t(`ocr_b_${lastUnlockEvent.code.toLowerCase()}_name`) })}
+            </h2>
+            <p style={{ fontSize: "13px", fontWeight: 600, color: "#2D3A5C", lineHeight: 1.6, margin: "0 0 14px" }}>
+              {t(`ocr_b_${lastUnlockEvent.code.toLowerCase()}_intro`)}
+            </p>
+            <p style={{ fontSize: "12px", fontWeight: 700, color: "#4B6898", margin: "0 0 16px" }}>
+              {lastUnlockEvent.grantedStamp ? t("ocr_unlock_plus_stamp") : t("ocr_unlock_stamp_done")}
+            </p>
+            <button
+              type="button"
+              onClick={() => dismissUnlockEvent()}
+              style={{
+                width: "100%", padding: "12px 16px", borderRadius: "14px", border: `2.5px solid ${C.navy}`,
+                backgroundColor: C.yellow, fontSize: "14px", fontWeight: 900, color: C.navy, cursor: "pointer",
+                boxShadow: `3px 3px 0 ${C.navy}`,
+              }}
+            >
+              {t("camera_dialog_ok")}
+            </button>
+          </div>
         </div>
       )}
     </div>
