@@ -149,7 +149,7 @@ const zh: Texts = {
   // Recommended routes — stops（新生 / 家长 / 深度）
   stop_rec_north_sign: "北门 - 西交利物浦学校校牌打卡",
   stop_rec_white_pavilion_plaza: "小白亭广场",
-  stop_rec_orient_occident: "东西汇廊（The Orient & Occident Connector）",
+  stop_rec_orient_occident: "东西汇廊 （The Orient & Occident Connector）",
   stop_rec_lake_plaza: "中心湖广场",
   stop_rec_history_cb_g: "校史馆（CB G层）",
   stop_rec_ibss: "IBSS商学院",
@@ -419,13 +419,13 @@ const en: Texts = {
   stop_selfStudy: "Study Lounge", stop_garden: "AS Garden", stop_path: "Tree-lined Path",
   stop_track: "Running Track", stop_basket: "Basketball Court", stop_pool: "Swimming Pool",
   stop_resources: "Academic Resource Ctr",
-  stop_lakeside: "Central Lake Wisdom Bar", stop_maingate: "Main Gate", stop_teaching_complex: "S Teaching Bldg Complex",
+  stop_lakeside: "Central Lake Wisdom Bar", stop_maingate: "Main Gate", stop_teaching_complex: "S-Block teaching cluster",
   // Recommended routes — stops
-  stop_rec_north_sign: "North Gate – XJTLU campus sign photo spot",
+  stop_rec_north_sign: "North Gate – XJTLU campus sign check-in",
   stop_rec_white_pavilion_plaza: "White Pavilion Square",
   stop_rec_orient_occident: "The Orient & Occident Connector",
   stop_rec_lake_plaza: "Central Lake Plaza",
-  stop_rec_history_cb_g: "History Hall (CB, G/F)",
+  stop_rec_history_cb_g: "University History Museum (CB, ground floor)",
   stop_rec_ibss: "IBSS Business School",
   // Mystery route stops (new)
   stop_food_south_north_hongyuan: "South/North Hongyuan",
