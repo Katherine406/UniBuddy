@@ -204,7 +204,7 @@ const zh: Texts = {
   photo_square: "CB", photo_library: "学习空间", photo_path: "学习步道",
   photo_teaching: "教学楼群", photo_sports: "体育馆",
   // Legacy photo label keys (compat with older configs)
-  name1: "CB", name2: "学习空间", name3: "学习步道", name4: "教学楼群", name5: "体育馆",
+  name1: "CB", name2: "学习空间", name3: "樱花步道", name4: "教学楼", name5: "体育馆",
   // Map pins
   pin_library: "图书馆", pin_square: "广场", pin_teaching: "教学楼",
   pin_canteen: "食堂", pin_gym: "体育馆",
