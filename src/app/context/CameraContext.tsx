@@ -84,6 +84,7 @@ interface CameraCtx {
   openCamera: () => void;
   closeCamera: () => void;
   addPhotos: (files: File[]) => void;
+  removePhoto: (photoId: number) => void;
   unlockedStampIds: number[];
   lastUnlockedStampId: number | null;
   stampCheckedCount: number;
@@ -98,6 +99,7 @@ const CameraContext = createContext<CameraCtx>({
   openCamera: () => {},
   closeCamera: () => {},
   addPhotos: () => {},
+  removePhoto: () => {},
   unlockedStampIds: PRE_UNLOCKED_STAMP_IDS,
   lastUnlockedStampId: null,
   stampCheckedCount: PRE_UNLOCKED_STAMP_IDS.length,
@@ -127,6 +129,9 @@ export function CameraProvider({ children }: { children: ReactNode }) {
   const openCamera = useCallback(() => setShowCamera(true), []);
   const closeCamera = useCallback(() => setShowCamera(false), []);
   const dismissUnlockEvent = useCallback(() => setLastUnlockEvent(null), []);
+  const removePhoto = useCallback((photoId: number) => {
+    setPhotos((prev) => prev.filter((photo) => photo.id !== photoId));
+  }, []);
 
   const addPhotos = useCallback((files: File[]) => {
     if (files.length === 0) return;
@@ -187,6 +192,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         openCamera,
         closeCamera,
         addPhotos,
+        removePhoto,
         unlockedStampIds,
         lastUnlockedStampId,
         stampCheckedCount,
