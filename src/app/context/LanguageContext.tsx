@@ -204,7 +204,7 @@ const zh: Texts = {
   photo_square: "CB", photo_library: "学习空间", photo_path: "学习步道",
   photo_teaching: "教学楼群", photo_sports: "体育馆",
   // Legacy photo label keys (compat with older configs)
-  name1: "CB", name2: "学术", name3: "樱花步道", name4: "教学楼", name5: "体育馆",
+  name1: "CB", name2: "学习空间", name3: "樱花步道", name4: "教学楼", name5: "体育馆",
   // Map pins
   pin_library: "图书馆", pin_square: "广场", pin_teaching: "教学楼",
   pin_canteen: "食堂", pin_gym: "体育馆",
@@ -229,6 +229,7 @@ const zh: Texts = {
   camera_saved: "已保存 {n} 张照片 👇",
   camera_stamp_unlocked: "🎖️ 已随机解锁新徽章",
   camera_photo_alt: "打卡照片",
+  camera_delete: "删除照片",
   camera_ocr_working: "正在识别照片文字…",
   camera_dialog_ok: "知道了",
   ocr_unlock_title: "楼宇打卡",
@@ -500,6 +501,7 @@ const en: Texts = {
   camera_saved: "{n} photos saved 👇",
   camera_stamp_unlocked: "🎖️ Random badge unlocked",
   camera_photo_alt: "Campus photo",
+  camera_delete: "Delete photo",
   camera_ocr_working: "Recognizing text…",
   camera_dialog_ok: "Got it",
   ocr_unlock_title: "Building check-in",
