@@ -30,7 +30,7 @@ export function ProfileScreen() {
   const navigate = useNavigate();
   const { favorites, removeFavorite } = useFavorites();
   const { stampCheckedCount, photos, openCamera, unlockedStampIds } = useCamera();
-  const { lang, toggle, t } = useLanguage();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<TabKey>("stamps");
 
   /* ── Editable name ── */
@@ -80,38 +80,9 @@ export function ProfileScreen() {
         <div style={{ position: "absolute", top: "-30px", right: "-30px", width: "100px", height: "100px", borderRadius: "50%", backgroundColor: C.sky, border: `2px solid ${C.navy}`, opacity: 0.4 }} />
 
         <div style={{ position: "relative", zIndex: 1 }}>
-          {/* ── Top row: label + lang toggle ── */}
+          {/* ── Top row: label ── */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
             <span style={{ fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.65)" }}>UniBuddy </span>
-
-            {/* Language toggle pill */}
-            <button
-              onClick={toggle}
-              style={{
-                display: "flex", alignItems: "center",
-                backgroundColor: C.navy, border: `2px solid ${C.pale}`,
-                borderRadius: "20px", overflow: "hidden",
-                boxShadow: `2px 2px 0 rgba(255,255,255,0.15)`,
-                cursor: "pointer", padding: 0,
-              }}
-            >
-              {(["zh", "en"] as const).map((l) => (
-                <span
-                  key={l}
-                  style={{
-                    padding: "4px 11px",
-                    fontSize: "11px",
-                    fontWeight: 900,
-                    color: lang === l ? C.navy : "rgba(255,255,255,0.5)",
-                    backgroundColor: lang === l ? C.yellow : "transparent",
-                    transition: "background 0.2s",
-                    pointerEvents: "none",
-                  }}
-                >
-                  {l === "zh" ? "中文" : "EN"}
-                </span>
-              ))}
-            </button>
           </div>
 
           {/* ── Avatar + name row ── */}
