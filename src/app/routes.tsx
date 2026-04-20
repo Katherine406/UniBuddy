@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router";
 import { RootLayout, ErrorPage } from "./components/RootLayout";
 import { SplashScreen } from "./components/SplashScreen";
-import { HomeScreen } from "./components/HomeScreen";
+import HomeScreen from "./components/HomeScreen";
 import { PicturesAndMapScreen } from "./components/PicturesAndMapScreen";
 import { RouteScreen } from "./components/RouteScreen";
 import { MysteryRouteScreen } from "./components/MysteryRouteScreen";
