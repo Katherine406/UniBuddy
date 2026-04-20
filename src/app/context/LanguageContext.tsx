@@ -60,7 +60,7 @@ const zh: Texts = {
   map_floor: "{n}楼",
   // Route
   route_title: "路线探索", route_subtitle: "选择你今天的校园旅程",
-  route_mystery: "盲盒路线", route_mystery_sub: "回答问题，解锁专属惊喜路线 ✨",
+  route_mystery: "盲盒路线", route_mystery_sub: "解锁专属惊喜路线✨",
   route_custom: "自定义路线", route_custom_sub: "自由选择建筑，智能生成最优路径 🔧",
   route_recommended: "推荐路线",
   route_start: "开始导览", route_new: "NEW",
