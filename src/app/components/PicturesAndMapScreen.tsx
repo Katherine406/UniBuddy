@@ -11,7 +11,7 @@ import { IconBack, IconChevronLeft, IconChevronRight, IconNavigation, IconChevro
 import { useLanguage } from "../context/LanguageContext";
 import { classrooms } from "../data/classroomData";
 import { campusMapHotspots } from "../data/campusMapHotspots";
-import { campusGraphCostToApproxMeters, campusWalkAdjacency, shortestCampusWalkPath } from "../data/campusWalkGraph";
+import { campusWalkAdjacency, shortestCampusWalkPath } from "../data/campusWalkGraph";
 import { ImageZoomLightbox } from "./ImageZoomLightbox";
 
 const C = {
@@ -1499,13 +1499,6 @@ export function PicturesAndMapScreen() {
                 : null;
             const startPin = campusMapHotspots.find((h) => h.id === routeNavStartId);
             const endPin = campusMapHotspots.find((h) => h.id === endGraphId);
-            const routeFromPoint = getRouteMapPointByCode(routeNavStartId) ?? { id: "cb", x: 42, y: 56 };
-            const routeToPoint = getRouteMapPointByCode(destinationCode) ?? routeFromPoint;
-            const dx = routeToPoint.x - routeFromPoint.x;
-            const dy = routeToPoint.y - routeFromPoint.y;
-            const distanceMeters = graphRoute
-              ? campusGraphCostToApproxMeters(graphRoute.cost)
-              : Math.max(60, Math.round(Math.hypot(dx, dy) * 8));
             const targetLabel =
               endPin?.label ??
               (destinationCode ? destinationCode.toUpperCase() : lang === "zh" ? "目标楼" : "Destination");
@@ -1733,17 +1726,6 @@ export function PicturesAndMapScreen() {
                           ) : null}
                         </div>
 
-                        {/* Route stats bar */}
-                        <div style={{
-                          padding: "10px 16px",
-                          backgroundColor: C.white,
-                          borderTop: `2px solid ${C.navy}`,
-                        }}>
-                          <div style={{ textAlign: "center" }}>
-                            <p style={{ fontSize: "9px", fontWeight: 700, color: "#4B6898", marginBottom: "2px" }}>{t("nav_distance")}</p>
-                            <p style={{ fontSize: "15px", fontWeight: 900, color: C.navy }}>{`~${distanceMeters}m`}</p>
-                          </div>
-                        </div>
                       </ComicCard>
 
                       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
