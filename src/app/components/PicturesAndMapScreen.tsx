@@ -1409,7 +1409,6 @@ export function PicturesAndMapScreen() {
                       </span>
                     </div>
                     <p style={{ fontSize: "11px", fontWeight: 600, color: "#4B6898" }}>{locale.building}</p>
-                    <p style={{ fontSize: "11px", fontWeight: 700, color: C.royal, marginTop: "1px" }}>⏱ {locale.duration}</p>
                   </div>
                   <IconArrow size={15} color={C.navy} />
                 </button>
@@ -1547,9 +1546,6 @@ export function PicturesAndMapScreen() {
                     <div>
                       <p style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.7)" }}>{t("home_classroom_nav")}</p>
                       <p style={{ fontSize: "20px", fontWeight: 900, color: C.white, textShadow: `1px 1px 0 ${C.navy}` }}>{selected.room}</p>
-                    </div>
-                    <div style={{ marginLeft: "auto" }}>
-                      <Burst size={44} color={C.yellow} text={locale.duration} textColor={C.navy} />
                     </div>
                   </div>
                   <div style={{ position: "relative", zIndex: 1, display: "flex", gap: "6px" }}>
@@ -1742,14 +1738,8 @@ export function PicturesAndMapScreen() {
                           padding: "10px 16px",
                           backgroundColor: C.white,
                           borderTop: `2px solid ${C.navy}`,
-                          display: "flex", alignItems: "center", gap: "0",
                         }}>
-                          <div style={{ flex: 1, textAlign: "center" }}>
-                            <p style={{ fontSize: "9px", fontWeight: 700, color: "#4B6898", marginBottom: "2px" }}>{t("nav_est_walk")}</p>
-                            <p style={{ fontSize: "15px", fontWeight: 900, color: C.royal }}>{locale.duration}</p>
-                          </div>
-                          <div style={{ width: "1px", height: "30px", backgroundColor: C.pale, margin: "0 8px" }} />
-                          <div style={{ flex: 1, textAlign: "center" }}>
+                          <div style={{ textAlign: "center" }}>
                             <p style={{ fontSize: "9px", fontWeight: 700, color: "#4B6898", marginBottom: "2px" }}>{t("nav_distance")}</p>
                             <p style={{ fontSize: "15px", fontWeight: 900, color: C.navy }}>{`~${distanceMeters}m`}</p>
                           </div>
