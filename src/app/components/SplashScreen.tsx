@@ -138,18 +138,13 @@ export function SplashScreen() {
           <div style={{ marginBottom: "8px" }}>
             <span
               style={{
-                fontSize: "clamp(44px, 10vw, 58px)",
+                fontSize: "50px",
                 fontWeight: 900,
-                letterSpacing: "-2.2px",
+                color: "#2350D8",
+                letterSpacing: "-2px",
                 lineHeight: 1,
-                display: "inline-block",
-                background: "linear-gradient(90deg, #3F92FF 0%, #4D82FF 28%, #626FFF 56%, #7B5CF5 78%, #9250F7 100%)",
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                color: "transparent",
-                WebkitTextStroke: "2.3px #1A2D96",
-                textShadow:
-                  "-3px -3px 0 #FFFFFF, 0 -3px 0 #FFFFFF, 3px -3px 0 #FFFFFF, -3px 0 0 #FFFFFF, 3px 0 0 #FFFFFF, -3px 3px 0 #FFFFFF, 0 3px 0 #FFFFFF, 3px 3px 0 #FFFFFF, 0 8px 12px rgba(35,80,216,0.28)",
+                display: "block",
+                textShadow: "3px 3px 0 #0E1B4D",
               }}
             >
               UniBuddy
@@ -165,7 +160,7 @@ export function SplashScreen() {
               paddingLeft: "10px",
             }}
           >
-            {t("splash_subtitle")} 
+            {t("splash_subtitle")} 🗺️
           </p>
 
           {/* CTA button */}
