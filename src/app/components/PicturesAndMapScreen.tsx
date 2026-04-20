@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -69,8 +69,33 @@ function getRouteMapPointByCode(buildingCode: string): RouteMapPoint | null {
   return { id: pin.id, x: pin.x, y: pin.y };
 }
 
+function normalizeGuidedTourPoints(points: GuidedTourPoint[]): Array<{ id: string; label: string; x: number; y: number }> {
+  return points
+    .map((p) => {
+      const pin = campusMapHotspots.find((h) => h.id === p.id);
+      const x = typeof p.x === "number" ? p.x : pin?.x;
+      const y = typeof p.y === "number" ? p.y : pin?.y;
+      if (typeof x !== "number" || typeof y !== "number") return null;
+      return {
+        id: p.id,
+        label: p.label || pin?.label || p.id.toUpperCase(),
+        x,
+        y,
+      };
+    })
+    .filter(Boolean) as Array<{ id: string; label: string; x: number; y: number }>;
+}
+
 type MapTabKey = "map" | "live";
 type CampusConvenienceItem = { titleKey: string; icon: string; locationsKey: string };
+type GuidedTourPoint = { id: string; label: string; x?: number; y?: number };
+type GuidedTourPayload = { title: string; subtitle?: string; points: GuidedTourPoint[] };
+
+function isGuidedTourPayload(value: unknown): value is GuidedTourPayload {
+  if (!value || typeof value !== "object") return false;
+  const maybe = value as Partial<GuidedTourPayload>;
+  return typeof maybe.title === "string" && Array.isArray(maybe.points);
+}
 
 const campusConvenienceItems: CampusConvenienceItem[] = [
   {
@@ -314,8 +339,8 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
   },
   cb: {
     type: "📍 地标建筑",
-    title: "中心楼",
-    subtitle: "中心楼",
+    title: "中央楼",
+    subtitle: "中央楼",
     desc: "校园核心功能区，汇集学习支持、职业发展与学生服务资源。",
     story: "图书馆楼层提供自习空间，楼内还有心理咨询、IT 帮助台、就业中心等服务。",
     tags: ["地标", "校园故事", "拍照点"],
@@ -478,6 +503,7 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
 
 export function PicturesAndMapScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { lang, t } = useLanguage();
   const [cur, setCur] = useState(0);
   const [mapTab, setMapTab] = useState<MapTabKey>("map");
@@ -510,6 +536,9 @@ export function PicturesAndMapScreen() {
   }, [selected]);
 
   const [mascotGuideOpen, setMascotGuideOpen] = useState(false);
+  const guidedTour = isGuidedTourPayload((location.state as { guidedTour?: unknown } | null)?.guidedTour)
+    ? (location.state as { guidedTour: GuidedTourPayload }).guidedTour
+    : null;
 
   const mapCopy =
     lang === "zh"
@@ -535,6 +564,10 @@ export function PicturesAndMapScreen() {
           startButton: "开始定位",
           stopButton: "停止定位",
           bestFor: "适合",
+          guidedTag: "路线导览",
+          guidedExit: "退出导览",
+          guidedSteps: "站点顺序",
+          guidedHint: "已按所选路线在地图上连线展示",
           liveTip: "地图数据来自 OpenStreetMap，定位需浏览器授权且建议在 HTTPS 环境使用。",
         }
       : {
@@ -559,12 +592,46 @@ export function PicturesAndMapScreen() {
           startButton: "Start",
           stopButton: "Stop",
           bestFor: "Best for",
+          guidedTag: "Guided Tour",
+          guidedExit: "Exit",
+          guidedSteps: "Stops",
+          guidedHint: "Selected stops are connected on the map",
           liveTip: "Map data is provided by OpenStreetMap. Browser permission and HTTPS are recommended.",
         };
 
   const activeLocation =
     (lang === "zh" ? campusLocationInfoZh : campusLocationInfo)[activeHotspotId] ??
     campusLocationInfo[activeHotspotId];
+  const guidedPoints = guidedTour ? normalizeGuidedTourPoints(guidedTour.points) : [];
+  const guidedWalkAdj = campusWalkAdjacency();
+  const guidedPolyline = (() => {
+    if (guidedPoints.length < 2) return "";
+    const polylinePts: Array<{ x: number; y: number }> = [{ x: guidedPoints[0].x, y: guidedPoints[0].y }];
+    for (let i = 0; i < guidedPoints.length - 1; i++) {
+      const from = guidedPoints[i];
+      const to = guidedPoints[i + 1];
+      const graphRoute =
+        guidedWalkAdj.has(from.id) && guidedWalkAdj.has(to.id)
+          ? shortestCampusWalkPath(from.id, to.id)
+          : null;
+      if (graphRoute?.path.length) {
+        const graphCoords = graphRoute.path
+          .map((nid) => campusMapHotspots.find((h) => h.id === nid))
+          .filter((p): p is (typeof campusMapHotspots)[number] => Boolean(p))
+          .map((p) => ({ x: p.x, y: p.y }));
+        for (let j = 1; j < graphCoords.length; j++) polylinePts.push(graphCoords[j]);
+      } else {
+        polylinePts.push({ x: to.x, y: to.y });
+      }
+    }
+    return polylinePts.map((p) => `${p.x},${p.y}`).join(" ");
+  })();
+
+  useEffect(() => {
+    if (!guidedPoints.length) return;
+    setMapTab("map");
+    setActiveHotspotId(guidedPoints[0].id);
+  }, [guidedPoints]);
 
   const bodeSrc = `${import.meta.env.BASE_URL}bode.png`;
 
@@ -864,6 +931,35 @@ export function PicturesAndMapScreen() {
           ))}
         </div>
 
+        {guidedTour && guidedPoints.length >= 2 && (
+          <ComicCard style={{ padding: "12px", marginBottom: "10px", backgroundColor: C.cream }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+              <span style={{ backgroundColor: C.yellow, border: `1.5px solid ${C.navy}`, borderRadius: "999px", padding: "2px 8px", fontSize: "10px", fontWeight: 900, color: C.navy }}>
+                {mapCopy.guidedTag}
+              </span>
+              <span style={{ fontSize: "13px", fontWeight: 900, color: C.navy, flex: 1 }}>{guidedTour.title}</span>
+              <button
+                type="button"
+                onClick={() => navigate("/pictures", { replace: true })}
+                style={{ height: "28px", padding: "0 10px", borderRadius: "8px", border: `2px solid ${C.navy}`, backgroundColor: C.white, color: C.navy, fontSize: "11px", fontWeight: 800, cursor: "pointer" }}
+              >
+                {mapCopy.guidedExit}
+              </button>
+            </div>
+            {guidedTour.subtitle && (
+              <p style={{ fontSize: "11px", fontWeight: 700, color: "#4B6898", marginBottom: "6px" }}>{guidedTour.subtitle}</p>
+            )}
+            <p style={{ fontSize: "10px", fontWeight: 700, color: "#4B6898", marginBottom: "6px" }}>{mapCopy.guidedHint}</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+              {guidedPoints.map((p, idx) => (
+                <span key={`${p.id}-${idx}`} style={{ backgroundColor: C.white, border: `1.5px solid ${C.pale}`, borderRadius: "999px", padding: "1px 8px", fontSize: "10px", fontWeight: 800, color: C.navy }}>
+                  {idx + 1}. {p.label}
+                </span>
+              ))}
+            </div>
+          </ComicCard>
+        )}
+
         <ComicCard style={{ overflow: "hidden", position: "relative", backgroundColor: C.ice, marginBottom: "18px", padding: "10px" }}>
           {mapTab === "map" ? (
             <div key="campus-map-tab">
@@ -916,6 +1012,59 @@ export function PicturesAndMapScreen() {
                     }}
                   >
                     {pin.label}
+                  </button>
+                ))}
+                {guidedPolyline && (
+                  <svg
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="none"
+                    aria-hidden
+                    style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+                  >
+                    <polyline
+                      fill="none"
+                      stroke="#FFFFFF"
+                      strokeWidth={2.8}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      opacity={0.92}
+                      points={guidedPolyline}
+                    />
+                    <polyline
+                      fill="none"
+                      stroke={C.royal}
+                      strokeWidth={1.4}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      points={guidedPolyline}
+                    />
+                  </svg>
+                )}
+                {guidedPoints.map((p, idx) => (
+                  <button
+                    key={`${p.id}-${idx}-guided`}
+                    type="button"
+                    onClick={() => setActiveHotspotId(p.id)}
+                    style={{
+                      position: "absolute",
+                      left: `${p.x}%`,
+                      top: `${p.y}%`,
+                      transform: "translate(-50%, -50%)",
+                      width: "18px",
+                      height: "18px",
+                      borderRadius: "50%",
+                      border: `2px solid ${C.navy}`,
+                      backgroundColor: idx === 0 ? C.mint : idx === guidedPoints.length - 1 ? C.yellow : C.white,
+                      color: C.navy,
+                      fontSize: "10px",
+                      fontWeight: 900,
+                      lineHeight: 1,
+                      cursor: "pointer",
+                      boxShadow: `0 2px 6px rgba(0,0,0,0.28)`,
+                    }}
+                    aria-label={`${mapCopy.guidedSteps} ${idx + 1}: ${p.label}`}
+                  >
+                    {idx + 1}
                   </button>
                 ))}
               </div>
