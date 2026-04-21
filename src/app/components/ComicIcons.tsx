@@ -204,8 +204,8 @@ export function IconBell({ size = 22, active = false }: IconProps) {
   );
 }
 
-/* ── STAMP / SEAL ── */
-export function IconStamp({ size = 22, filled = false }: { size?: number; filled?: boolean }) {
+/* ── BADGE / SEAL ── */
+export function IconBadge({ size = 22, filled = false }: { size?: number; filled?: boolean }) {
   return (
     <svg width={size} height={size} viewBox="0 0 28 28" fill="none">
       <rect x="5" y="14" width="18" height="10" rx="2.5"
