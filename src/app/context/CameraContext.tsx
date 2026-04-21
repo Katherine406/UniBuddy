@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import { detectBuildingCode } from "../data/buildingOcr";
-import { PRE_UNLOCKED_STAMP_IDS, STAMP_DEFS, TOTAL_STAMPS } from "../data/stamps";
+import { PRE_UNLOCKED_BADGE_IDS, BADGE_DEFS, TOTAL_BADGES } from "../data/stamps";
 import { runBuildingOcrOnFile } from "../utils/runBuildingOcr";
 
 function readFileAsDataUrl(file: File): Promise<string> {
@@ -19,19 +19,19 @@ export interface CapturedPhoto {
 
 const CAMERA_STORAGE_KEY = "unibuddy_camera_v1";
 
-const validStampId = (id: unknown): id is number =>
-  typeof id === "number" && Number.isInteger(id) && id >= 1 && id <= TOTAL_STAMPS;
+const validBadgeId = (id: unknown): id is number =>
+  typeof id === "number" && Number.isInteger(id) && id >= 1 && id <= TOTAL_BADGES;
 
-function loadCameraFromStorage(): { photos: CapturedPhoto[]; unlockedStampIds: number[] } {
+function loadCameraFromStorage(): { photos: CapturedPhoto[]; unlockedBadgeIds: number[] } {
   if (typeof window === "undefined") {
-    return { photos: [], unlockedStampIds: [...PRE_UNLOCKED_STAMP_IDS] };
+    return { photos: [], unlockedBadgeIds: [...PRE_UNLOCKED_BADGE_IDS] };
   }
   try {
     const raw = localStorage.getItem(CAMERA_STORAGE_KEY);
-    if (!raw) return { photos: [], unlockedStampIds: [...PRE_UNLOCKED_STAMP_IDS] };
+    if (!raw) return { photos: [], unlockedBadgeIds: [...PRE_UNLOCKED_BADGE_IDS] };
     const parsed = JSON.parse(raw) as unknown;
     if (!parsed || typeof parsed !== "object") {
-      return { photos: [], unlockedStampIds: [...PRE_UNLOCKED_STAMP_IDS] };
+      return { photos: [], unlockedBadgeIds: [...PRE_UNLOCKED_BADGE_IDS] };
     }
     const rec = parsed as Record<string, unknown>;
 
@@ -46,36 +46,39 @@ function loadCameraFromStorage(): { photos: CapturedPhoto[]; unlockedStampIds: n
         )
       : [];
 
-    let unlockedStampIds: number[] = [...PRE_UNLOCKED_STAMP_IDS];
-    if (Array.isArray(rec.unlockedStampIds)) {
-      const ids = rec.unlockedStampIds.filter(validStampId);
-      unlockedStampIds = [...new Set(ids)].sort((a, b) => a - b);
+    let unlockedBadgeIds: number[] = [...PRE_UNLOCKED_BADGE_IDS];
+    const legacyOrNewIds = Array.isArray(rec.unlockedBadgeIds)
+      ? rec.unlockedBadgeIds
+      : rec.unlockedStampIds;
+    if (Array.isArray(legacyOrNewIds)) {
+      const ids = legacyOrNewIds.filter(validBadgeId);
+      unlockedBadgeIds = [...new Set(ids)].sort((a, b) => a - b);
     }
 
-    return { photos, unlockedStampIds };
+    return { photos, unlockedBadgeIds };
   } catch {
-    return { photos: [], unlockedStampIds: [...PRE_UNLOCKED_STAMP_IDS] };
+    return { photos: [], unlockedBadgeIds: [...PRE_UNLOCKED_BADGE_IDS] };
   }
 }
 
-function saveCameraToStorage(photos: CapturedPhoto[], unlockedStampIds: number[]) {
+function saveCameraToStorage(photos: CapturedPhoto[], unlockedBadgeIds: number[]) {
   if (typeof window === "undefined") return;
   try {
-    localStorage.setItem(CAMERA_STORAGE_KEY, JSON.stringify({ photos, unlockedStampIds }));
+    localStorage.setItem(CAMERA_STORAGE_KEY, JSON.stringify({ photos, unlockedBadgeIds }));
   } catch {
     console.warn("UniBuddy: 无法写入本地缓存（可能超出浏览器存储上限）。");
   }
 }
 
 /** 首次挂载只读一次 localStorage，避免 Provider 重渲染时重复解析 */
-let initialCameraCache: { photos: CapturedPhoto[]; unlockedStampIds: number[] } | null = null;
+let initialCameraCache: { photos: CapturedPhoto[]; unlockedBadgeIds: number[] } | null = null;
 function getInitialCameraOnce() {
   if (!initialCameraCache) initialCameraCache = loadCameraFromStorage();
   return initialCameraCache;
 }
 
 export type CameraUnlockEvent =
-  | { id: number; kind: "building"; code: string; grantedStamp: boolean }
+  | { id: number; kind: "building"; code: string; grantedBadge: boolean }
   | { id: number; kind: "random" };
 
 interface CameraCtx {
@@ -85,9 +88,9 @@ interface CameraCtx {
   closeCamera: () => void;
   addPhotos: (files: File[]) => void;
   removePhoto: (photoId: number) => void;
-  unlockedStampIds: number[];
-  lastUnlockedStampId: number | null;
-  stampCheckedCount: number;
+  unlockedBadgeIds: number[];
+  lastUnlockedBadgeId: number | null;
+  badgeCheckedCount: number;
   ocrScanning: boolean;
   lastUnlockEvent: CameraUnlockEvent | null;
   dismissUnlockEvent: () => void;
@@ -100,9 +103,9 @@ const CameraContext = createContext<CameraCtx>({
   closeCamera: () => {},
   addPhotos: () => {},
   removePhoto: () => {},
-  unlockedStampIds: PRE_UNLOCKED_STAMP_IDS,
-  lastUnlockedStampId: null,
-  stampCheckedCount: PRE_UNLOCKED_STAMP_IDS.length,
+  unlockedBadgeIds: PRE_UNLOCKED_BADGE_IDS,
+  lastUnlockedBadgeId: null,
+  badgeCheckedCount: PRE_UNLOCKED_BADGE_IDS.length,
   ocrScanning: false,
   lastUnlockEvent: null,
   dismissUnlockEvent: () => {},
@@ -111,20 +114,20 @@ const CameraContext = createContext<CameraCtx>({
 export function CameraProvider({ children }: { children: ReactNode }) {
   const [photos, setPhotos] = useState<CapturedPhoto[]>(() => getInitialCameraOnce().photos);
   const [showCamera, setShowCamera] = useState(false);
-  const [unlockedStampIds, setUnlockedStampIds] = useState<number[]>(() => getInitialCameraOnce().unlockedStampIds);
-  const [lastUnlockedStampId, setLastUnlockedStampId] = useState<number | null>(null);
+  const [unlockedBadgeIds, setUnlockedBadgeIds] = useState<number[]>(() => getInitialCameraOnce().unlockedBadgeIds);
+  const [lastUnlockedBadgeId, setLastUnlockedBadgeId] = useState<number | null>(null);
   const [ocrScanning, setOcrScanning] = useState(false);
   const [lastUnlockEvent, setLastUnlockEvent] = useState<CameraUnlockEvent | null>(null);
-  const stampIdsRef = useRef<number[]>(getInitialCameraOnce().unlockedStampIds);
+  const badgeIdsRef = useRef<number[]>(getInitialCameraOnce().unlockedBadgeIds);
   const nextEventId = useRef(0);
 
   useEffect(() => {
-    stampIdsRef.current = unlockedStampIds;
-  }, [unlockedStampIds]);
+    badgeIdsRef.current = unlockedBadgeIds;
+  }, [unlockedBadgeIds]);
 
   useEffect(() => {
-    saveCameraToStorage(photos, unlockedStampIds);
-  }, [photos, unlockedStampIds]);
+    saveCameraToStorage(photos, unlockedBadgeIds);
+  }, [photos, unlockedBadgeIds]);
 
   const openCamera = useCallback(() => setShowCamera(true), []);
   const closeCamera = useCallback(() => setShowCamera(false), []);
@@ -151,17 +154,17 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         const building = detectBuildingCode(ocr);
         const eventId = ++nextEventId.current;
 
-        const prevStamps = stampIdsRef.current;
-        let newStamp: number | null = null;
-        if (prevStamps.length < TOTAL_STAMPS) {
-          const locked = STAMP_DEFS.map((s) => s.id).filter((id) => !prevStamps.includes(id));
+        const prevBadges = badgeIdsRef.current;
+        let newBadge: number | null = null;
+        if (prevBadges.length < TOTAL_BADGES) {
+          const locked = BADGE_DEFS.map((s) => s.id).filter((id) => !prevBadges.includes(id));
           if (locked.length) {
             const unlockedId = locked[Math.floor(Math.random() * locked.length)];
-            newStamp = unlockedId;
-            const next = [...prevStamps, unlockedId].sort((a, b) => a - b);
-            stampIdsRef.current = next;
-            setUnlockedStampIds(next);
-            setLastUnlockedStampId(unlockedId);
+            newBadge = unlockedId;
+            const next = [...prevBadges, unlockedId].sort((a, b) => a - b);
+            badgeIdsRef.current = next;
+            setUnlockedBadgeIds(next);
+            setLastUnlockedBadgeId(unlockedId);
           }
         }
 
@@ -170,9 +173,9 @@ export function CameraProvider({ children }: { children: ReactNode }) {
             id: eventId,
             kind: "building",
             code: building,
-            grantedStamp: newStamp != null,
+            grantedBadge: newBadge != null,
           });
-        } else if (newStamp != null) {
+        } else if (newBadge != null) {
           setLastUnlockEvent({ id: eventId, kind: "random" });
         }
         }
@@ -182,7 +185,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
-  const stampCheckedCount = unlockedStampIds.length;
+  const badgeCheckedCount = unlockedBadgeIds.length;
 
   return (
     <CameraContext.Provider
@@ -193,9 +196,9 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         closeCamera,
         addPhotos,
         removePhoto,
-        unlockedStampIds,
-        lastUnlockedStampId,
-        stampCheckedCount,
+        unlockedBadgeIds,
+        lastUnlockedBadgeId,
+        badgeCheckedCount,
         ocrScanning,
         lastUnlockEvent,
         dismissUnlockEvent,
