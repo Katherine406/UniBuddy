@@ -1,11 +1,11 @@
-export interface StampDef {
+export interface BadgeDef {
   id: number;
   // Public asset path (expects: /public/<imagePath>)
   imagePath: string;
 }
 
 // 20 badge images uploaded to the GitHub folder (e.g. public/birds/IMG_3386.PNG ... IMG_3405.PNG)
-export const STAMP_DEFS: StampDef[] = [
+export const BADGE_DEFS: BadgeDef[] = [
   { id: 1, imagePath: "birds/IMG_3386.PNG" },
   { id: 2, imagePath: "birds/IMG_3387.PNG" },
   { id: 3, imagePath: "birds/IMG_3388.PNG" },
@@ -29,7 +29,7 @@ export const STAMP_DEFS: StampDef[] = [
 ];
 
 // 默认不预解锁任何徽章/打卡点；首次使用时集章进度从 0 开始。
-export const PRE_UNLOCKED_STAMP_IDS: number[] = [];
+export const PRE_UNLOCKED_BADGE_IDS: number[] = [];
 
-export const TOTAL_STAMPS = STAMP_DEFS.length;
+export const TOTAL_BADGES = BADGE_DEFS.length;
 
