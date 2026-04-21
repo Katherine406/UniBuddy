@@ -1,6 +1,11 @@
 import type { Lang } from "../context/LanguageContext";
 import knowledgeMarkdownRaw from "../../../knowledge.md?raw";
 
+export type UniAIBuddyChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
 type KnowledgeEntry = {
   id: number;
   question: string;
@@ -15,6 +20,23 @@ const STOPWORDS = new Set([
   "的", "了", "是", "吗", "我", "你", "他", "她", "它", "和", "与", "及", "在", "有", "怎么", "如何",
   "what", "how", "is", "are", "the", "a", "an", "to", "in", "on", "for", "of", "do", "does", "can",
 ]);
+
+function isIdentityQuestion(question: string): boolean {
+  const q = question.toLowerCase();
+  return (
+    q.includes("你是谁") ||
+    q.includes("你叫") ||
+    q.includes("who are you") ||
+    q.includes("your name") ||
+    q.includes("uniaibuddy")
+  );
+}
+
+function identityReply(lang: Lang): string {
+  return lang === "zh"
+    ? "我是 UniAIBuddy，你的 UniBuddy 校园导航助手。我会基于已收录知识为你解答路线、地图、教室搜索和定位相关问题。"
+    : "I am UniAIBuddy, your UniBuddy campus navigation assistant. I answer route, map, classroom search, and live-location questions based on the recorded knowledge base.";
+}
 
 function tokenize(input: string): string[] {
   const chunks = input.toLowerCase().match(/[\u4e00-\u9fff]{1,}|[a-z0-9]+/g) ?? [];
@@ -85,7 +107,12 @@ function searchKnowledge(query: string, limit = 3): KnowledgeEntry[] {
     .map((item) => item.entry);
 }
 
-async function askDeepSeek(question: string, contextEntries: KnowledgeEntry[], lang: Lang): Promise<string> {
+async function askDeepSeek(
+  question: string,
+  contextEntries: KnowledgeEntry[],
+  lang: Lang,
+  history: UniAIBuddyChatMessage[] = [],
+): Promise<string> {
   const apiKey = (import.meta.env.VITE_DEEPSEEK_API_KEY as string | undefined)?.trim();
   if (!apiKey) {
     return contextEntries[0]?.answer ?? (lang === "zh" ? UNI_AI_FALLBACK_ZH : UNI_AI_FALLBACK_EN);
@@ -100,6 +127,11 @@ async function askDeepSeek(question: string, contextEntries: KnowledgeEntry[], l
       ? "你是 UniAIBuddy。只能依据给定知识作答，不得编造。回答简洁、友好、可执行。若知识不足，必须回复：抱歉，这个问题目前不在 UniAIBuddy 的已收录知识中。"
       : "You are UniAIBuddy. Answer only based on the provided knowledge, without fabrication. Keep answers concise and actionable. If knowledge is insufficient, you MUST reply: Sorry, this question is not in UniAIBuddy's recorded knowledge base yet.";
 
+  const compactHistory = history.slice(-6).map((msg) => ({
+    role: msg.role,
+    content: msg.content,
+  }));
+
   const response = await fetch("https://api.deepseek.com/chat/completions", {
     method: "POST",
     headers: {
@@ -111,6 +143,7 @@ async function askDeepSeek(question: string, contextEntries: KnowledgeEntry[], l
       temperature: 0.2,
       messages: [
         { role: "system", content: systemPrompt },
+        ...compactHistory,
         {
           role: "user",
           content: `用户问题：${question}\n\n可用知识如下：\n${contextText}`,
@@ -133,17 +166,30 @@ async function askDeepSeek(question: string, contextEntries: KnowledgeEntry[], l
   return content;
 }
 
-export async function askUniAIBuddy(question: string, lang: Lang): Promise<string> {
+export async function askUniAIBuddy(
+  question: string,
+  lang: Lang,
+  history: UniAIBuddyChatMessage[] = [],
+): Promise<string> {
   const q = question.trim();
   if (!q) return lang === "zh" ? UNI_AI_FALLBACK_ZH : UNI_AI_FALLBACK_EN;
+  if (isIdentityQuestion(q)) return identityReply(lang);
 
-  const hits = searchKnowledge(q, 3);
+  const lastUserTurns = history
+    .filter((msg) => msg.role === "user")
+    .slice(-2)
+    .map((msg) => msg.content)
+    .join(" ");
+
+  const retrievalQuery = [lastUserTurns, q].filter(Boolean).join(" ");
+  const hits = searchKnowledge(retrievalQuery, 3);
+
   if (hits.length === 0) {
     return lang === "zh" ? UNI_AI_FALLBACK_ZH : UNI_AI_FALLBACK_EN;
   }
 
   try {
-    return await askDeepSeek(q, hits, lang);
+    return await askDeepSeek(q, hits, lang, history);
   } catch {
     return hits[0]?.answer ?? (lang === "zh" ? UNI_AI_FALLBACK_ZH : UNI_AI_FALLBACK_EN);
   }
