@@ -235,7 +235,7 @@ function CameraOverlay() {
         )}
       </div>
 
-      {/* Stamp-unlock toast (仅未识别到楼宇缩写时) */}
+      {/* Badge-unlock toast (仅未识别到楼宇缩写时) */}
       {toast && (
         <div style={{
           position: "absolute", bottom: "24px", left: "50%", transform: "translateX(-50%)",
@@ -281,7 +281,7 @@ function CameraOverlay() {
               {t(`ocr_b_${lastUnlockEvent.code.toLowerCase()}_intro`)}
             </p>
             <p style={{ fontSize: "12px", fontWeight: 700, color: "#4B6898", margin: "0 0 16px" }}>
-              {lastUnlockEvent.grantedStamp ? t("ocr_unlock_plus_stamp") : t("ocr_unlock_stamp_done")}
+              {lastUnlockEvent.grantedBadge ? t("ocr_unlock_plus_stamp") : t("ocr_unlock_stamp_done")}
             </p>
             <button
               type="button"
