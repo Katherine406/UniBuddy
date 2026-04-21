@@ -58,7 +58,7 @@
 ### 15) 起点可以改吗？
 可以。在教室导航详情页可从支持的地图节点中切换起点，再重新生成路线。
 
-### 16) 是否支持实时定位？
+### 16) 导览路线在地图上怎么显示？
 支持。地图页切换到实时地图后，可点击“开始定位”显示当前位置与精度圈。
 
 ### 17) 定位失败常见原因是什么？
@@ -87,3 +87,80 @@
 
 ### 25) 后续还能扩展哪些能力？
 可扩展方向包括：真实地图 API 深度接入、路径算法升级、登录与云同步、后端数据服务化。
+
+## Predicted Frequently Asked Questions (English, 25 Qs)
+
+### 1) Who is this navigation system for?
+It is designed for XJTLU campus visitors and students, especially freshmen, visiting parents, and campus-tour scenarios.
+
+### 2) Where can I enter the map feature?
+From the home page, tap the pictures-and-map entry (`/pictures`) to open the "pictures + map" page.
+
+### 3) What route modes are supported?
+Three modes are supported: recommended routes, mystery routes (theme-based random route), and custom routes (multi-stop self-selected planning).
+
+### 4) What are typical recommended route types?
+Current examples include freshman route, parent route, and in-depth route. You can expand each route to view stops and duration, then start navigation.
+
+### 5) How is a mystery route generated?
+You first choose an interest theme (such as food, landmarks, learning), and the system returns a preset route for that theme.
+
+### 6) What is the minimum number of points for a custom route?
+At least 2 selected points are required to generate a custom route.
+
+### 7) Can I set a start point in a custom route?
+Yes. You can pick a start point from your selected stops, and route planning will begin from that point.
+
+### 8) What sorting logic does custom routing use?
+It currently uses a "fixed start + nearest-neighbor greedy" approximate shortest-path strategy based on straight-line campus coordinates.
+
+### 9) How do I start map navigation after generating a route?
+On the route result page, tap "Start Navigation" to jump to the map page with ordered stops and connecting lines.
+
+### 10) How is the guided route shown on the map?
+The system displays stop numbers, start/end markers, and connecting lines on the campus static map for step-by-step navigation.
+
+### 11) How can I exit navigation midway?
+Tap "Exit Navigation" on the guide card to return to normal map browsing mode.
+
+### 12) Can I search for classrooms?
+Yes. You can search by classroom number or building keywords, and the result includes floor and access-method labels.
+
+### 13) What if a classroom cannot be found?
+First check whether the classroom number/building keyword is accurate. If still no result, that classroom may not be included in the current dataset.
+
+### 14) What navigation info is shown after I find a classroom?
+You can view start-point selection, route preview, floor access method (elevator/stairs/direct), and arrival floor instructions.
+
+### 15) Can I change the starting point?
+Yes. In classroom navigation details, you can switch among supported map nodes as the start point and regenerate the route.
+
+### 16) Does the system support live location?
+Yes. On the map page, switch to live map mode and tap "Start Location" to show your current position and accuracy circle.
+
+### 17) What are common reasons for location failure?
+Common causes include denied browser permission, weak device signal, request timeout, or an environment that does not support geolocation.
+
+### 18) Why is HTTPS recommended for location?
+Browser geolocation is usually more stable under HTTPS, with better permission behavior and compatibility.
+
+### 19) Can I open details for building points on the map?
+Yes. Tapping a map point shows building intro, stories, tags, and "recommended audience" information.
+
+### 20) Does the system provide voice narration?
+Yes. In map details, you can enable the campus narrator, which uses browser speech synthesis to read introductions aloud.
+
+### 21) Can I switch between Chinese and English?
+Yes. The system includes built-in `zh/en` resources and supports a bilingual interface.
+
+### 22) Can routes be favorited?
+Yes. Recommended routes, mystery routes, and custom routes can all be added to favorites.
+
+### 23) Where can I view my favorites?
+You can check saved routes and related progress in the profile page (`/profile`).
+
+### 24) Has real map navigation been fully integrated?
+Partially. Some capabilities are integrated (live map uses OpenStreetMap + browser location), but the overall system is still mainly a prototype with static campus guidance.
+
+### 25) What can be expanded in future versions?
+Possible directions include deeper real-map API integration, upgraded path algorithms, login and cloud sync, and backend data service architecture.
