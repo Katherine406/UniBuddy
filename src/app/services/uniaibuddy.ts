@@ -11,6 +11,7 @@ type KnowledgeEntry = {
   question: string;
   answer: string;
   combined: string;
+  normalizedQuestion: string;
 };
 
 export const UNI_AI_FALLBACK_ZH = "抱歉，这个问题目前不在 UniAIBuddy 的已收录知识中。";
@@ -67,7 +68,7 @@ function isSimpleGreeting(question: string): boolean {
 function simpleGreetingReply(lang: Lang): string {
   return lang === "zh"
     ? "你好呀！我是 UniAIBuddy。你可以问我校园导航系统相关的问题，比如“我从哪里进入地图功能？”或“导览路线在地图上怎么显示？”。"
-    : "Hi! I am UniAIBuddy. You can ask me questions about the campus navigation system, such as How to start live location?";
+    : "Hi! I am UniAIBuddy. You can ask me questions about the campus navigation system, such as Where do I enter the map function?";
 }
 
 function looksLikeSystemQuestion(question: string): boolean {
@@ -92,6 +93,14 @@ function tokenize(input: string): string[] {
   });
 }
 
+function normalizeForMatch(input: string): string {
+  return input
+    .toLowerCase()
+    .replace(/[^\u4e00-\u9fffa-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function parseKnowledgeEntries(markdown: string): KnowledgeEntry[] {
   const lines = markdown.split(/\r?\n/);
   const entries: KnowledgeEntry[] = [];
@@ -108,6 +117,7 @@ function parseKnowledgeEntries(markdown: string): KnowledgeEntry[] {
       question: currentQuestion.trim(),
       answer,
       combined: `${currentQuestion} ${answer}`.toLowerCase(),
+      normalizedQuestion: normalizeForMatch(currentQuestion),
     });
   };
 
@@ -121,7 +131,8 @@ function parseKnowledgeEntries(markdown: string): KnowledgeEntry[] {
       continue;
     }
     if (currentQuestion) {
-      if (line.startsWith("## ")) break;
+      // Allow parsing multiple FAQ sections (e.g., zh + en) in one markdown file.
+      if (line.startsWith("## ")) continue;
       if (line.trim()) answerBuffer.push(line.trim());
     }
   }
@@ -132,6 +143,17 @@ function parseKnowledgeEntries(markdown: string): KnowledgeEntry[] {
 const KNOWLEDGE_ENTRIES = parseKnowledgeEntries(knowledgeMarkdownRaw);
 
 function scoreEntry(query: string, entry: KnowledgeEntry): number {
+  const normalizedQuery = normalizeForMatch(query);
+  if (normalizedQuery && entry.normalizedQuestion) {
+    if (
+      normalizedQuery === entry.normalizedQuestion ||
+      entry.normalizedQuestion.includes(normalizedQuery) ||
+      normalizedQuery.includes(entry.normalizedQuestion)
+    ) {
+      return 999;
+    }
+  }
+
   const queryTokens = tokenize(query);
   if (queryTokens.length === 0) return 0;
   let score = 0;
