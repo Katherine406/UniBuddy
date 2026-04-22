@@ -82,6 +82,7 @@ export function HomeScreen() {
   const [activePerspective, setActivePerspective] = useState<SchoolPerspective>("freshman");
   const [userComments, setUserComments] = useState<UserSchoolComment[]>([]);
   const [draftText, setDraftText] = useState("");
+  const [commentError, setCommentError] = useState("");
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false);
   const [aiQuestion, setAiQuestion] = useState("");
   const [aiMessages, setAiMessages] = useState<UniAIBuddyChatMessage[]>([]);
@@ -145,7 +146,10 @@ export function HomeScreen() {
 
   const handlePostComment = () => {
     const text = draftText.trim();
-    if (!text) return;
+    if (!text) {
+      setCommentError(lang === "zh" ? "评论内容不能为空" : "Comment cannot be empty.");
+      return;
+    }
 
     const nextItem: UserSchoolComment = {
       id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
@@ -165,6 +169,7 @@ export function HomeScreen() {
       return next;
     });
     setDraftText("");
+    setCommentError("");
   };
 
   const handleDeleteComment = (commentId: string) => {
@@ -396,7 +401,10 @@ export function HomeScreen() {
               <div style={{ backgroundColor: "#F8FCFF", border: `1.5px solid ${C.pale}`, borderRadius: "14px", padding: "10px", marginBottom: "12px" }}>
                 <textarea
                   value={draftText}
-                  onChange={(e) => setDraftText(e.target.value)}
+                  onChange={(e) => {
+                    setDraftText(e.target.value);
+                    if (commentError) setCommentError("");
+                  }}
                   rows={3}
                   placeholder={lang === "zh" ? "写下你的看法（按上方视角发布）" : "Write your thoughts (post under the selected perspective)"}
                   style={{
@@ -421,15 +429,14 @@ export function HomeScreen() {
                   <button
                     type="button"
                     onClick={handlePostComment}
-                    disabled={!draftText.trim()}
                     style={{
                       height: "34px",
                       padding: "0 14px",
                       borderRadius: "12px",
-                      cursor: !draftText.trim() ? "not-allowed" : "pointer",
-                      backgroundColor: !draftText.trim() ? "#B7C7E9" : C.royal,
+                      cursor: "pointer",
+                      backgroundColor: C.royal,
                       border: `2px solid ${C.navy}`,
-                      boxShadow: !draftText.trim() ? "none" : `2px 2px 0 ${C.navy}`,
+                      boxShadow: `2px 2px 0 ${C.navy}`,
                       color: C.white,
                       fontSize: "12px",
                       fontWeight: 900,
@@ -439,6 +446,11 @@ export function HomeScreen() {
                     {lang === "zh" ? "发布" : "Post"}
                   </button>
                 </div>
+                {commentError && (
+                  <p style={{ marginTop: "8px", marginBottom: 0, fontSize: "11px", fontWeight: 800, color: C.coral }}>
+                    {commentError}
+                  </p>
+                )}
               </div>
 
               <div style={{ borderTop: `2px solid ${C.pale}`, paddingTop: "10px" }}>
