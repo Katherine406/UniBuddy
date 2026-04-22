@@ -23,6 +23,8 @@ const C = {
   ice: "#DCF0FF", cream: "#FFFBF0", yellow: "#FFD93D", coral: "#FF6B6B",
   mint: "#5EEAA8", purple: "#7B5CF5", white: "#FFFFFF",
 };
+const AI_BUDDY_GUIDE_STORAGE_KEY = "unibuddy_ai_guide_seen_v1";
+const BASE_URL = ((import.meta as any).env?.BASE_URL ?? "/") as string;
 
 const navCardDefs = [
   { id: "pictures", labelKey: "home_nav_pictures", emoji: "🗺️", path: "/pictures",    bg: C.pale,      tagBg: C.sky,   tag: "MAPS"  },
@@ -92,6 +94,9 @@ export function HomeScreen() {
   const [aiMessages, setAiMessages] = useState<UniAIBuddyChatMessage[]>([]);
   const [aiLoading, setAiLoading] = useState(false);
   const [showAiBuddy, setShowAiBuddy] = useState(false);
+  const [showAiGuide, setShowAiGuide] = useState(false);
+  const [aiGuideRect, setAiGuideRect] = useState<DOMRect | null>(null);
+  const aiGuideCardRef = useRef<HTMLDivElement | null>(null);
   const aiInputRef = useRef<HTMLTextAreaElement>(null);
   const aiPresetQuestions = useMemo(() => getUniAIBuddyPresetQuestions(lang, 4), [lang]);
 
@@ -115,6 +120,78 @@ export function HomeScreen() {
     const timer = window.setTimeout(() => aiInputRef.current?.focus(), 120);
     return () => window.clearTimeout(timer);
   }, [showAiBuddy]);
+
+  useEffect(() => {
+    try {
+      const hasSeenAiGuide = window.localStorage.getItem(AI_BUDDY_GUIDE_STORAGE_KEY) === "1";
+      if (!hasSeenAiGuide) {
+        setShowAiGuide(true);
+      }
+    } catch {
+      setShowAiGuide(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const updateGuideRect = () => {
+      if (!showAiGuide) {
+        setAiGuideRect(null);
+        return;
+      }
+      setAiGuideRect(aiGuideCardRef.current?.getBoundingClientRect() ?? null);
+    };
+
+    updateGuideRect();
+    if (!showAiGuide) return;
+
+    const scrollContainer = aiGuideCardRef.current?.closest(".overflow-y-auto");
+    window.addEventListener("resize", updateGuideRect);
+    window.addEventListener("scroll", updateGuideRect, true);
+    scrollContainer?.addEventListener("scroll", updateGuideRect);
+
+    return () => {
+      window.removeEventListener("resize", updateGuideRect);
+      window.removeEventListener("scroll", updateGuideRect, true);
+      scrollContainer?.removeEventListener("scroll", updateGuideRect);
+    };
+  }, [showAiGuide]);
+
+  const closeAiGuide = () => {
+    setShowAiGuide(false);
+    setAiGuideRect(null);
+    try {
+      window.localStorage.setItem(AI_BUDDY_GUIDE_STORAGE_KEY, "1");
+    } catch {
+      // ignore storage failure
+    }
+  };
+  const aiGuideBubbleStyle = useMemo(() => {
+    if (!aiGuideRect || typeof window === "undefined") return null;
+    const phoneShellRect = aiGuideCardRef.current
+      ?.closest('[data-phone-shell="true"]')
+      ?.getBoundingClientRect();
+    const bounds = phoneShellRect ?? {
+      left: 0,
+      top: 0,
+      right: window.innerWidth,
+      bottom: window.innerHeight,
+      width: window.innerWidth,
+      height: window.innerHeight,
+    };
+    const width = Math.min(300, Math.max(230, bounds.width - 24));
+    const margin = 12;
+    const estimatedHeight = 136;
+    const centerX = aiGuideRect.left + aiGuideRect.width / 2;
+    const left = Math.min(
+      bounds.right - width - margin,
+      Math.max(bounds.left + margin, centerX - width / 2),
+    );
+    const topCandidate = aiGuideRect.top - estimatedHeight - 10;
+    const top = topCandidate > bounds.top + margin
+      ? topCandidate
+      : Math.min(bounds.bottom - estimatedHeight - margin, aiGuideRect.bottom + 10);
+    return { width, left, top };
+  }, [aiGuideRect]);
 
   useEffect(() => {
     try {
@@ -264,46 +341,45 @@ export function HomeScreen() {
 
         <SectionLabel color={C.purple} text="UniAIBuddy" icon={<IconSparkle size={18} />} />
 
-        <ComicCard
-          data-guide-target="uniaibuddy-card"
-          style={{ padding: "14px", backgroundColor: "#EFE8FF", marginBottom: "18px" }}
-        >
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
-            <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
-              <span style={{ fontSize: "24px", lineHeight: 1 }}>🤖</span>
-              <div>
-                <p style={{ fontSize: "13px", fontWeight: 900, color: C.navy, marginBottom: "3px" }}>
-                  {lang === "zh" ? "点击打开 UniAIBuddy 对话" : "Open UniAIBuddy chat"}
-                </p>
-                <p style={{ fontSize: "11px", fontWeight: 700, color: "#4B6898", lineHeight: 1.45 }}>
-                  {lang === "zh"
-                    ? "弹窗中可连续对话，基于知识库检索 + DeepSeek 回答。"
-                    : "Chat in a popup with multi-turn context, knowledge retrieval + DeepSeek."}
-                </p>
+        <div ref={aiGuideCardRef}>
+          <ComicCard style={{ padding: "14px", backgroundColor: "#EFE8FF", marginBottom: "18px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
+                <span style={{ fontSize: "24px", lineHeight: 1 }}>🤖</span>
+                <div>
+                  <p style={{ fontSize: "13px", fontWeight: 900, color: C.navy, marginBottom: "3px" }}>
+                    {lang === "zh" ? "点击打开 UniAIBuddy 对话" : "Open UniAIBuddy chat"}
+                  </p>
+                  <p style={{ fontSize: "11px", fontWeight: 700, color: "#4B6898", lineHeight: 1.45 }}>
+                    {lang === "zh"
+                      ? "弹窗中可连续对话，基于知识库检索 + DeepSeek 回答。"
+                      : "Chat in a popup with multi-turn context, knowledge retrieval + DeepSeek."}
+                  </p>
+                </div>
               </div>
+              <button
+                type="button"
+                onClick={() => setShowAiBuddy(true)}
+                style={{
+                  height: "36px",
+                  minWidth: "84px",
+                  padding: "0 12px",
+                  borderRadius: "12px",
+                  cursor: "pointer",
+                  backgroundColor: C.royal,
+                  border: `2px solid ${C.navy}`,
+                  boxShadow: `2px 2px 0 ${C.navy}`,
+                  color: C.white,
+                  fontSize: "12px",
+                  fontWeight: 900,
+                  flexShrink: 0,
+                }}
+              >
+                {lang === "zh" ? "打开" : "Open"}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setShowAiBuddy(true)}
-              style={{
-                height: "36px",
-                minWidth: "84px",
-                padding: "0 12px",
-                borderRadius: "12px",
-                cursor: "pointer",
-                backgroundColor: C.royal,
-                border: `2px solid ${C.navy}`,
-                boxShadow: `2px 2px 0 ${C.navy}`,
-                color: C.white,
-                fontSize: "12px",
-                fontWeight: 900,
-                flexShrink: 0,
-              }}
-            >
-              {lang === "zh" ? "打开" : "Open"}
-            </button>
-          </div>
-        </ComicCard>
+          </ComicCard>
+        </div>
 
         <SectionLabel color={C.yellow} text={t("home_nav")} icon={<IconSparkle size={18} />} />
 
@@ -570,7 +646,7 @@ export function HomeScreen() {
               <div key={badge.id} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px" }}>
                 <div style={{ width: "38px", height: "38px", border: badge.checked ? `2px solid ${C.royal}` : `2px dashed ${C.pale}`, borderRadius: "10px", boxShadow: badge.checked ? `2px 2px 0 ${C.royal}` : "none", overflow: "hidden", opacity: badge.checked ? 1 : 0.3, backgroundColor: C.white }}>
                   <img
-                    src={`${import.meta.env.BASE_URL}${badge.imagePath}`}
+                    src={`${BASE_URL}${badge.imagePath}`}
                     alt={`badge-preview-${badge.id}`}
                     style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                   />
@@ -985,6 +1061,87 @@ export function HomeScreen() {
             </div>
           </div>
         </div>
+      )}
+
+      {showAiGuide && aiGuideRect && aiGuideBubbleStyle && !showAiBuddy && (
+        <>
+          <div
+            style={{ position: "fixed", inset: 0, zIndex: 57, backgroundColor: "rgba(2, 6, 23, 0.42)" }}
+            onClick={closeAiGuide}
+          />
+          <div
+            style={{
+              position: "fixed",
+              zIndex: 58,
+              top: aiGuideRect.top - 8,
+              left: aiGuideRect.left - 8,
+              width: aiGuideRect.width + 16,
+              height: aiGuideRect.height + 16,
+              borderRadius: "20px",
+              border: "3px solid #FFE066",
+              boxShadow: "0 0 0 9999px rgba(2, 6, 23, 0.28)",
+              pointerEvents: "none",
+            }}
+          />
+          <div
+            style={{
+              position: "fixed",
+              zIndex: 59,
+              width: aiGuideBubbleStyle.width,
+              left: aiGuideBubbleStyle.left,
+              top: aiGuideBubbleStyle.top,
+              backgroundColor: C.white,
+              border: `2px solid ${C.navy}`,
+              borderRadius: "18px",
+              boxShadow: `4px 4px 0 ${C.navy}`,
+              padding: "12px 12px 10px",
+            }}
+          >
+            <p style={{ fontSize: "12px", fontWeight: 900, color: C.royal, marginBottom: "6px" }}>
+              {t("home_ai_guide_title")}
+            </p>
+            <p style={{ fontSize: "13px", fontWeight: 700, color: "#4B6898", lineHeight: 1.45, marginBottom: "10px" }}>
+              {t("home_ai_guide_desc")}
+            </p>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+              <button
+                type="button"
+                onClick={closeAiGuide}
+                style={{
+                  height: "34px",
+                  padding: "0 12px",
+                  borderRadius: "11px",
+                  border: `2px solid ${C.navy}`,
+                  backgroundColor: C.white,
+                  color: C.navy,
+                  fontSize: "12px",
+                  fontWeight: 900,
+                  cursor: "pointer",
+                }}
+              >
+                {t("home_ai_guide_skip")}
+              </button>
+              <button
+                type="button"
+                onClick={closeAiGuide}
+                style={{
+                  height: "34px",
+                  padding: "0 12px",
+                  borderRadius: "11px",
+                  border: `2px solid ${C.navy}`,
+                  backgroundColor: C.royal,
+                  color: C.white,
+                  fontSize: "12px",
+                  fontWeight: 900,
+                  cursor: "pointer",
+                  boxShadow: `2px 2px 0 ${C.navy}`,
+                }}
+              >
+                {t("home_ai_guide_confirm")}
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </PhoneShell>
   );
