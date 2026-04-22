@@ -10,7 +10,7 @@ import { BottomNav } from "./BottomNav";
 import { IconBack, IconChevronLeft, IconChevronRight, IconNavigation, IconChevronRight as IconArrow } from "./ComicIcons";
 import { useLanguage } from "../context/LanguageContext";
 import { classrooms } from "../data/classroomData";
-import { campusMapHotspots } from "../data/campusMapHotspots";
+import { campusMapHotspots, type CampusMapHotspotId } from "../data/campusMapHotspots";
 import { campusWalkAdjacency, shortestCampusWalkPath } from "../data/campusWalkGraph";
 import { ImageZoomLightbox } from "./ImageZoomLightbox";
 
@@ -89,7 +89,7 @@ function normalizeGuidedTourPoints(points: GuidedTourPoint[]): Array<{ id: strin
 }
 
 type MapTabKey = "map" | "live";
-type CampusConvenienceItem = { titleKey: string; icon: string; locationsKey: string };
+type CampusConvenienceItem = { titleKey: string; icon: string; locationsKey: string; hotspotIds: CampusMapHotspotId[] };
 type GuidedTourPoint = { id: string; label: string; x?: number; y?: number };
 type GuidedTourPayload = { title: string; subtitle?: string; points: GuidedTourPoint[] };
 
@@ -104,26 +104,31 @@ const campusConvenienceItems: CampusConvenienceItem[] = [
     titleKey: "map_convenience_onestop",
     icon: "🏢",
     locationsKey: "map_convenience_onestop_locs",
+    hotspotIds: ["cb"],
   },
   {
     titleKey: "map_convenience_sanitary",
     icon: "🧴",
     locationsKey: "map_convenience_sanitary_locs",
+    hotspotIds: ["fb", "sa", "sb", "sc", "sd", "ir", "bs"],
   },
   {
     titleKey: "map_convenience_umbrella",
     icon: "☂️",
     locationsKey: "map_convenience_umbrella_locs",
+    hotspotIds: ["cb"],
   },
   {
     titleKey: "map_convenience_smoking",
     icon: "🚬",
     locationsKey: "map_convenience_smoking_locs",
+    hotspotIds: ["cb", "fb"],
   },
   {
     titleKey: "map_convenience_lockers",
     icon: "📦",
     locationsKey: "map_convenience_lockers_locs",
+    hotspotIds: ["fb", "cb", "eb", "ir", "hs", "db", "bs"],
   },
 ];
 
@@ -897,6 +902,16 @@ export function PicturesAndMapScreen() {
     { key: "live", label: t("map_tab_live") },
   ];
 
+  const focusMapHotspot = (hotspotId: CampusMapHotspotId) => {
+    setMapTab("map");
+    setActiveHotspotId(hotspotId);
+    if (typeof window !== "undefined") {
+      window.setTimeout(() => {
+        mapSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  };
+
   return (
     <PhoneShell bg={C.ice}>
       <StatusBar />
@@ -1383,11 +1398,23 @@ export function PicturesAndMapScreen() {
             {campusConvenienceItems.map((item) => (
               <div
                 key={item.titleKey}
+                role="button"
+                tabIndex={0}
+                onClick={() => focusMapHotspot(item.hotspotIds[0])}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    focusMapHotspot(item.hotspotIds[0]);
+                  }
+                }}
                 style={{
+                  width: "100%",
+                  textAlign: "left",
                   border: `2px solid ${C.pale}`,
                   borderRadius: "12px",
                   padding: "10px",
-                  backgroundColor: "#F8FCFF",
+                  backgroundColor: item.hotspotIds.includes(activeHotspotId as CampusMapHotspotId) ? "#EAF4FF" : "#F8FCFF",
+                  cursor: "pointer",
                 }}
               >
                 <p style={{ fontSize: "13px", fontWeight: 900, color: C.navy }}>
@@ -1396,6 +1423,33 @@ export function PicturesAndMapScreen() {
                 <p style={{ marginTop: "5px", fontSize: "11px", fontWeight: 700, color: "#355087", lineHeight: 1.45 }}>
                   {t(item.locationsKey)}
                 </p>
+                {item.hotspotIds.length > 1 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "8px" }}>
+                    {item.hotspotIds.map((hotspotId) => (
+                      <button
+                        key={`${item.titleKey}-${hotspotId}`}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          focusMapHotspot(hotspotId);
+                        }}
+                        style={{
+                          borderRadius: "999px",
+                          border: `1.5px solid ${activeHotspotId === hotspotId ? C.navy : C.pale}`,
+                          backgroundColor: activeHotspotId === hotspotId ? C.yellow : C.white,
+                          color: C.navy,
+                          fontSize: "10px",
+                          fontWeight: 900,
+                          padding: "2px 8px",
+                          lineHeight: 1.2,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {hotspotId.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
