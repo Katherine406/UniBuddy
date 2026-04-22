@@ -14,6 +14,8 @@ import { campusMapHotspots } from "../data/campusMapHotspots";
 import { campusWalkAdjacency, shortestCampusWalkPath } from "../data/campusWalkGraph";
 import { ImageZoomLightbox } from "./ImageZoomLightbox";
 
+const MASCOT_VOICE_STORAGE_KEY = "unibuddy.mascot.voiceUri";
+
 const C = {
   navy: "#0E1B4D", royal: "#2350D8", sky: "#4B9EF7", pale: "#A8D4FF",
   ice: "#DCF0FF", cream: "#FFFBF0", yellow: "#FFD93D", coral: "#FF6B6B",
@@ -510,6 +512,11 @@ export function PicturesAndMapScreen() {
   const [activeHotspotId, setActiveHotspotId] = useState("cb");
   const [locationStatus, setLocationStatus] = useState("");
   const [showGuidedNotice, setShowGuidedNotice] = useState(false);
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [selectedVoiceURI, setSelectedVoiceURI] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return window.localStorage.getItem(MASCOT_VOICE_STORAGE_KEY) ?? "";
+  });
 
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<typeof classrooms[0] | null>(null);
@@ -553,6 +560,8 @@ export function PicturesAndMapScreen() {
           mascotVoiceHint: "点击听语音导览",
           listenAgain: "重新朗读",
           stopSpeak: "停止朗读",
+          voiceLabel: "讲解员音色",
+          voiceDefault: "跟随系统默认",
           speechTip: "语音由浏览器朗读，可随时点「停止」。音色因设备而异。",
           startLocating: "点击“开始定位”获取实时位置",
           locating: "正在获取当前位置...",
@@ -582,6 +591,8 @@ export function PicturesAndMapScreen() {
           mascotVoiceHint: "Tap for voice tour",
           listenAgain: "Read again",
           stopSpeak: "Stop",
+          voiceLabel: "Guide voice",
+          voiceDefault: "Use system default",
           speechTip: "Uses your browser’s text-to-speech. Tap Stop anytime. Voice varies by device.",
           startLocating: 'Tap "Start" to get live location',
           locating: "Getting your current location...",
@@ -645,6 +656,35 @@ export function PicturesAndMapScreen() {
 
   const bodeSrc = `${import.meta.env.BASE_URL}bode.png`;
 
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    const synth = window.speechSynthesis;
+    const syncVoices = () => {
+      setAvailableVoices(synth.getVoices());
+    };
+    syncVoices();
+    synth.addEventListener("voiceschanged", syncVoices);
+    return () => {
+      synth.removeEventListener("voiceschanged", syncVoices);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedVoiceURI) return;
+    if (!availableVoices.some((voice) => voice.voiceURI === selectedVoiceURI)) {
+      setSelectedVoiceURI("");
+    }
+  }, [availableVoices, selectedVoiceURI]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!selectedVoiceURI) {
+      window.localStorage.removeItem(MASCOT_VOICE_STORAGE_KEY);
+      return;
+    }
+    window.localStorage.setItem(MASCOT_VOICE_STORAGE_KEY, selectedVoiceURI);
+  }, [selectedVoiceURI]);
+
   const speakBuildingIntro = () => {
     if (!activeLocation) return;
     if (typeof window === "undefined" || !window.speechSynthesis) return;
@@ -659,6 +699,10 @@ export function PicturesAndMapScreen() {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang === "zh" ? "zh-CN" : "en-US";
     u.rate = 0.92;
+    const selectedVoice = availableVoices.find((voice) => voice.voiceURI === selectedVoiceURI);
+    if (selectedVoice) {
+      u.voice = selectedVoice;
+    }
     speechSynthesis.speak(u);
   };
 
@@ -1183,6 +1227,31 @@ export function PicturesAndMapScreen() {
                       alt=""
                       style={{ width: "min(140px, 55vw)", height: "auto", display: "block", filter: "drop-shadow(2px 3px 0 rgba(14,27,77,0.12))" }}
                     />
+                    <label style={{ width: "100%", maxWidth: "360px", display: "flex", flexDirection: "column", gap: "6px" }}>
+                      <span style={{ fontSize: "11px", fontWeight: 800, color: C.navy, textAlign: "left" }}>{mapCopy.voiceLabel}</span>
+                      <select
+                        value={selectedVoiceURI}
+                        onChange={(e) => setSelectedVoiceURI(e.target.value)}
+                        style={{
+                          width: "100%",
+                          height: "34px",
+                          padding: "0 10px",
+                          borderRadius: "10px",
+                          border: `2px solid ${C.navy}`,
+                          backgroundColor: C.white,
+                          color: C.navy,
+                          fontSize: "12px",
+                          fontWeight: 700,
+                        }}
+                      >
+                        <option value="">{mapCopy.voiceDefault}</option>
+                        {availableVoices.map((voice) => (
+                          <option key={voice.voiceURI} value={voice.voiceURI}>
+                            {`${voice.name} (${voice.lang})`}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", justifyContent: "center" }}>
                       <button
                         type="button"
