@@ -1,601 +1,286 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import type { Lang } from "../context/LanguageContext";
+import knowledgeMarkdownRaw from "../../../knowledge.md?raw";
 
-export type Lang = "zh" | "en";
-
-type Texts = Record<string, string>;
-
-const zh: Texts = {
-  // Splash
-  splash_location: "XJTLU · Suzhou",
-  splash_subtitle: "Your best XJTLU campus guide",
-  splash_cta: "开始探索/Start Exploring →",
-  splash_f1: "图片/Photos", splash_f2: "地图/Map", splash_f3: "路线/Routes", splash_f4: "集章/Badges",
-  // BottomNav
-  nav_home: "主页", nav_map: "地图", nav_camera: "相机", nav_route: "路线", nav_profile: "我的",
-  // HomeScreen
-  home_welcome: "嗨！快来探索今天的校园吧",
-  home_spots: "景点", home_routes: "路线", home_stamps: "已集章",
-  home_nav: "功能导航",
-  home_nav_pictures: "图片 & 地图", home_nav_route: "路线探索",
-  home_nav_mystery: "盲盒路线", home_nav_custom: "自定义路线",
-  home_stamp_section: "集章进度", home_stamp_label: "打卡进度",
-  home_stamp_view: "查看全部集章",
-  home_favs: "收藏的路线",
-  home_no_favs: "还没有收藏的路线", home_no_favs_sub: "去路线页面收藏你喜欢的路线吧",
-  home_explore: "去探索路线 →",
-  home_about_title: "关于 XJTLU",
-  home_about_text: "西交利物浦大学坐落于苏州工业园区，融汇中西方教育精华，是中英合办的国际化研究型大学。",
-  home_search_title: "搜索教室", home_search_ph: "输入教室号或楼栋，如 SA101 / 科技楼",
-  home_search_hint: "💡 支持搜索教室号或楼栋名称",
-  home_not_found: "未找到相关教室", home_not_found_sub: "请尝试其他关键词",
-  home_start_nav: "✅ 开始导航",
-  home_walk: "🚶 步行路线", home_floor_nav: "🏢 楼内导航", home_arrive: "到达教室",
-  home_elev: "推荐乘坐电梯", home_stairs: "推荐走楼梯", home_no_elev: "无需乘梯",
-  home_floor: "{n}楼", home_stops: "站",
-  home_classroom_nav: "教室导航",
-  home_more_rooms: "输入关键词搜索更多教室…",
-  // Map
-  map_title: "图片 & 地图", map_subtitle: "校园风光与导航",
-  map_photos: "校园图片", map_map: "校园地图",
-  map_tab_map: "地图", map_tab_live: "实时定位", map_locating: "正在定位中…",
-  map_search: "搜索教室", map_search_ph: "输入教室号或楼栋，如 SA101 / 科技楼",
-  map_hint: "💡 显示常用教室 · 输入关键词精准搜索",
-  map_not_found: "未找到相关教室", map_not_found_sub: "请尝试其他关键词",
-  map_more: "输入关键词搜索更多教室…", map_done: "让我们出发吧！",
-  map_convenience: "校园便民",
-  map_convenience_desc: "快速查看校园便民点位，方便应急使用。",
-  map_convenience_onestop: "学生一站式服务中心",
-  map_convenience_onestop_locs: "非教学类事务咨询（CB-117E）· 电话：0512-88161854",
-  map_convenience_sanitary: "卫生巾/湿纸巾自动售卖机",
-  map_convenience_umbrella: "雨伞借用点",
-  map_convenience_smoking: "吸烟区",
-  map_convenience_sanitary_locs: "FB G38、SA168、SB117、SC170、SD108、IR G14、BS G43 / G57 / G26",
-  map_convenience_umbrella_locs: "CB3 前台接待处",
-  map_convenience_smoking_locs: "CB 南门口、FB 东北门门口",
-  map_convenience_lockers: "美团外卖柜放置点",
-  map_convenience_lockers_locs:
-    "FB 门口、CB 东侧花坛台阶处、CB 南门入口处、数学楼西门绿化带处、EB 工科楼门口、南校区 IR 国际会议中心门口、南校区 HS 人文社科楼门口、DB 设计楼门口、BS 商学院东1号门",
-  map_walk: "🚶 步行路线", map_floor_nav: "🏢 楼内导航", map_arrive: "到达教室",
-  map_elev: "推荐乘坐电梯", map_stairs: "推荐走楼梯", map_no_elev: "无需乘梯",
-  map_floor: "{n}楼",
-  // Route
-  route_title: "路线探索", route_subtitle: "选择你今天的校园旅程",
-  route_mystery: "盲盒路线", route_mystery_sub: "解锁专属惊喜路线✨",
-  route_custom: "自定义路线", route_custom_sub: "自由选择建筑，智能生成最优路径 🔧",
-  route_recommended: "推荐路线",
-  route_start: "开始导览", route_new: "NEW",
-  route_stops: "站",
-  // Mystery
-  mystery_title: "盲盒路线", mystery_subtitle: "测出你今天的专属路线",
-  mystery_q: "今天的你，是哪种状态？✨",
-  mystery_q_sub: "选一个最接近此刻心情的选项",
-  mystery_generating: "正在生成专属路线…", mystery_analyzing: "根据你的心情分析中",
-  mystery_detail: "路线详情",
-  mystery_start: "开始导览",
-  mystery_opt_food_title: "食堂美味指引", mystery_opt_food_desc: "探寻美食，味蕾的全方位满足",
-  mystery_opt_store_title: "全天候补给站", mystery_opt_store_desc: "随时随地，满足你的小需求",
-  mystery_opt_shuttle_title: "校园无缝穿梭", mystery_opt_shuttle_desc: "连接南中北，三校区如一",
-  mystery_opt_sakura_title: "浪漫樱花季", mystery_opt_sakura_desc: "徜徉粉色花海，邂逅春日美好",
-  mystery_opt_landmark_title: "地标风景线", mystery_opt_landmark_desc: "定格经典，记录校园时光",
-  mystery_opt_study_title: "专注时光机", mystery_opt_study_desc: "静心学习，知识的海洋中徜徉",
-  mystery_res_food: "食堂路线", mystery_res_food_tag: "南北宏远到 FB Subway，一次吃遍热门点位",
-  mystery_res_store: "便利店路线", mystery_res_store_tag: "补给不掉线，串联校园高频便利店",
-  mystery_res_shuttle: "南北校区穿梭路线", mystery_res_shuttle_tag: "两条南北通道 + 大路骑行，去体育馆更省力",
-  mystery_res_sakura: "樱花路线", mystery_res_sakura_tag: "从 S 楼到 MB 门口，追一场春日粉色漫游",
-  mystery_res_landmark: "特色地标打卡路线", mystery_res_landmark_tag: "草坪雕像、利物浦船与中心湖，一线打卡",
-  mystery_res_study: "自习路线", mystery_res_study_tag: "日常学习区 + 通宵教室全覆盖",
-  mystery_back: "路线探索",
-  // Custom
-  custom_title: "自定义路线", custom_subtitle: "选择建筑 · 智能规划最优路径",
-  custom_selected: "已选", custom_min2: "至少 2 个", custom_ready: "可生成路线",
-  custom_all: "全部",
-  custom_gen_ready: "生成最优路线", custom_gen_hint: "至少选择 2 个地点", custom_planning: "正在规划路线…",
-  custom_my_route: "🧩 我的自定义路线",
-  custom_detail: "📍 路线详情（距离优化）",
-  custom_walk: "步行约 {n} 分钟",
-  custom_start: "开始导览", custom_reselect: "重新选择", custom_start_pt: "起点",
-  custom_tap_set_start: "点选已选地点设为起点",
-  custom_set_start: "设为起点",
-  custom_n_places: "{n} 个地点",
-  custom_back: "路线探索",
-  // Custom route — dining pins (bilingual via language toggle)
-  custom_d_south_hope: "南宏愿",
-  custom_d_north_hope: "北宏愿",
-  custom_d_west_hall: "西厅",
-  custom_d_east_hall: "东厅",
-  // Profile
-  profile_subtitle: "XJTLU · 大一新生",
-  profile_stamps: "已集章", profile_photos: "已拍照", profile_favs: "收藏路线",
-  profile_tab_stamps: "集章", profile_tab_favs: "收藏路线",
-  profile_progress: "打卡总进度",
-  profile_remaining: "还差 {n} 个完成全部旅程 🚀",
-  profile_photo_hint: "拍照会识别楼宇标牌；识别成功有介绍弹窗，并解锁一枚徽章；否则随机解锁",
-  profile_photo_hint2: "点下方「拍照」按钮打卡",
-  profile_go_photo: "去拍照",
-  profile_start_route: "开始新路线探索",
-  profile_no_favs: "还没有收藏的路线",
-  profile_no_favs_sub: "去探索并收藏你喜欢的路线吧！",
-  profile_explore: "去探索路线 →", profile_more: "探索更多路线",
-  profile_edit: "编辑", profile_save: "保存",
-  profile_name_default: "未命名用户",
-  // Stamps
-  s_library: "图书馆", s_square: "广场", s_gate: "北门",
-  s_gym: "体育馆", s_canteen: "食堂", s_lake: "中心湖",
-  s_art: "艺术楼", s_research: "科研楼", s_maker: "创客空间",
-  s_history: "校史馆", s_dorm: "学生宿舍", s_admin: "行政楼",
-  // Buildings (custom route)
-  b_gate: "北门", b_admin: "行政楼", b_library: "图书馆", b_square: "广场",
-  b_gym: "体育馆", b_canteen: "食堂", b_lake: "中心湖", b_art: "艺术楼",
-  b_research: "科研楼", b_dorm: "学生宿舍", b_history: "校史馆", b_maker: "创客空间",
-  // Building categories
-  cat_all: "全部", cat_academic: "学术", cat_sports: "运动", cat_leisure: "休闲",
-  cat_dining: "餐饮", cat_arts: "文艺", cat_nature: "自然", cat_living: "生活",
-  cat_culture: "文化", cat_innovation: "创新", cat_entrance: "出入口", cat_admin_type: "行政",
-  // Route types
-  type_recommended: "推荐", type_mystery: "盲盒", type_custom: "自定义",
-  // Access types
-  acc_elev: "电梯", acc_stairs: "楼梯", acc_direct: "直达",
-  acc_rec_elev: "推荐乘坐电梯", acc_rec_stairs: "推荐走楼梯", acc_rec_none: "无需乘梯",
-  acc_elev_tag: "🛗 电梯", acc_stairs_tag: "🪜 楼梯", acc_direct_tag: "🚶 直达",
-  // Route stops
-  stop_gate:"北门", stop_admin: "行政楼FB", stop_library: "图书馆CB",
-  stop_square: "广场", stop_gym: "体育馆", stop_canteen: "食堂",
-  stop_lake: "中心湖", stop_art: "影视学院", stop_research: "工科楼",
-  stop_dorm: "学生宿舍", stop_history: "校史馆", stop_maker: "西浦地下创业园",
-  stop_selfStudy: "自习室", stop_garden: "AS花园", stop_path: "林荫小道",
-  stop_track: "田径跑道", stop_basket: "篮球场", stop_pool: "游泳馆",
-  stop_resources: "学术资源中心",
-  stop_lakeside: "中心湖慧吧", stop_maingate: "主校门", stop_teaching_complex: "S教学楼群",
-  // Recommended routes — stops（新生 / 家长 / 深度）
-  stop_rec_north_sign: "北门 - 西交利物浦学校校牌打卡",
-  stop_rec_white_pavilion_plaza: "小白亭广场",
-  stop_rec_orient_occident: "东西汇廊",
-  stop_rec_lake_plaza: "中心湖广场",
-  stop_rec_history_cb_g: "校史馆（CB G层）",
-  stop_rec_ibss: "IBSS商学院",
-  // Mystery route stops (new)
-  stop_food_south_north_hongyuan: "南北宏远",
-  stop_food_tongfa: "同发食堂",
-  stop_food_mersey_cafe: "图书馆默西咖啡",
-  stop_food_west_hall: "西厅",
-  stop_food_east_hall: "东厅",
-  stop_food_hungry: "Hungry",
-  stop_food_fb_subway: "FB Subway",
-  stop_store_fb: "FB 便利店",
-  stop_store_library_familymart: "图书馆全家",
-  stop_store_pb: "PB 便利店",
-  stop_store_ir: "IR 便利店",
-  stop_store_hs: "HS 便利店",
-  stop_shuttle_channel_1: "南北通道路线 1",
-  stop_shuttle_channel_2: "南北通道路线 2",
-  stop_shuttle_main_road_gym: "骑车走大路前往体育馆",
-  stop_sakura_s_building: "S 楼",
-  stop_sakura_mb_gate: "MB 门口",
-  stop_sakura_es: "ES 周边（可继续拓展）",
-  stop_landmark_fb_lawn_statue: "FB 门口大草坪雕像",
-  stop_landmark_liverpool_ship: "利物浦船",
-  stop_landmark_small_white_pavilion: "小白亭",
-  stop_landmark_channel_graffiti: "南北通道社团涂鸦",
-  stop_landmark_south_cat_statue: "南校区小野猫雕像",
-  stop_landmark_south_lake: "南校区中心湖",
-  stop_study_daily_cb: "CB（平时主要区域）",
-  stop_study_daily_fb: "FB（平时主要区域）",
-  stop_study_daily_bs: "BS（平时主要区域）",
-  stop_study_daily_zemo: "ZEMO（平时主要区域）",
-  stop_study_daily_mersey: "MERSEY（平时主要区域）",
-  stop_study_small_classrooms: "各教学楼小教室",
-  stop_study_lecture_halls: "Lecture 教室",
-  stop_study_computer_rooms: "机房",
-  stop_study_overnight_fb_cb_eb_ma_sa_bs: "通宵教室：FB / CB / EB / MA / SA / BS",
-  mystery_note_stop_2: "第 2 站",
-  mystery_note_stop_3: "第 3 站",
-  mystery_note_stop_4: "第 4 站",
-  mystery_note_stop_5: "第 5 站",
-  mystery_note_stop_6: "第 6 站",
-  mystery_note_stop_7: "第 7 站",
-  mystery_note_stop_8: "第 8 站",
-  mystery_note_cycle_recommended: "推荐骑行路段",
-  mystery_note_add_more: "可按花况继续加点",
-  mystery_note_overnight: "夜间学习可优先此点位",
-  nav_start_pt: "出发点",
-  // Photo tags
-  tag_square: "CB", tag_academic: "学习空间", tag_nature: "学习步道", tag_building: "教学楼群", tag_sports: "体育馆",
-  // Photo titles
-  photo_square: "CB", photo_library: "学习空间", photo_path: "学习步道",
-  photo_teaching: "教学楼群", photo_sports: "体育馆",
-  // Legacy photo label keys (compat with older configs)
-  name1: "CB", name2: "学习空间", name3: "樱花步道", name4: "教学楼", name5: "体育馆",
-  // Map pins
-  pin_library: "图书馆", pin_square: "广场", pin_teaching: "教学楼",
-  pin_canteen: "食堂", pin_gym: "体育馆",
-  // Building names (classrooms)
-  cl_sa: "理科楼A (SA)", cl_sb: "理科楼B (SB)", cl_cb: "中心楼 (CB)",
-  cl_ee: "电子楼 (EE)", cl_ms: "数学楼 (MA)", cl_lb: "图书馆 (LB)",
-  cl_ib: "国际楼 (IR)", cl_es: "工程楼 (EB)",
-  // Route names
-  route_freshman: "新生路线", route_parent: "家长来访路线", route_deep: "深度探索路线",
-  route_rec_dur_freshman: "约 45 分钟",
-  route_rec_dur_parent: "约 20 分钟",
-  route_rec_dur_deep: "约 55 分钟",
-  // Camera overlay
-  camera_title: "📸 校园拍照",
-  camera_subtitle: "拍照打卡 · 识别楼宇 · 解锁集章",
-  camera_count: "已拍 {n} 张",
-  camera_shoot: "立即拍照",
-  camera_album: "从相册选择",
-  camera_hint: "识别到楼宇标牌（如 IR、SA）会弹出介绍并解锁徽章；否则随机解锁一枚 🎖️",
-  camera_empty_title: "拍摄校园建筑照片",
-  camera_empty_sub: "每拍一张含楼宇标识的照片，会尝试识别楼名；\n成功则弹出该楼简介并解锁一枚徽章，否则随机解锁一枚",
-  camera_saved: "已保存 {n} 张照片 👇",
-  camera_stamp_unlocked: "🎖️ 已随机解锁新徽章",
-  camera_photo_alt: "打卡照片",
-  camera_delete: "删除照片",
-  camera_ocr_working: "正在识别照片文字…",
-  camera_dialog_ok: "知道了",
-  ocr_unlock_title: "楼宇打卡",
-  ocr_unlock_building: "恭喜你解锁 {name}！",
-  ocr_unlock_plus_stamp: "同时已为你随机解锁一枚新徽章。",
-  ocr_unlock_stamp_done: "校园徽章已全部集齐，本次为楼宇打卡留念。",
-  ocr_b_ls_name: "生命科学楼 (LS)",
-  ocr_b_ls_intro: "生命科学楼承担生物与相关学科的教学与实验，是南校区重要的科研与实验教学场所。",
-  ocr_b_fb_name: "基础楼 (FB)",
-  ocr_b_fb_intro: "基础楼常作为通识与公共课程教学空间，是新生最早熟悉的教学楼之一。",
-  ocr_b_cb_name: "中心楼 (CB)",
-  ocr_b_cb_intro: "中心楼位于校园核心位置，集教学、服务与活动空间于一体，是连接各区的枢纽建筑。",
-  ocr_b_sa_name: "理科楼 A (SA)",
-  ocr_b_sa_intro: "理科楼 A 是 S 楼群的重要组成，承担理科类课程与实验教学。",
-  ocr_b_sb_name: "理科楼 B (SB)",
-  ocr_b_sb_intro: "理科楼 B 与 S 楼群其他楼宇相连，为理科教学与实验提供空间。",
-  ocr_b_sc_name: "理科楼 C (SC)",
-  ocr_b_sc_intro: "理科楼 C 与楼群形成一体化教学区，方便跨教室与实验之间往来。",
-  ocr_b_sd_name: "理科楼 D (SD)",
-  ocr_b_sd_intro: "理科楼 D 完善 S 楼群布局，支持课堂讨论与实验等多样化教学形式。",
-  ocr_b_ee_name: "电子与电气工程楼 (EE)",
-  ocr_b_ee_intro: "电子与电气工程楼为相关专业提供实验室、工作室与教学空间。",
-  ocr_b_eb_name: "工科楼 (EB)",
-  ocr_b_eb_intro: "工科楼汇聚工程类学科的教学与实践空间，是理工同学频繁出入的地标。",
-  ocr_b_pb_name: "公共楼 (PB)",
-  ocr_b_pb_intro: "公共楼承担校园公共服务与多用途活动空间，连接师生日常校园生活。",
-  ocr_b_ir_name: "国际科研中心 (IR)",
-  ocr_b_ir_intro: "国际科研中心支持跨领域与国际合作研究，是校园高显示度的科研地标之一。",
-  ocr_b_ia_name: "国际学术交流中心 (IA)",
-  ocr_b_ia_intro: "国际学术交流中心承办讲座、会议与访学活动，促进校内外学术互动。",
-  ocr_b_hs_name: "人文和社科楼 (HS)",
-  ocr_b_hs_intro: "人文与社科楼为文科课程、研讨与自习提供安静且便于交流的环境。",
-  ocr_b_es_name: "新兴科学楼 (ES)",
-  ocr_b_es_intro: "新兴与交叉科学楼服务前沿交叉领域教学与研究，是创新学科的重要载体。",
-  ocr_b_db_name: "设计楼 (DB)",
-  ocr_b_db_intro: "设计楼为设计类课程、工作室与展示提供空间，支持创意与项目式学习。",
-  ocr_b_bs_name: "西浦国际商学院 (BS)",
-  ocr_b_bs_intro: "国际商学院是商科与管理类课程的重要基地，国际化教学氛围浓厚。",
-  ocr_b_ma_name: "数学楼 A (MA)",
-  ocr_b_ma_intro: "数学楼 A 是数学与统计等课程的主要教学地点之一。",
-  ocr_b_mb_name: "数学楼 B (MB)",
-  ocr_b_mb_intro: "数学楼 B 与数学楼 A 一起构成数学学科的教学双塔，便于连堂与自习。",
-  ocr_b_gym_name: "体育馆 (GYM)",
-  ocr_b_gym_intro: "体育馆满足篮球、羽球、健身等运动与体育课需求，是运动打卡的热门点。",
-  ocr_b_as_name: "影视与创意科技楼 (AS)",
-  ocr_b_as_intro: "影视与创意科技楼为传媒、创意与相关技术类课程与制作提供专业空间。",
-  // Error page
-  error_unknown: "发生了未知错误",
-  error_404: "找不到该页面",
-  error_generic: "错误 {n}",
-  error_title: "哎呀，出错了！",
-  error_back_home: "返回首页",
-  // Route planning (map overlay)
-  nav_plan_route: "路线规划",
-  nav_your_loc: "你在这里",
-  nav_est_walk: "预计用时",
-  nav_distance: "距离",
-  nav_walking: "🚶 步行",
-  nav_gps_coming: "实时 GPS 导航即将上线",
-  nav_route_hint: "后续将接入真实定位与路径规划引擎",
-  nav_planning: "正在规划路线…",
-  nav_route_ready_btn: "路线已规划好 ✓",
-  nav_path_highlight: "蓝线为最短步行路径（示意图连通）",
-  nav_no_graph_path: "目标不在当前路网中，距离为直线估算。",
+export type UniAIBuddyChatMessage = {
+  role: "user" | "assistant";
+  content: string;
 };
 
-const en: Texts = {
-  splash_location: "XJTLU · Suzhou",
-  splash_subtitle: "Your best XJTLU campus guide",
-  splash_cta: "Start Exploring →",
-  splash_f1: "Photos", splash_f2: "Map", splash_f3: "Routes", splash_f4: "Badges",
-  nav_home: "Home", nav_map: "Map", nav_camera: "Camera", nav_route: "Route", nav_profile: "Me",
-  home_welcome: "Hello! Let's explore campus today",
-  home_spots: "Spots", home_routes: "Routes", home_stamps: "Badges",
-  home_nav: "Navigation",
-  home_nav_pictures: "Photos & Map", home_nav_route: "Route Explorer",
-  home_nav_mystery: "Mystery Route", home_nav_custom: "Custom Route",
-  home_stamp_section: "Badge Progress", home_stamp_label: "Progress",
-  home_stamp_view: "View All Badges",
-  home_favs: "Favorite Routes",
-  home_no_favs: "No favorites yet", home_no_favs_sub: "Explore routes and save your favorites",
-  home_explore: "Explore Routes →",
-  home_about_title: "About XJTLU",
-  home_about_text: "Xi'an Jiaotong-Liverpool University is located in Suzhou Industrial Park, blending Eastern and Western education as an international research university.",
-  home_search_title: "Find Classroom", home_search_ph: "Enter room or building, e.g. SA101",
-  home_search_hint: "💡 Search by room number or building name",
-  home_not_found: "No rooms found", home_not_found_sub: "Try a different keyword",
-  home_start_nav: "✅ Start Navigation",
-  home_walk: "🚶 Walking Route", home_floor_nav: "🏢 Indoor Navigation", home_arrive: "Arrive at Room",
-  home_elev: "Take Elevator", home_stairs: "Use Stairs", home_no_elev: "No Elevator Needed",
-  home_floor: "F{n}", home_stops: "stops",
-  home_classroom_nav: "Classroom Nav",
-  home_more_rooms: "Type to search more rooms…",
-  map_title: "Photos & Map", map_subtitle: "Campus views & navigation",
-  map_photos: "Campus Photos", map_map: "Campus Map",
-  map_tab_map: "Map", map_tab_live: "Live Location", map_locating: "Locating…",
-  map_search: "Find Classroom", map_search_ph: "Enter room or building, e.g. SA101",
-  map_hint: "💡 Showing common rooms · Type to search",
-  map_not_found: "No rooms found", map_not_found_sub: "Try a different keyword",
-  map_more: "Type to search more rooms…", map_done: "Let's go!",
-  map_convenience: "Campus Convenience",
-  map_convenience_desc: "Quick access to practical campus service spots for emergencies.",
-  map_convenience_onestop: "One-Stop Student Service Centre",
-  map_convenience_onestop_locs: "Non-academic enquiries · CB - 117E · 0512-88161854",
-  map_convenience_sanitary: "Sanitary Napkin / (Wet) Tissue Vending Machines",
-  map_convenience_umbrella: "Umbrella Service Point",
-  map_convenience_smoking: "Smoking Area",
-  map_convenience_sanitary_locs: "FBG38 / SA168 / SB117 / SC170 / SD108 / IRG14 / BSG43 / BSG57 / BSG26",
-  map_convenience_umbrella_locs: "CB3 Reception Desk",
-  map_convenience_smoking_locs: "CB South Gate / FB North-East Gate",
-  map_convenience_lockers: "Meituan Food Locker Locations",
-  map_convenience_lockers_locs:
-    "FB entrance / east flower-bed steps (CB) / CB south gate entrance / west-side green belt (Math Building) / EB (Engineering) entrance / IR International Conference Centre entrance (south campus) / HS (Humanities & Social Sciences) entrance (south campus) / DB Design Building entrance / BS Business School East Gate No.1",
-  map_walk: "🚶 Walking Route", map_floor_nav: "🏢 Indoor Navigation", map_arrive: "Arrive at Room",
-  map_elev: "Take Elevator", map_stairs: "Use Stairs", map_no_elev: "No Elevator Needed",
-  map_floor: "F{n}",
-  route_title: "Route Explorer", route_subtitle: "Choose your campus journey today",
-  route_mystery: "Mystery Route", route_mystery_sub: "Answer a question, unlock your surprise route ✨",
-  route_custom: "Custom Route", route_custom_sub: "Choose buildings, get the optimal path 🔧",
-  route_recommended: "Recommended Routes",
-  route_start: "Start Tour", route_new: "NEW",
-  route_stops: "stops",
-  mystery_title: "Mystery Route", mystery_subtitle: "Discover your unique route today",
-  mystery_q: "How are you feeling today? ✨",
-  mystery_q_sub: "Pick the option closest to your mood right now",
-  mystery_generating: "Generating your route…", mystery_analyzing: "Analyzing your mood",
-  mystery_detail: "Route Details",
-  mystery_start: "Start Tour",
-  mystery_opt_food_title: "Canteen Flavor Guide", mystery_opt_food_desc: "Explore flavors across campus dining spots",
-  mystery_opt_store_title: "All-day Supply Stops", mystery_opt_store_desc: "Get what you need anytime, anywhere",
-  mystery_opt_shuttle_title: "Seamless Campus Shuttle", mystery_opt_shuttle_desc: "Connect South-Central-North as one campus",
-  mystery_opt_sakura_title: "Romantic Sakura Route", mystery_opt_sakura_desc: "Walk through pink blossoms in spring",
-  mystery_opt_landmark_title: "Landmark Scenic Route", mystery_opt_landmark_desc: "Capture classic campus highlights",
-  mystery_opt_study_title: "Focus Time Machine", mystery_opt_study_desc: "Study quietly in a sea of knowledge",
-  mystery_res_food: "Canteen Route", mystery_res_food_tag: "From Hongyuan to FB Subway, taste all popular spots",
-  mystery_res_store: "Convenience Store Route", mystery_res_store_tag: "A practical supply loop of key stores",
-  mystery_res_shuttle: "South-North Shuttle Route", mystery_res_shuttle_tag: "Two channels plus main-road cycling to the gym",
-  mystery_res_sakura: "Sakura Route", mystery_res_sakura_tag: "From S Building to MB Gate for spring blossom views",
-  mystery_res_landmark: "Landmark Check-in Route", mystery_res_landmark_tag: "From lawn statues to the central lake",
-  mystery_res_study: "Study Route", mystery_res_study_tag: "Covers both daily study zones and overnight classrooms",
-  mystery_back: "Route Explorer",
-  custom_d_south_hope: "South Hope",
-  custom_d_north_hope: "North Hope",
-  custom_d_west_hall: "West Hall",
-  custom_d_east_hall: "East Hall",
-  custom_title: "Custom Route", custom_subtitle: "Choose buildings · Smart route planning",
-  custom_selected: "Selected", custom_min2: "at least 2", custom_ready: "Ready to generate",
-  custom_all: "All",
-  custom_gen_ready: "Generate Route", custom_gen_hint: "Select at least 2 places", custom_planning: "Planning route…",
-  custom_my_route: "🧩 My Custom Route",
-  custom_detail: "📍 Route Details (Optimized)",
-  custom_walk: "~{n} min walk",
-  custom_start: "Start Tour", custom_reselect: "Reselect", custom_start_pt: "Start",
-  custom_tap_set_start: "Tap a selected place to set start",
-  custom_set_start: "Set as start",
-  custom_n_places: "{n} place(s)",
-  custom_back: "Route Explorer",
-  profile_subtitle: "XJTLU · Freshman",
-  profile_stamps: "Badges", profile_photos: "Photos", profile_favs: "Favorites",
-  profile_tab_stamps: "Badges", profile_tab_favs: "Favorites",
-  profile_progress: "Overall Progress",
-  profile_remaining: "{n} more to complete all! 🚀",
-  profile_photo_hint: "Photos run building-sign OCR: match → intro popup + badge; no match → random badge",
-  profile_photo_hint2: "Tap the Camera button below",
-  profile_go_photo: "Take Photo",
-  profile_start_route: "Start New Route",
-  profile_no_favs: "No favorites yet",
-  profile_no_favs_sub: "Explore routes and save your favorites!",
-  profile_explore: "Explore Routes →", profile_more: "More Routes",
-  profile_edit: "Edit", profile_save: "Save",
-  profile_name_default: "Unnamed User",
-  s_library: "Library", s_square: "Square", s_gate: "North Gate",
-  s_gym: "Gymnasium", s_canteen: "Canteen", s_lake: "South Lake",
-  s_art: "Art Center", s_research: "Research Bldg", s_maker: "Makerspace",
-  s_history: "History Hall", s_dorm: "Dormitory", s_admin: "Admin Bldg",
-  b_gate: "North Gate", b_admin: "Admin Bldg-FB", b_library: "Library-CB", b_square: "Square",
-  b_gym: "Gymnasium", b_canteen: "Canteen", b_lake: "Central Lake", b_art: "Film and Television College",
-  b_research: "Engineering Building", b_dorm: "Dormitory", b_history: "History Hall", b_maker: "Underground Entrepreneurship Park",
-  cat_all: "All", cat_academic: "Academic", cat_sports: "Sports", cat_leisure: "Leisure",
-  cat_dining: "Dining", cat_arts: "Arts", cat_nature: "Nature", cat_living: "Living",
-  cat_culture: "Culture", cat_innovation: "Innovation", cat_entrance: "Entrance", cat_admin_type: "Admin",
-  type_recommended: "Rec", type_mystery: "Mystery", type_custom: "Custom",
-  acc_elev: "Elevator", acc_stairs: "Stairs", acc_direct: "Direct",
-  acc_rec_elev: "Take Elevator", acc_rec_stairs: "Use Stairs", acc_rec_none: "No Elevator Needed",
-  acc_elev_tag: "🛗 Elev.", acc_stairs_tag: "🪜 Stairs", acc_direct_tag: "🚶 Direct",
-  stop_gate: "North Gate", stop_admin: "Admin Bldg-FB", stop_library: "Library-CB",
-  stop_square: "Square", stop_gym: "Gymnasium", stop_canteen: "Canteen",
-  stop_lake: "Central Lake", stop_art: "Film and Television College", stop_research: "Research Bldg",
-  stop_dorm: "Dormitory", stop_history: "History Hall", stop_maker: "Underground Entrepreneurship Park",
-  stop_selfStudy: "Study Lounge", stop_garden: "AS Garden", stop_path: "Tree-lined Path",
-  stop_track: "Running Track", stop_basket: "Basketball Court", stop_pool: "Swimming Pool",
-  stop_resources: "Academic Resource Ctr",
-  stop_lakeside: "Central Lake Wisdom Bar", stop_maingate: "Main Gate", stop_teaching_complex: "S-Block teaching cluster",
-  // Recommended routes — stops
-  stop_rec_north_sign: "North Gate – XJTLU campus sign check-in",
-  stop_rec_white_pavilion_plaza: "White Pavilion Square",
-  stop_rec_orient_occident: "The Orient & Occident Connector",
-  stop_rec_lake_plaza: "Central Lake Plaza",
-  stop_rec_history_cb_g: "University History Museum (CB, ground floor)",
-  stop_rec_ibss: "IBSS Business School",
-  // Mystery route stops (new)
-  stop_food_south_north_hongyuan: "South/North Hongyuan",
-  stop_food_tongfa: "Tongfa Canteen",
-  stop_food_mersey_cafe: "Mersey Cafe (Library)",
-  stop_food_west_hall: "West Hall",
-  stop_food_east_hall: "East Hall",
-  stop_food_hungry: "Hungry",
-  stop_food_fb_subway: "FB Subway",
-  stop_store_fb: "FB Convenience Store",
-  stop_store_library_familymart: "FamilyMart (Library)",
-  stop_store_pb: "PB Convenience Store",
-  stop_store_ir: "IR Convenience Store",
-  stop_store_hs: "HS Convenience Store",
-  stop_shuttle_channel_1: "South-North Channel Route 1",
-  stop_shuttle_channel_2: "South-North Channel Route 2",
-  stop_shuttle_main_road_gym: "Cycle via main road to gym",
-  stop_sakura_s_building: "S Building",
-  stop_sakura_mb_gate: "MB Gate",
-  stop_sakura_es: "ES Area (extendable)",
-  stop_landmark_fb_lawn_statue: "FB lawn entrance statue",
-  stop_landmark_liverpool_ship: "Liverpool Ship",
-  stop_landmark_small_white_pavilion: "Small White Pavilion",
-  stop_landmark_channel_graffiti: "South-North channel graffiti wall",
-  stop_landmark_south_cat_statue: "South Campus cat statue",
-  stop_landmark_south_lake: "South Campus central lake",
-  stop_study_daily_cb: "CB (daily study zone)",
-  stop_study_daily_fb: "FB (daily study zone)",
-  stop_study_daily_bs: "BS (daily study zone)",
-  stop_study_daily_zemo: "ZEMO (daily study zone)",
-  stop_study_daily_mersey: "MERSEY (daily study zone)",
-  stop_study_small_classrooms: "Small classrooms in teaching buildings",
-  stop_study_lecture_halls: "Lecture halls",
-  stop_study_computer_rooms: "Computer rooms",
-  stop_study_overnight_fb_cb_eb_ma_sa_bs: "Overnight rooms: FB / CB / EB / MA / SA / BS",
-  mystery_note_stop_2: "Stop 2",
-  mystery_note_stop_3: "Stop 3",
-  mystery_note_stop_4: "Stop 4",
-  mystery_note_stop_5: "Stop 5",
-  mystery_note_stop_6: "Stop 6",
-  mystery_note_stop_7: "Stop 7",
-  mystery_note_stop_8: "Stop 8",
-  mystery_note_cycle_recommended: "Recommended cycling section",
-  mystery_note_add_more: "Add more stops by blossom condition",
-  mystery_note_overnight: "Recommended for late-night study",
-  nav_start_pt: "Starting point",
-  tag_square: "Square", tag_academic: "Academic", tag_nature: "Nature", tag_building: "Building", tag_sports: "Gym",
-  photo_square: "Square", photo_library: "Academic", photo_path: "Nature",
-  photo_teaching: "Building", photo_sports: "Gym",
-  // Legacy photo label keys (compat with older configs)
-  name1: "CB", name2: "Study Space", name3: "Study Walkway", name4: "Teaching Blocks", name5: "Sports",
-  pin_library: "Library", pin_square: "Square", pin_teaching: "Teaching Bldg",
-  pin_canteen: "Canteen", pin_gym: "Gymnasium",
-  cl_sa: "Science Bldg A (SA)", cl_sb: "Science Bldg B (SB)", cl_cb: "Central Bldg (CB)",
-  cl_ee: "Electronics Bldg (EE)", cl_ms: "Math Bldg (MS)", cl_lb: "Library (LB)",
-  cl_ib: "International Bldg (IB)", cl_es: "Engineering Bldg (ES)",
-  route_freshman: "Freshman Route", route_parent: "Parent Visit Route", route_deep: "Deep Exploration Route",
-  route_rec_dur_freshman: "~45 min",
-  route_rec_dur_parent: "~20 min",
-  route_rec_dur_deep: "~55 min",
-  // Camera overlay
-  camera_title: "📸 Campus Photos",
-  camera_subtitle: "Snap · Building scan · Unlock badges",
-  camera_count: "Photos: {n}",
-  camera_shoot: "Take Photo",
-  camera_album: "Choose from Album",
-  camera_hint: "Same bilingual scan as Chinese mode (Eng + 中文 on signs). Match → intro in English + badge; else random 🎖️",
-  camera_empty_title: "Photograph Campus Buildings",
-  camera_empty_sub: "Same bilingual OCR as Chinese mode.\nIf a building is recognised, you see its intro in English and unlock a badge; if not, you still unlock a random badge.",
-  camera_saved: "{n} photos saved 👇",
-  camera_stamp_unlocked: "🎖️ Random badge unlocked",
-  camera_photo_alt: "Campus photo",
-  camera_delete: "Delete photo",
-  camera_ocr_working: "Recognizing text…",
-  camera_dialog_ok: "Got it",
-  ocr_unlock_title: "Building check-in",
-  ocr_unlock_building: "Congratulations — {name} unlocked!",
-  ocr_unlock_plus_stamp: "You also unlocked a random campus badge.",
-  ocr_unlock_stamp_done: "You've collected all badges — nice building snapshot!",
-  ocr_b_ls_name: "Life Sciences Building (LS)",
-  ocr_b_ls_intro: "Life Sciences supports biology-related teaching and labs, a key research and learning hub on south campus.",
-  ocr_b_fb_name: "Foundation Building (FB)",
-  ocr_b_fb_intro: "The Foundation Building is often the first main teaching block many students get to know for general and foundation courses.",
-  ocr_b_cb_name: "Central Building (CB)",
-  ocr_b_cb_intro: "The Central Building sits at the heart of campus, connecting teaching, services, and event spaces across zones.",
-  ocr_b_sa_name: "Science Building A (SA)",
-  ocr_b_sa_intro: "SA is part of the S-block cluster, hosting science courses and teaching labs.",
-  ocr_b_sb_name: "Science Building B (SB)",
-  ocr_b_sb_intro: "SB is linked with the S-block cluster, supporting science instruction and hands-on work.",
-  ocr_b_sc_name: "Science Building C (SC)",
-  ocr_b_sc_intro: "SC completes a continuous teaching strip with other S blocks for easy room changes.",
-  ocr_b_sd_name: "Science Building D (SD)",
-  ocr_b_sd_intro: "SD rounds out the S-block layout, supporting large-group teaching and lab sessions.",
-  ocr_b_ee_name: "E&E Engineering (EE)",
-  ocr_b_ee_intro: "The EE block hosts electronics and electrical engineering labs, studios, and project spaces.",
-  ocr_b_eb_name: "Engineering Building (EB)",
-  ocr_b_eb_intro: "The Engineering Building gathers engineering teaching and practice spaces, a go-to for STEM students.",
-  ocr_b_pb_name: "Public Building (PB)",
-  ocr_b_pb_intro: "The Public Building supports shared campus services and flexible venue use for the community.",
-  ocr_b_ir_name: "International Research Centre (IR)",
-  ocr_b_ir_intro: "The International Research Centre highlights collaborative and interdisciplinary research and is one of the most recognisable R&D landmarks.",
-  ocr_b_ia_name: "International Academic Exchange and Collaboration Centre (IA)",
-  ocr_b_ia_intro: "The IA centre hosts talks, symposia, and visiting programmes, boosting academic exchange on campus.",
-  ocr_b_hs_name: "Humanities and Social Sciences (HS)",
-  ocr_b_hs_intro: "HS is home to humanities and social-science classes, seminars, and quiet study spots.",
-  ocr_b_es_name: "Emerging and Interdisciplinary Science (ES)",
-  ocr_b_es_intro: "ES is tailored for new and cross-disciplinary science programmes and emerging fields.",
-  ocr_b_db_name: "Design Building (DB)",
-  ocr_b_db_intro: "DB provides design studios, workshops, and project spaces for creative, studio-based learning.",
-  ocr_b_bs_name: "International Business School (BS)",
-  ocr_b_bs_intro: "The International Business School is a major home for business and management programmes in an international setting.",
-  ocr_b_ma_name: "Mathematics A (MA)",
-  ocr_b_ma_intro: "MA is a primary home for mathematics and related courses on the mathematics corridor.",
-  ocr_b_mb_name: "Mathematics B (MB)",
-  ocr_b_mb_intro: "MA and MB work as a pair, making back-to-back classes and study time easier to plan.",
-  ocr_b_gym_name: "Gymnasium (GYM)",
-  ocr_b_gym_intro: "The gym covers courts, training, and PE use — a top spot for active campus life.",
-  ocr_b_as_name: "Film and Creative Technology (AS)",
-  ocr_b_as_intro: "The AS block supports media, film, and creative-technology learning with production-oriented spaces.",
-  // Error page
-  error_unknown: "An unexpected error occurred",
-  error_404: "Page not found",
-  error_generic: "Error {n}",
-  error_title: "Oops, something went wrong!",
-  error_back_home: "Back to Home",
-  // Route planning (map overlay)
-  nav_plan_route: "Plan Route",
-  nav_your_loc: "You are here",
-  nav_est_walk: "Est. time",
-  nav_distance: "Distance",
-  nav_walking: "🚶 Walking",
-  nav_gps_coming: "Live GPS Navigation Coming Soon",
-  nav_route_hint: "Real-time location & routing will be integrated later",
-  nav_planning: "Planning route…",
-  nav_route_ready_btn: "Route Ready ✓",
-  nav_path_highlight: "Blue line: shortest walk on schematic links",
-  nav_no_graph_path: "Target not on graph; distance is straight-line estimate.",
+type KnowledgeEntry = {
+  id: number;
+  question: string;
+  answer: string;
+  combined: string;
+  normalizedQuestion: string;
 };
 
-interface LangContextValue {
-  lang: Lang;
-  toggle: () => void;
-  t: (key: string, vars?: Record<string, string | number>) => string;
+export const UNI_AI_FALLBACK_ZH = "抱歉，这个问题目前不在 UniAIBuddy 的已收录知识中。";
+export const UNI_AI_FALLBACK_EN = "Sorry, this question is not in UniAIBuddy's recorded knowledge base yet.";
+
+const STOPWORDS = new Set([
+  "的", "了", "是", "吗", "我", "你", "他", "她", "它", "和", "与", "及", "在", "有", "怎么", "如何",
+  "what", "how", "is", "are", "the", "a", "an", "to", "in", "on", "for", "of", "do", "does", "can",
+]);
+
+const SYSTEM_QUESTION_HINTS = [
+  "系统", "导航", "地图", "路线", "盲盒", "自定义", "推荐路线", "教室", "搜索", "定位", "实时定位",
+  "校园", "收藏", "个人中心", "profile", "pictures", "route", "mystery", "custom", "locate",
+  "location", "map", "navigation", "classroom", "favorite", "favourite", "feature", "function",
+];
+
+function isIdentityQuestion(question: string): boolean {
+  const q = question.toLowerCase();
+  return (
+    q.includes("你是谁") ||
+    q.includes("你叫") ||
+    q.includes("who are you") ||
+    q.includes("your name") ||
+    q.includes("uniaibuddy")
+  );
 }
 
-const LangContext = createContext<LangContextValue>({
-  lang: "en",
-  toggle: () => {},
-  t: (k) => k,
-});
+function identityReply(lang: Lang): string {
+  return lang === "zh"
+    ? "我是 UniAIBuddy，你的 UniBuddy 校园导航助手。我会基于已收录知识为你解答路线、地图、教室搜索和定位相关问题。"
+    : "I am UniAIBuddy, your UniBuddy campus navigation assistant. I answer route, map, classroom search, and live-location questions based on the recorded knowledge base.";
+}
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>("en");
-  const toggle = () => setLang((l) => (l === "zh" ? "en" : "zh"));
-  const t = (key: string, vars?: Record<string, string | number>) => {
-    const map = lang === "zh" ? zh : en;
-    let str = map[key] ?? key;
-    if (vars) {
-      Object.entries(vars).forEach(([k, v]) => {
-        str = str.replace(`{${k}}`, String(v));
-      });
-    }
-    return str;
+function isSimpleGreeting(question: string): boolean {
+  const q = question.trim().toLowerCase();
+  if (!q) return false;
+  return [
+    "你好",
+    "嗨",
+    "哈喽",
+    "早上好",
+    "中午好",
+    "下午好",
+    "晚上好",
+    "hello",
+    "hi",
+    "hey",
+    "good morning",
+    "good afternoon",
+    "good evening",
+  ].some((token) => q === token || q.startsWith(`${token} `));
+}
+
+function simpleGreetingReply(lang: Lang): string {
+  return lang === "zh"
+    ? "你好呀！我是 UniAIBuddy。你可以问我校园导航系统相关的问题，比如“我从哪里进入地图功能？”或“导览路线在地图上怎么显示？”。"
+    : "Hi! I am UniAIBuddy. You can ask me questions about the campus navigation system, such as Where do I enter the map function?";
+}
+
+function looksLikeSystemQuestion(question: string): boolean {
+  const q = question.toLowerCase();
+  if (!q.trim()) return false;
+  return SYSTEM_QUESTION_HINTS.some((hint) => q.includes(hint.toLowerCase()));
+}
+
+function nonSystemReply(lang: Lang): string {
+  return lang === "zh"
+    ? "这个问题更像是日常聊天。我主要负责 UniBuddy 导航系统相关问题；如果你想了解功能用法，可以直接问我地图、路线、教室搜索或定位。"
+    : "This looks like general chat. I mainly handle UniBuddy navigation-system questions. Ask me about map, routes, classroom search, or live location.";
+}
+
+function tokenize(input: string): string[] {
+  const chunks = input.toLowerCase().match(/[\u4e00-\u9fff]{1,}|[a-z0-9]+/g) ?? [];
+  return chunks.filter((w) => {
+    if (STOPWORDS.has(w)) return false;
+    const isCjk = /[\u4e00-\u9fff]/.test(w);
+    if (isCjk) return w.length >= 2;
+    return w.length >= 2;
+  });
+}
+
+function normalizeForMatch(input: string): string {
+  return input
+    .toLowerCase()
+    .replace(/[^\u4e00-\u9fffa-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function parseKnowledgeEntries(markdown: string): KnowledgeEntry[] {
+  const lines = markdown.split(/\r?\n/);
+  const entries: KnowledgeEntry[] = [];
+  let currentId = 0;
+  let currentQuestion = "";
+  let answerBuffer: string[] = [];
+
+  const pushCurrent = () => {
+    if (!currentQuestion) return;
+    const answer = answerBuffer.join(" ").replace(/\s+/g, " ").trim();
+    if (!answer) return;
+    entries.push({
+      id: currentId,
+      question: currentQuestion.trim(),
+      answer,
+      combined: `${currentQuestion} ${answer}`.toLowerCase(),
+      normalizedQuestion: normalizeForMatch(currentQuestion),
+    });
   };
-  return <LangContext.Provider value={{ lang, toggle, t }}>{children}</LangContext.Provider>;
+
+  for (const line of lines) {
+    const matched = line.match(/^###\s*(\d+)\)\s*(.+)$/);
+    if (matched) {
+      pushCurrent();
+      currentId = Number(matched[1]);
+      currentQuestion = matched[2]?.trim() ?? "";
+      answerBuffer = [];
+      continue;
+    }
+    if (currentQuestion) {
+      // Allow parsing multiple FAQ sections (e.g., zh + en) in one markdown file.
+      if (line.startsWith("## ")) continue;
+      if (line.trim()) answerBuffer.push(line.trim());
+    }
+  }
+  pushCurrent();
+  return entries;
 }
 
-export function useLanguage() {
-  return useContext(LangContext);
+const KNOWLEDGE_ENTRIES = parseKnowledgeEntries(knowledgeMarkdownRaw);
+
+function hasCjk(input: string): boolean {
+  return /[\u4e00-\u9fff]/.test(input);
+}
+
+export function getUniAIBuddyPresetQuestions(lang: Lang, limit = 4): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const entry of KNOWLEDGE_ENTRIES) {
+    const isZhQuestion = hasCjk(entry.question);
+    if (lang === "zh" && !isZhQuestion) continue;
+    if (lang === "en" && isZhQuestion) continue;
+    if (seen.has(entry.question)) continue;
+
+    seen.add(entry.question);
+    result.push(entry.question);
+    if (result.length >= limit) break;
+  }
+
+  return result;
+}
+
+function scoreEntry(query: string, entry: KnowledgeEntry): number {
+  const normalizedQuery = normalizeForMatch(query);
+  if (normalizedQuery && entry.normalizedQuestion) {
+    if (
+      normalizedQuery === entry.normalizedQuestion ||
+      entry.normalizedQuestion.includes(normalizedQuery) ||
+      normalizedQuery.includes(entry.normalizedQuestion)
+    ) {
+      return 999;
+    }
+  }
+
+  const queryTokens = tokenize(query);
+  if (queryTokens.length === 0) return 0;
+  let score = 0;
+  for (const token of queryTokens) {
+    if (entry.question.toLowerCase().includes(token)) score += 4;
+    else if (entry.combined.includes(token)) score += 2;
+  }
+  return score;
+}
+
+function searchKnowledge(query: string, limit = 3): KnowledgeEntry[] {
+  return KNOWLEDGE_ENTRIES
+    .map((entry) => ({ entry, score: scoreEntry(query, entry) }))
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((item) => item.entry);
+}
+
+async function askDeepSeek(
+  question: string,
+  contextEntries: KnowledgeEntry[],
+  lang: Lang,
+  history: UniAIBuddyChatMessage[] = [],
+): Promise<string> {
+  const apiKey = (import.meta.env.VITE_DEEPSEEK_API_KEY as string | undefined)?.trim();
+  if (!apiKey) {
+    return contextEntries[0]?.answer ?? (lang === "zh" ? UNI_AI_FALLBACK_ZH : UNI_AI_FALLBACK_EN);
+  }
+
+  const contextText = contextEntries
+    .map((entry) => `Q: ${entry.question}\nA: ${entry.answer}`)
+    .join("\n\n");
+
+  const systemPrompt =
+    lang === "zh"
+      ? "你是 UniAIBuddy。只能依据给定知识作答，不得编造。回答简洁、友好、可执行。若知识不足，必须回复：抱歉，这个问题目前不在 UniAIBuddy 的已收录知识中。"
+      : "You are UniAIBuddy. Answer only based on the provided knowledge, without fabrication. Keep answers concise and actionable. If knowledge is insufficient, you MUST reply: Sorry, this question is not in UniAIBuddy's recorded knowledge base yet.";
+
+  const compactHistory = history.slice(-6).map((msg) => ({
+    role: msg.role,
+    content: msg.content,
+  }));
+
+  const response = await fetch("https://api.deepseek.com/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "deepseek-chat",
+      temperature: 0.2,
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...compactHistory,
+        {
+          role: "user",
+          content: `用户问题：${question}\n\n可用知识如下：\n${contextText}`,
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`DeepSeek request failed: ${response.status}`);
+  }
+
+  const data = await response.json() as {
+    choices?: Array<{ message?: { content?: string } }>;
+  };
+  const content = data.choices?.[0]?.message?.content?.trim();
+  if (!content) {
+    return contextEntries[0]?.answer ?? (lang === "zh" ? UNI_AI_FALLBACK_ZH : UNI_AI_FALLBACK_EN);
+  }
+  return content;
+}
+
+export async function askUniAIBuddy(
+  question: string,
+  lang: Lang,
+  history: UniAIBuddyChatMessage[] = [],
+): Promise<string> {
+  const q = question.trim();
+  if (!q) return lang === "zh" ? UNI_AI_FALLBACK_ZH : UNI_AI_FALLBACK_EN;
+  if (isSimpleGreeting(q)) return simpleGreetingReply(lang);
+  if (isIdentityQuestion(q)) return identityReply(lang);
+
+  const lastUserTurns = history
+    .filter((msg) => msg.role === "user")
+    .slice(-2)
+    .map((msg) => msg.content)
+    .join(" ");
+
+  const retrievalQuery = [lastUserTurns, q].filter(Boolean).join(" ");
+  if (!looksLikeSystemQuestion(retrievalQuery)) return nonSystemReply(lang);
+  const hits = searchKnowledge(retrievalQuery, 3);
+
+  if (hits.length === 0) {
+    return lang === "zh" ? UNI_AI_FALLBACK_ZH : UNI_AI_FALLBACK_EN;
+  }
+
+  try {
+    return await askDeepSeek(q, hits, lang, history);
+  } catch {
+    return hits[0]?.answer ?? (lang === "zh" ? UNI_AI_FALLBACK_ZH : UNI_AI_FALLBACK_EN);
+  }
 }
