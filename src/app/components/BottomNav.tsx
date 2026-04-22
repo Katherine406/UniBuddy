@@ -1,3 +1,4 @@
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   IconHome,
@@ -19,6 +20,10 @@ export function BottomNav({ activeTab }: BottomNavProps) {
   const navigate = useNavigate();
   const { openCamera } = useCamera();
   const { t } = useLanguage();
+  const navButtonRefs = useRef<Partial<Record<TabName, HTMLButtonElement | null>>>({});
+  const [showGuide, setShowGuide] = useState(false);
+  const [guideStepIndex, setGuideStepIndex] = useState(0);
+  const [guideTargetRect, setGuideTargetRect] = useState<DOMRect | null>(null);
 
   const navItems: {
     id: TabName;
@@ -58,6 +63,94 @@ export function BottomNav({ activeTab }: BottomNavProps) {
       icon: (a) => <IconProfile size={26} active={a} />,
     },
   ];
+  const guideSteps = useMemo(
+    () => [
+      { id: "Home" as TabName, description: t("nav_guide_home_desc") },
+      { id: "Map" as TabName, description: t("nav_guide_map_desc") },
+      { id: "Route" as TabName, description: t("nav_guide_route_desc") },
+      { id: "Profile" as TabName, description: t("nav_guide_profile_desc") },
+    ],
+    [t],
+  );
+  const currentGuideStep = showGuide ? guideSteps[guideStepIndex] : null;
+  const currentGuideLabel = currentGuideStep
+    ? navItems.find((item) => item.id === currentGuideStep.id)?.label ?? currentGuideStep.id
+    : "";
+
+  const completeGuide = useCallback(() => {
+    setShowGuide(false);
+    setGuideStepIndex(0);
+    setGuideTargetRect(null);
+    try {
+      window.localStorage.setItem(NAV_GUIDE_STORAGE_KEY, "1");
+    } catch {
+      // Ignore storage failures in privacy mode.
+    }
+  }, []);
+
+  const updateGuideTarget = useCallback(() => {
+    if (!showGuide || !currentGuideStep) {
+      setGuideTargetRect(null);
+      return;
+    }
+    const target = navButtonRefs.current[currentGuideStep.id];
+    setGuideTargetRect(target ? target.getBoundingClientRect() : null);
+  }, [currentGuideStep, showGuide]);
+
+  useEffect(() => {
+    try {
+      const hasSeenGuide = window.localStorage.getItem(NAV_GUIDE_STORAGE_KEY) === "1";
+      if (!hasSeenGuide) {
+        setShowGuide(true);
+      }
+    } catch {
+      setShowGuide(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    updateGuideTarget();
+    if (!showGuide) {
+      return;
+    }
+    window.addEventListener("resize", updateGuideTarget);
+    window.addEventListener("scroll", updateGuideTarget, true);
+    return () => {
+      window.removeEventListener("resize", updateGuideTarget);
+      window.removeEventListener("scroll", updateGuideTarget, true);
+    };
+  }, [showGuide, guideStepIndex, updateGuideTarget]);
+
+  const handleSkipGuide = useCallback(() => {
+    completeGuide();
+  }, [completeGuide]);
+
+  const handleConfirmGuide = useCallback(() => {
+    if (guideStepIndex >= guideSteps.length - 1) {
+      completeGuide();
+      return;
+    }
+    setGuideStepIndex((prev) => prev + 1);
+  }, [completeGuide, guideStepIndex, guideSteps.length]);
+
+  const guideBubbleStyle = useMemo(() => {
+    if (!guideTargetRect || typeof window === "undefined") {
+      return null;
+    }
+    const width = 280;
+    const margin = 12;
+    const estimatedHeight = 158;
+    const centerX = guideTargetRect.left + guideTargetRect.width / 2;
+    const left = Math.min(
+      window.innerWidth - width - margin,
+      Math.max(margin, centerX - width / 2),
+    );
+    const topCandidate = guideTargetRect.top - estimatedHeight - 10;
+    const top = topCandidate > margin
+      ? topCandidate
+      : Math.min(window.innerHeight - estimatedHeight - margin, guideTargetRect.bottom + 10);
+    return { left, top, width };
+  }, [guideTargetRect]);
 
   return (
     <div
@@ -86,6 +179,9 @@ export function BottomNav({ activeTab }: BottomNavProps) {
               <button
                 key={item.id}
                 onClick={handleClick}
+                ref={(element) => {
+                  navButtonRefs.current[item.id] = element;
+                }}
                 className="flex flex-col items-center gap-1"
                 style={{ marginTop: "-26px" }}
               >
@@ -118,6 +214,9 @@ export function BottomNav({ activeTab }: BottomNavProps) {
             <button
               key={item.id}
               onClick={handleClick}
+              ref={(element) => {
+                navButtonRefs.current[item.id] = element;
+              }}
               className="flex flex-col items-center gap-1"
               style={{ minWidth: "52px" }}
             >
@@ -152,7 +251,64 @@ export function BottomNav({ activeTab }: BottomNavProps) {
           );
         })}
       </div>
-
+      {showGuide && currentGuideStep && guideTargetRect && guideBubbleStyle && (
+        <>
+          <div className="fixed inset-0 z-[55] bg-slate-950/45" onClick={handleSkipGuide} />
+          <div
+            className="pointer-events-none fixed z-[60] rounded-2xl border-[3px]"
+            style={{
+              top: guideTargetRect.top - 8,
+              left: guideTargetRect.left - 8,
+              width: guideTargetRect.width + 16,
+              height: guideTargetRect.height + 16,
+              borderColor: "#FFE066",
+              boxShadow: "0 0 0 9999px rgba(2, 6, 23, 0.35)",
+            }}
+          />
+          <div
+            className="fixed z-[70] rounded-2xl border-[2px] bg-white p-3 shadow-[4px_4px_0px_#0E1B4D]"
+            style={{
+              top: guideBubbleStyle.top,
+              left: guideBubbleStyle.left,
+              width: guideBubbleStyle.width,
+              borderColor: "#0E1B4D",
+            }}
+          >
+            <p className="text-[11px] font-extrabold text-[#2350D8]">
+              {t("nav_guide_step", {
+                current: guideStepIndex + 1,
+                total: guideSteps.length,
+              })}
+            </p>
+            <p className="mt-1 text-[14px] font-black text-[#0E1B4D]">{currentGuideLabel}</p>
+            <p className="mt-1 text-[12px] font-bold leading-[1.35] text-[#4B6898]">
+              {currentGuideStep.description}
+            </p>
+            <div className="mt-3 flex items-center justify-end gap-2">
+              <button
+                onClick={handleSkipGuide}
+                className="rounded-xl border-[2px] px-3 py-1 text-[12px] font-black"
+                style={{ borderColor: "#0E1B4D", color: "#0E1B4D" }}
+              >
+                {t("nav_guide_skip")}
+              </button>
+              <button
+                onClick={handleConfirmGuide}
+                className="rounded-xl border-[2px] px-3 py-1 text-[12px] font-black text-white"
+                style={{
+                  backgroundColor: "#2350D8",
+                  borderColor: "#0E1B4D",
+                  boxShadow: "2px 2px 0px #0E1B4D",
+                }}
+              >
+                {guideStepIndex === guideSteps.length - 1
+                  ? t("nav_guide_done")
+                  : t("nav_guide_confirm")}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
