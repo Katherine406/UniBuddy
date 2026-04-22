@@ -16,6 +16,12 @@ const NAV_GUIDE_STORAGE_KEY = "unibuddy_nav_guide_seen_v1";
 interface BottomNavProps {
   activeTab: TabName;
 }
+type GuideStep = {
+  id?: TabName;
+  selector?: string;
+  title: string;
+  description: string;
+};
 
 export function BottomNav({ activeTab }: BottomNavProps) {
   const navigate = useNavigate();
@@ -65,19 +71,25 @@ export function BottomNav({ activeTab }: BottomNavProps) {
       icon: (a) => <IconProfile size={26} active={a} />,
     },
   ];
-  const guideSteps = useMemo(
-    () => [
-      { id: "Home" as TabName, description: t("nav_guide_home_desc") },
-      { id: "Map" as TabName, description: t("nav_guide_map_desc") },
-      { id: "Route" as TabName, description: t("nav_guide_route_desc") },
-      { id: "Profile" as TabName, description: t("nav_guide_profile_desc") },
-    ],
-    [t],
-  );
+  const guideSteps = useMemo(() => {
+    const steps: GuideStep[] = [];
+    if (activeTab === "Home") {
+      steps.push({
+        selector: '[data-guide-target="uniaibuddy-card"]',
+        title: "UniAIBuddy",
+        description: t("nav_guide_uniaibuddy_desc"),
+      });
+    }
+    steps.push(
+      { id: "Home", title: t("nav_home"), description: t("nav_guide_home_desc") },
+      { id: "Map", title: t("nav_map"), description: t("nav_guide_map_desc") },
+      { id: "Route", title: t("nav_route"), description: t("nav_guide_route_desc") },
+      { id: "Profile", title: t("nav_profile"), description: t("nav_guide_profile_desc") },
+    );
+    return steps;
+  }, [activeTab, t]);
   const currentGuideStep = showGuide ? guideSteps[guideStepIndex] : null;
-  const currentGuideLabel = currentGuideStep
-    ? navItems.find((item) => item.id === currentGuideStep.id)?.label ?? currentGuideStep.id
-    : "";
+  const currentGuideLabel = currentGuideStep?.title ?? "";
 
   const completeGuide = useCallback(() => {
     setShowGuide(false);
@@ -95,7 +107,9 @@ export function BottomNav({ activeTab }: BottomNavProps) {
       setGuideTargetRect(null);
       return;
     }
-    const target = navButtonRefs.current[currentGuideStep.id];
+    const target = currentGuideStep.selector
+      ? document.querySelector(currentGuideStep.selector)
+      : (currentGuideStep.id ? navButtonRefs.current[currentGuideStep.id] : null);
     setGuideTargetRect(target ? target.getBoundingClientRect() : null);
   }, [currentGuideStep, showGuide]);
 
@@ -134,6 +148,20 @@ export function BottomNav({ activeTab }: BottomNavProps) {
     }
     setGuideStepIndex((prev) => prev + 1);
   }, [completeGuide, guideStepIndex, guideSteps.length]);
+
+  useEffect(() => {
+    if (!showGuide || !currentGuideStep || guideTargetRect) {
+      return;
+    }
+    if (guideStepIndex >= guideSteps.length - 1) {
+      completeGuide();
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      setGuideStepIndex((prev) => Math.min(prev + 1, guideSteps.length - 1));
+    }, 60);
+    return () => window.clearTimeout(timer);
+  }, [completeGuide, currentGuideStep, guideStepIndex, guideSteps.length, guideTargetRect, showGuide]);
 
   const guideBubbleStyle = useMemo(() => {
     if (!guideTargetRect || typeof window === "undefined") {
