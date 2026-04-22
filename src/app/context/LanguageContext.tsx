@@ -575,7 +575,7 @@ interface LangContextValue {
 }
 
 const LangContext = createContext<LangContextValue>({
-  lang: "zh",
+  lang: "en",
   toggle: () => {},
   t: (k) => k,
 });
