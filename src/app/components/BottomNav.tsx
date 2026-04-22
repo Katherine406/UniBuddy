@@ -11,6 +11,7 @@ import { useCamera } from "../context/CameraContext";
 import { useLanguage } from "../context/LanguageContext";
 
 type TabName = "Home" | "Map" | "Route" | "Profile" | "Camera";
+const NAV_GUIDE_STORAGE_KEY = "unibuddy_nav_guide_seen_v1";
 
 interface BottomNavProps {
   activeTab: TabName;
@@ -20,6 +21,7 @@ export function BottomNav({ activeTab }: BottomNavProps) {
   const navigate = useNavigate();
   const { openCamera } = useCamera();
   const { t } = useLanguage();
+  const navRootRef = useRef<HTMLDivElement | null>(null);
   const navButtonRefs = useRef<Partial<Record<TabName, HTMLButtonElement | null>>>({});
   const [showGuide, setShowGuide] = useState(false);
   const [guideStepIndex, setGuideStepIndex] = useState(0);
@@ -137,23 +139,36 @@ export function BottomNav({ activeTab }: BottomNavProps) {
     if (!guideTargetRect || typeof window === "undefined") {
       return null;
     }
-    const width = 280;
+    const phoneShellRect = navRootRef.current
+      ?.closest('[data-phone-shell="true"]')
+      ?.getBoundingClientRect();
+    const bounds = phoneShellRect ?? {
+      left: 0,
+      top: 0,
+      right: window.innerWidth,
+      bottom: window.innerHeight,
+      width: window.innerWidth,
+      height: window.innerHeight,
+    };
+
+    const width = Math.min(280, Math.max(220, bounds.width - 24));
     const margin = 12;
     const estimatedHeight = 158;
     const centerX = guideTargetRect.left + guideTargetRect.width / 2;
     const left = Math.min(
-      window.innerWidth - width - margin,
-      Math.max(margin, centerX - width / 2),
+      bounds.right - width - margin,
+      Math.max(bounds.left + margin, centerX - width / 2),
     );
     const topCandidate = guideTargetRect.top - estimatedHeight - 10;
-    const top = topCandidate > margin
+    const top = topCandidate > bounds.top + margin
       ? topCandidate
-      : Math.min(window.innerHeight - estimatedHeight - margin, guideTargetRect.bottom + 10);
+      : Math.min(bounds.bottom - estimatedHeight - margin, guideTargetRect.bottom + 10);
     return { left, top, width };
   }, [guideTargetRect]);
 
   return (
     <div
+      ref={navRootRef}
       className="relative z-20 w-full shrink-0"
       style={{
         backgroundColor: "#FFFBF0",
