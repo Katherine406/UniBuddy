@@ -9,15 +9,14 @@ import {
 } from "./ComicIcons";
 import { useCamera } from "../context/CameraContext";
 import { useLanguage } from "../context/LanguageContext";
+import {
+  ONBOARDING_AI_STEP,
+  getOnboardingStep,
+  setOnboardingStep,
+} from "../onboardingState";
 
 type TabName = "Home" | "Map" | "Route" | "Profile" | "Camera";
-const ONBOARDING_STEP_STORAGE_KEY = "unibuddy_onboarding_step_v1";
-const LEGACY_NAV_GUIDE_STORAGE_KEY = "unibuddy_nav_guide_seen_v1";
-const LEGACY_AI_GUIDE_STORAGE_KEY = "unibuddy_ai_guide_seen_v1";
 const NAV_GUIDE_MAX_STEP = 4;
-const AI_GUIDE_STEP = 5;
-const ONBOARDING_DONE_VALUE = "done";
-const ONBOARDING_EVENT_NAME = "unibuddy-onboarding-step-change";
 
 interface BottomNavProps {
   activeTab: TabName;
@@ -84,20 +83,12 @@ export function BottomNav({ activeTab }: BottomNavProps) {
   const currentGuideLabel = currentGuideStep
     ? navItems.find((item) => item.id === currentGuideStep.id)?.label ?? currentGuideStep.id
     : "";
-  const notifyOnboardingChange = () => {
-    window.dispatchEvent(new Event(ONBOARDING_EVENT_NAME));
-  };
 
   const completeGuide = useCallback(() => {
     setShowGuide(false);
     setGuideStepIndex(0);
     setGuideTargetRect(null);
-    try {
-      window.localStorage.setItem(ONBOARDING_STEP_STORAGE_KEY, ONBOARDING_DONE_VALUE);
-      notifyOnboardingChange();
-    } catch {
-      // Ignore storage failures in privacy mode.
-    }
+    setOnboardingStep("done");
   }, []);
 
   const updateGuideTarget = useCallback(() => {
@@ -110,37 +101,13 @@ export function BottomNav({ activeTab }: BottomNavProps) {
   }, [currentGuideStep, showGuide]);
 
   useEffect(() => {
-    try {
-      const legacyNavSeen = window.localStorage.getItem(LEGACY_NAV_GUIDE_STORAGE_KEY) === "1";
-      const legacyAiSeen = window.localStorage.getItem(LEGACY_AI_GUIDE_STORAGE_KEY) === "1";
-      const savedStep = window.localStorage.getItem(ONBOARDING_STEP_STORAGE_KEY);
-
-      if (!savedStep) {
-        if (legacyNavSeen && legacyAiSeen) {
-          window.localStorage.setItem(ONBOARDING_STEP_STORAGE_KEY, ONBOARDING_DONE_VALUE);
-          notifyOnboardingChange();
-          setShowGuide(false);
-          return;
-        }
-        if (legacyNavSeen) {
-          window.localStorage.setItem(ONBOARDING_STEP_STORAGE_KEY, String(AI_GUIDE_STEP));
-          notifyOnboardingChange();
-          setShowGuide(false);
-          return;
-        }
-        window.localStorage.setItem(ONBOARDING_STEP_STORAGE_KEY, "1");
-        notifyOnboardingChange();
-      }
-
-      const currentStep = Number(window.localStorage.getItem(ONBOARDING_STEP_STORAGE_KEY));
-      const isDone = window.localStorage.getItem(ONBOARDING_STEP_STORAGE_KEY) === ONBOARDING_DONE_VALUE;
-      if (isDone || Number.isNaN(currentStep) || currentStep >= AI_GUIDE_STEP) {
-        setShowGuide(false);
-        return;
-      }
+    const currentStep = getOnboardingStep();
+    if (currentStep === "done" || currentStep >= ONBOARDING_AI_STEP) {
+      setShowGuide(false);
+      return;
+    }
+    if (typeof currentStep === "number") {
       setGuideStepIndex(Math.min(NAV_GUIDE_MAX_STEP - 1, Math.max(0, currentStep - 1)));
-      setShowGuide(true);
-    } catch {
       setShowGuide(true);
     }
   }, []);
@@ -167,22 +134,12 @@ export function BottomNav({ activeTab }: BottomNavProps) {
       setShowGuide(false);
       setGuideStepIndex(0);
       setGuideTargetRect(null);
-      try {
-        window.localStorage.setItem(ONBOARDING_STEP_STORAGE_KEY, String(AI_GUIDE_STEP));
-        notifyOnboardingChange();
-      } catch {
-        // Ignore storage failures in privacy mode.
-      }
+      setOnboardingStep(ONBOARDING_AI_STEP);
       return;
     }
     setGuideStepIndex((prev) => {
       const next = prev + 1;
-      try {
-        window.localStorage.setItem(ONBOARDING_STEP_STORAGE_KEY, String(next + 1));
-        notifyOnboardingChange();
-      } catch {
-        // Ignore storage failures in privacy mode.
-      }
+      setOnboardingStep(next + 1);
       return next;
     });
   }, [guideStepIndex, guideSteps.length]);
@@ -344,7 +301,7 @@ export function BottomNav({ activeTab }: BottomNavProps) {
             <p className="text-[11px] font-extrabold text-[#2350D8]">
               {t("nav_guide_step", {
                 current: guideStepIndex + 1,
-                total: AI_GUIDE_STEP,
+                total: ONBOARDING_AI_STEP,
               })}
             </p>
             <p className="mt-1 text-[14px] font-black text-[#0E1B4D]">{currentGuideLabel}</p>
