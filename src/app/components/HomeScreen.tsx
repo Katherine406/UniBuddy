@@ -47,6 +47,15 @@ type UserSchoolComment = {
   createdAt: number;
 };
 
+type UserBuildingComment = {
+  id: string;
+  buildingKey: string;
+  perspective: SchoolPerspective;
+  text: string;
+  textLang: "zh" | "en";
+  createdAt: number;
+};
+
 export function HomeScreen() {
   const navigate = useNavigate();
   const { favorites, removeFavorite } = useFavorites();
@@ -98,11 +107,16 @@ export function HomeScreen() {
   const closeSearch = () => { setShowSearch(false); setQuery(""); setSelectedRoom(null); };
 
   const USER_COMMENTS_KEY = "unibuddy_school_comments_v1";
+  const BUILDING_COMMENTS_KEY = "unibuddy_building_comments_v1";
   const [activePerspective, setActivePerspective] = useState<SchoolPerspective>("freshman");
   const [userComments, setUserComments] = useState<UserSchoolComment[]>([]);
   const [draftText, setDraftText] = useState("");
   const [commentError, setCommentError] = useState("");
   const [isCommentsExpanded, setIsCommentsExpanded] = useState(false);
+  const [buildingActivePerspective, setBuildingActivePerspective] = useState<SchoolPerspective>("freshman");
+  const [buildingComments, setBuildingComments] = useState<UserBuildingComment[]>([]);
+  const [buildingDraftText, setBuildingDraftText] = useState("");
+  const [buildingCommentError, setBuildingCommentError] = useState("");
   const [aiQuestion, setAiQuestion] = useState("");
   const [aiMessages, setAiMessages] = useState<UniAIBuddyChatMessage[]>([]);
   const [aiLoading, setAiLoading] = useState(false);
@@ -151,6 +165,37 @@ export function HomeScreen() {
       window.removeEventListener("storage", syncOnboardingUi);
       window.removeEventListener(ONBOARDING_EVENT_NAME, syncOnboardingUi);
     };
+  }, []);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(BUILDING_COMMENTS_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return;
+
+      const safe = parsed
+        .filter(
+          (c: any) =>
+            c &&
+            typeof c.id === "string" &&
+            typeof c.buildingKey === "string" &&
+            (c.perspective === "freshman" || c.perspective === "visitor") &&
+            typeof c.text === "string",
+        )
+        .map((c: any) => ({
+          id: c.id as string,
+          buildingKey: c.buildingKey as string,
+          perspective: c.perspective as SchoolPerspective,
+          text: c.text as string,
+          textLang: (c.textLang === "en" ? "en" : "zh") as "zh" | "en",
+          createdAt: typeof c.createdAt === "number" ? c.createdAt : Date.now(),
+        })) as UserBuildingComment[];
+
+      setBuildingComments(safe);
+    } catch {
+      // ignore storage errors
+    }
   }, []);
 
   useEffect(() => {
@@ -338,6 +383,59 @@ export function HomeScreen() {
       return next;
     });
   };
+
+  const getBuildingKeyFromRoom = (room: string) => {
+    const match = room.match(/^[A-Za-z]+/);
+    return (match?.[0] ?? room).toUpperCase();
+  };
+
+  const handlePostBuildingComment = () => {
+    if (!selectedRoom) return;
+    const text = buildingDraftText.trim();
+    if (!text) {
+      setBuildingCommentError(lang === "zh" ? "评论内容不能为空" : "Comment cannot be empty.");
+      return;
+    }
+
+    const nextItem: UserBuildingComment = {
+      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      buildingKey: getBuildingKeyFromRoom(selectedRoom.room),
+      perspective: buildingActivePerspective,
+      text,
+      textLang: lang,
+      createdAt: Date.now(),
+    };
+
+    setBuildingComments((prev) => {
+      const next = [nextItem, ...prev];
+      try {
+        localStorage.setItem(BUILDING_COMMENTS_KEY, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+    setBuildingDraftText("");
+    setBuildingCommentError("");
+  };
+
+  const handleDeleteBuildingComment = (commentId: string) => {
+    setBuildingComments((prev) => {
+      const next = prev.filter((c) => c.id !== commentId);
+      try {
+        localStorage.setItem(BUILDING_COMMENTS_KEY, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    setBuildingDraftText("");
+    setBuildingCommentError("");
+    setBuildingActivePerspective("freshman");
+  }, [selectedRoom?.id]);
 
   const userCommentsForFreshman = userComments.filter((c) => c.perspective === "freshman");
   const userCommentsForVisitor = userComments.filter((c) => c.perspective === "visitor");
@@ -895,6 +993,168 @@ export function HomeScreen() {
                       <p style={{ fontSize: "12px", fontWeight: 700, color: "#4B6898", marginBottom: "4px" }}>{t("home_arrive")}</p>
                       <p style={{ fontSize: "13px", fontWeight: 800, color: C.navy, lineHeight: 1.5 }}>{getLocale(selectedRoom).floorGuide}</p>
                     </div>
+                  </div>
+                </ComicCard>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "14px", marginBottom: "10px" }}>
+                  <div style={{ width: "4px", height: "18px", backgroundColor: C.purple, border: `1.5px solid ${C.navy}`, borderRadius: "2px" }} />
+                  <span style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>
+                    {lang === "zh" ? "🏛️ 楼宇评论" : "🏛️ Building Comments"}
+                  </span>
+                </div>
+
+                <ComicCard style={{ padding: "12px", backgroundColor: "#F1EEFF" }}>
+                  <p style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898", marginBottom: "10px" }}>
+                    {lang === "zh"
+                      ? `当前楼宇：${getLocale(selectedRoom).building}`
+                      : `Building: ${getLocale(selectedRoom).building}`}
+                  </p>
+
+                  <div style={{ display: "flex", gap: "8px", marginBottom: "10px" }}>
+                    <button
+                      type="button"
+                      onClick={() => setBuildingActivePerspective("freshman")}
+                      style={{
+                        flex: 1,
+                        height: "34px",
+                        borderRadius: "11px",
+                        cursor: "pointer",
+                        backgroundColor: buildingActivePerspective === "freshman" ? C.royal : C.white,
+                        color: buildingActivePerspective === "freshman" ? C.white : "#4B6898",
+                        border: `2px solid ${C.navy}`,
+                        boxShadow: buildingActivePerspective === "freshman" ? `2px 2px 0 ${C.navy}` : `1.5px 1.5px 0 ${C.pale}`,
+                        fontSize: "12px",
+                        fontWeight: 900,
+                      }}
+                    >
+                      🌱 {lang === "zh" ? "新生视角" : "Freshman"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBuildingActivePerspective("visitor")}
+                      style={{
+                        flex: 1,
+                        height: "34px",
+                        borderRadius: "11px",
+                        cursor: "pointer",
+                        backgroundColor: buildingActivePerspective === "visitor" ? C.royal : C.white,
+                        color: buildingActivePerspective === "visitor" ? C.white : "#4B6898",
+                        border: `2px solid ${C.navy}`,
+                        boxShadow: buildingActivePerspective === "visitor" ? `2px 2px 0 ${C.navy}` : `1.5px 1.5px 0 ${C.pale}`,
+                        fontSize: "12px",
+                        fontWeight: 900,
+                      }}
+                    >
+                      🌍 {lang === "zh" ? "外来访客视角" : "Visitor"}
+                    </button>
+                  </div>
+
+                  <textarea
+                    value={buildingDraftText}
+                    onChange={(e) => {
+                      setBuildingDraftText(e.target.value);
+                      if (buildingCommentError) setBuildingCommentError("");
+                    }}
+                    rows={3}
+                    placeholder={lang === "zh" ? "写下你对这栋楼的感受或建议" : "Share your thoughts or tips for this building"}
+                    style={{
+                      width: "100%",
+                      backgroundColor: C.white,
+                      border: `2px solid ${C.navy}`,
+                      borderRadius: "10px",
+                      padding: "8px 10px",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: C.navy,
+                      outline: "none",
+                      resize: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px", marginTop: "8px", marginBottom: "8px" }}>
+                    <p style={{ fontSize: "11px", fontWeight: 700, color: "#4B6898", margin: 0 }}>
+                      {lang === "zh" ? "评论仅展示在当前楼宇中" : "Comments are scoped to this building only"}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handlePostBuildingComment}
+                      style={{
+                        height: "32px",
+                        padding: "0 12px",
+                        borderRadius: "10px",
+                        cursor: "pointer",
+                        backgroundColor: C.royal,
+                        border: `2px solid ${C.navy}`,
+                        boxShadow: `2px 2px 0 ${C.navy}`,
+                        color: C.white,
+                        fontSize: "12px",
+                        fontWeight: 900,
+                      }}
+                    >
+                      {lang === "zh" ? "发布" : "Post"}
+                    </button>
+                  </div>
+
+                  {buildingCommentError && (
+                    <p style={{ marginTop: "4px", marginBottom: "8px", fontSize: "11px", fontWeight: 800, color: C.coral }}>
+                      {buildingCommentError}
+                    </p>
+                  )}
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "220px", overflowY: "auto", paddingRight: "4px" }}>
+                    {buildingComments
+                      .filter((c) => c.buildingKey === getBuildingKeyFromRoom(selectedRoom.room))
+                      .filter((c) => c.textLang === lang)
+                      .filter((c) => c.perspective === buildingActivePerspective)
+                      .map((c) => (
+                        <div key={c.id} style={{ backgroundColor: C.white, border: `1.5px solid ${C.pale}`, borderRadius: "10px", padding: "8px 9px" }}>
+                          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "10px" }}>
+                            <div style={{ minWidth: 0, flex: 1 }}>
+                              <p style={{ fontSize: "12px", fontWeight: 800, color: C.navy, marginBottom: "4px", wordBreak: "break-word" }}>
+                                {c.text}
+                              </p>
+                              <p style={{ fontSize: "10px", fontWeight: 700, color: "#4B6898", marginBottom: 0 }}>
+                                {formatCommentTime(c.createdAt)}
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteBuildingComment(c.id)}
+                              aria-label={lang === "zh" ? "删除评论" : "Delete comment"}
+                              title={lang === "zh" ? "删除评论" : "Delete comment"}
+                              style={{
+                                width: "26px",
+                                height: "26px",
+                                flexShrink: 0,
+                                backgroundColor: C.white,
+                                border: `1.5px solid ${C.navy}`,
+                                borderRadius: "8px",
+                                boxShadow: `1.5px 1.5px 0 ${C.navy}`,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                cursor: "pointer",
+                              }}
+                            >
+                              <IconTrash size={12} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+
+                    {buildingComments
+                      .filter((c) => c.buildingKey === getBuildingKeyFromRoom(selectedRoom.room))
+                      .filter((c) => c.textLang === lang)
+                      .filter((c) => c.perspective === buildingActivePerspective).length === 0 && (
+                      <div style={{ backgroundColor: C.cream, border: `1.5px dashed ${C.pale}`, borderRadius: "10px", padding: "9px" }}>
+                        <p style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898", marginBottom: 0 }}>
+                          {lang === "zh"
+                            ? "这个视角下还没有评论，欢迎成为第一个留言的人！"
+                            : "No comments in this perspective yet. Be the first to leave one."}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </ComicCard>
 
