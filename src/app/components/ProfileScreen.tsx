@@ -70,6 +70,13 @@ export function ProfileScreen() {
     mystery: t("type_mystery"),
     custom: t("type_custom"),
   };
+  const openFavoriteRoute = (fav: (typeof favorites)[number]) => {
+    if (fav.guidedTour?.points?.length && fav.guidedTour.points.length >= 2) {
+      navigate("/pictures", { state: { guidedTour: fav.guidedTour } });
+      return;
+    }
+    navigate("/route");
+  };
 
   return (
     <PhoneShell bg={C.ice}>
@@ -343,12 +350,22 @@ export function ProfileScreen() {
                           {fav.stops.slice(0, 3).join(" → ")}{fav.stops.length > 3 ? "…" : ""}
                         </p>
                       </div>
-                      <button
-                        onClick={() => removeFavorite(fav.id)}
-                        style={{ width: "32px", height: "32px", backgroundColor: C.white, border: `2px solid ${C.navy}`, borderRadius: "8px", boxShadow: `2px 2px 0 ${C.navy}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
-                      >
-                        <IconHeart size={16} filled color={C.coral} />
-                      </button>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", flexShrink: 0 }}>
+                        <button
+                          onClick={() => openFavoriteRoute(fav)}
+                          style={{ width: "32px", height: "32px", backgroundColor: C.royal, border: `2px solid ${C.navy}`, borderRadius: "8px", boxShadow: `2px 2px 0 ${C.navy}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                          aria-label={t("route_start")}
+                          title={t("route_start")}
+                        >
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 4L20 12L6 20V4Z" fill="white" /></svg>
+                        </button>
+                        <button
+                          onClick={() => removeFavorite(fav.id)}
+                          style={{ width: "32px", height: "32px", backgroundColor: C.white, border: `2px solid ${C.navy}`, borderRadius: "8px", boxShadow: `2px 2px 0 ${C.navy}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                        >
+                          <IconHeart size={16} filled color={C.coral} />
+                        </button>
+                      </div>
                     </div>
                   </ComicCard>
                 ))}
