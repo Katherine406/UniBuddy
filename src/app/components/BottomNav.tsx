@@ -11,6 +11,8 @@ import { useCamera } from "../context/CameraContext";
 import { useLanguage } from "../context/LanguageContext";
 import {
   ONBOARDING_AI_STEP,
+  ONBOARDING_EVENT_NAME,
+  ONBOARDING_LANG_STEP,
   getOnboardingStep,
   setOnboardingStep,
 } from "../onboardingState";
@@ -101,15 +103,29 @@ export function BottomNav({ activeTab }: BottomNavProps) {
   }, [currentGuideStep, showGuide]);
 
   useEffect(() => {
-    const currentStep = getOnboardingStep();
-    if (currentStep === "done" || currentStep >= ONBOARDING_AI_STEP) {
-      setShowGuide(false);
-      return;
-    }
-    if (typeof currentStep === "number") {
-      setGuideStepIndex(Math.min(NAV_GUIDE_MAX_STEP - 1, Math.max(0, currentStep - 1)));
-      setShowGuide(true);
-    }
+    const syncNavGuide = () => {
+      const currentStep = getOnboardingStep();
+      if (currentStep === "done" || currentStep >= ONBOARDING_AI_STEP) {
+        setShowGuide(false);
+        return;
+      }
+      if (currentStep === ONBOARDING_LANG_STEP) {
+        setShowGuide(false);
+        return;
+      }
+      if (typeof currentStep === "number") {
+        setGuideStepIndex(Math.min(NAV_GUIDE_MAX_STEP - 1, Math.max(0, currentStep - 1)));
+        setShowGuide(true);
+      }
+    };
+
+    syncNavGuide();
+    window.addEventListener("storage", syncNavGuide);
+    window.addEventListener(ONBOARDING_EVENT_NAME, syncNavGuide);
+    return () => {
+      window.removeEventListener("storage", syncNavGuide);
+      window.removeEventListener(ONBOARDING_EVENT_NAME, syncNavGuide);
+    };
   }, []);
 
   useEffect(() => {
