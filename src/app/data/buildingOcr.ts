@@ -1,6 +1,6 @@
 /**
- * 校园楼宇 OCR：优先匹配完整楼名（中英），避免仅靠两字母（如 ES）在整段英文里误命中。
- * 缩写顺序仅用于「短语未命中」时的补充匹配。
+ * 校园楼宇 OCR（高置信度模式）：
+ * 仅匹配完整楼名短语（中英），避免人物照片中的零散字母被误识别为楼宇代码。
  */
 
 /** 仅当整段 OCR 里出现这些完整短语时才认定该楼（越长越优先） */
@@ -116,41 +116,6 @@ export const BUILDING_PHRASES: { code: string; phrases: string[] }[] = [
   },
 ];
 
-/** 标牌常见「大字分字符」：如 OCR 成 I R、S A */
-const SPACED_CODE_PATTERNS: { code: string; pattern: RegExp }[] = [
-  { code: "IR", pattern: /\bI[\s\-_.]*R\b/gi },
-  { code: "IA", pattern: /\bI[\s\-_.]*A\b/gi },
-  { code: "LS", pattern: /\bL[\s\-_.]*S\b/gi },
-  { code: "FB", pattern: /\bF[\s\-_.]*B\b/gi },
-  { code: "CB", pattern: /\bC[\s\-_.]*B\b/gi },
-  { code: "SA", pattern: /\bS[\s\-_.]*A\b/gi },
-  { code: "SB", pattern: /\bS[\s\-_.]*B\b/gi },
-  { code: "SC", pattern: /\bS[\s\-_.]*C\b/gi },
-  { code: "SD", pattern: /\bS[\s\-_.]*D\b/gi },
-  { code: "EE", pattern: /\bE[\s\-_.]*E\b/gi },
-  { code: "EB", pattern: /\bE[\s\-_.]*B\b/gi },
-  { code: "PB", pattern: /\bP[\s\-_.]*B\b/gi },
-  { code: "HS", pattern: /\bH[\s\-_.]*S\b/gi },
-  { code: "DB", pattern: /\bD[\s\-_.]*B\b/gi },
-  { code: "BS", pattern: /\bB[\s\-_.]*S\b/gi },
-  { code: "MA", pattern: /\bM[\s\-_.]*A\b/gi },
-  { code: "MB", pattern: /\bM[\s\-_.]*B\b/gi },
-];
-
-/**
- * 仅靠边界匹配时极易误判的 2 字母代码（例如 ES 出现在其它词中）；
- * 这些代码必须已通过「完整短语」或「分字符大字」命中，否则不再用纯边界二次匹配。
- */
-const SHORT_CODES_NO_STANDALONE_MATCH = new Set(["ES", "AS"]);
-
-/** 较长代码优先（纯边界匹配用） */
-const BUILDING_CODES_BOUNDARY_ORDER = [
-  "GYM",
-  "SC", "SB", "SA", "SD",
-  "EE", "EB", "PB", "IR", "IA", "HS", "DB", "BS", "MA", "MB",
-  "LS", "FB", "CB",
-];
-
 function normalizeForPhrases(ocr: string): string {
   return ocr
     .toUpperCase()
@@ -174,80 +139,8 @@ function detectByPhrases(normalized: string): string | null {
   return null;
 }
 
-/** OCR 常把 Centre 漏掉或拆行；与 IA 区分：IA 侧会有 Academic / Exchange */
-function detectIrConjunct(normalized: string): boolean {
-  const intl = normalized.includes("INTERNATIONAL");
-  const research = normalized.includes("RESEARCH");
-  if (!intl || !research) return false;
-  const iaHint =
-    normalized.includes("ACADEMIC") &&
-    (normalized.includes("EXCHANGE") || normalized.includes("COLLABORATION"));
-  return !iaHint;
-}
-
-function detectBySpacedLetters(raw: string): string | null {
-  for (const { code, pattern } of SPACED_CODE_PATTERNS) {
-    pattern.lastIndex = 0;
-    if (pattern.test(raw)) return code;
-  }
-  return null;
-}
-
-/** 标牌上常见独立一行的大写字母，OCR 常切成单独 token（如 IR、ES） */
-const STANDALONE_TOKEN_ORDER = [
-  "GYM",
-  "IA",
-  "IR",
-  "HS",
-  "EE",
-  "EB",
-  "PB",
-  "DB",
-  "BS",
-  "MA",
-  "MB",
-  "LS",
-  "FB",
-  "CB",
-  "SA",
-  "SB",
-  "SC",
-  "SD",
-  "ES",
-  "AS",
-];
-
-function detectByStandaloneTokens(normalized: string): string | null {
-  const tokens = new Set(normalized.split(/\s+/).filter(Boolean));
-  for (const code of STANDALONE_TOKEN_ORDER) {
-    if (tokens.has(code)) return code;
-  }
-  return null;
-}
-
-function detectByBoundaryCodes(upper: string): string | null {
-  for (const code of BUILDING_CODES_BOUNDARY_ORDER) {
-    if (SHORT_CODES_NO_STANDALONE_MATCH.has(code)) continue;
-    const re = new RegExp(`(^|[^A-Z0-9])${code}([^A-Z0-9]|$)`, "g");
-    if (re.test(upper)) return code;
-  }
-  return null;
-}
-
 export function detectBuildingCode(ocrText: string): string | null {
   if (!ocrText || !ocrText.trim()) return null;
   const normalized = normalizeForPhrases(ocrText);
-  const byPhrase = detectByPhrases(normalized);
-  if (byPhrase) return byPhrase;
-
-  if (detectIrConjunct(normalized)) return "IR";
-
-  const spaced = detectBySpacedLetters(ocrText);
-  if (spaced) return spaced;
-
-  const byToken = detectByStandaloneTokens(normalized);
-  if (byToken) return byToken;
-
-  const upper = ocrText.toUpperCase();
-  return detectByBoundaryCodes(upper);
+  return detectByPhrases(normalized);
 }
