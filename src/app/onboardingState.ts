@@ -1,12 +1,15 @@
+export const ONBOARDING_LANG_STEP = 0;
 export const ONBOARDING_MAX_STEP = 5;
 export const ONBOARDING_AI_STEP = 5;
 export const ONBOARDING_EVENT_NAME = "unibuddy-onboarding-step-change";
 
 export type OnboardingStep = number | "done";
 
-let onboardingStep: OnboardingStep = 1;
+/** 0 = 首页语言切换提示，1–4 = 底栏引导，5 = UniAIBuddy 卡片引导 */
+let onboardingStep: OnboardingStep = ONBOARDING_LANG_STEP;
 
-const clampStep = (step: number) => Math.min(ONBOARDING_MAX_STEP, Math.max(1, Math.floor(step)));
+const clampStep = (step: number) =>
+  Math.min(ONBOARDING_MAX_STEP, Math.max(ONBOARDING_LANG_STEP, Math.floor(step)));
 
 export function getOnboardingStep(): OnboardingStep {
   return onboardingStep;
