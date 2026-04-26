@@ -262,6 +262,14 @@ export function MysteryRouteScreen() {
                   id: resultDef.id, title: t(resultDef.titleKey), emoji: resultDef.emoji,
                   type: "mystery", stops: resultDef.stops.map((s) => t(s.nameKey)),
                   bg: resultDef.bg, tagBg: C.purple, tagLabel: t("type_mystery"),
+                  guidedTour: {
+                    title: t(resultDef.titleKey),
+                    subtitle: t(resultDef.taglineKey),
+                    points: resultDef.stops.map((stop) => ({
+                      id: stop.mapId,
+                      label: t(stop.nameKey),
+                    })),
+                  },
                 })}
                 style={{ width: "50px", height: "50px", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: fav ? "#FFF0F0" : C.white, border: `2.5px solid ${C.navy}`, borderRadius: "14px", boxShadow: `4px 4px 0 ${C.navy}`, cursor: "pointer" }}
                 onMouseDown={(e) => (e.currentTarget.style.transform = "translate(2px,2px)")}
