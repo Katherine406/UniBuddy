@@ -1055,7 +1055,7 @@ export function PicturesAndMapScreen() {
             }}
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", cursor: "pointer" }}
           />
-          <div style={{ position: "absolute", top: "10px", left: "10px", backgroundColor: C.yellow, border: `2px solid ${C.navy}`, borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: 900, color: C.navy, boxShadow: `2px 2px 0 ${C.navy}` }}>
+          <div style={{ position: "absolute", top: "10px", left: "10px", backgroundColor: C.yellow, border: "none", borderRadius: "8px", padding: "2px 8px", fontSize: "11px", fontWeight: 900, color: C.navy, boxShadow: "none" }}>
             {t(photoDefs[cur].tagKey)}
           </div>
           <button onClick={prev} style={{ position: "absolute", left: "8px", top: "50%", transform: "translateY(-50%)", width: "30px", height: "30px", backgroundColor: C.white, border: `2px solid ${C.navy}`, borderRadius: "8px", boxShadow: `2px 2px 0 ${C.navy}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
