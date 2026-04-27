@@ -76,7 +76,7 @@ export function IconScan({ size = 26 }: IconProps) {
 /* ── ROUTE ── */
 export function IconRoute({ size = 26, active = false }: IconProps) {
   const dotFill = active ? "#2350D8" : "#4B6898";
-  const lineFill = active ? "#0E1B4D" : "#4B6898";
+  const lineFill = "#000000";
   return (
     <svg width={size} height={size} viewBox="0 0 28 28" fill="none">
       {/* start dot */}
