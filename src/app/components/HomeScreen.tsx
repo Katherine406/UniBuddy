@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router";
-import { PhoneShell, StatusBar, ComicCard, SpeechBubble } from "./PhoneShell";
+import { PhoneShell, StatusBar, ComicCard, SpeechBubble, Burst } from "./PhoneShell";
 import { BottomNav } from "./BottomNav";
 import { useFavorites } from "../context/FavoritesContext";
 import { useCamera } from "../context/CameraContext";
@@ -17,6 +17,7 @@ import {
   IconBell, IconHeart, IconBadge, IconSparkle,
   IconChevronRight, IconPin, IconTrash, IconBack,
 } from "./ComicIcons";
+import { EmojiDisplay } from "./AppEmojis";
 import {
   ONBOARDING_AI_STEP,
   ONBOARDING_EVENT_NAME,
@@ -35,8 +36,8 @@ const BASE_URL = ((import.meta as any).env?.BASE_URL ?? "/") as string;
 const navCardDefs = [
   { id: "pictures", labelKey: "home_nav_pictures", emoji: "🗺️", path: "/pictures",    bg: C.pale,      tagBg: C.sky,   tag: "MAPS"  },
   { id: "route",    labelKey: "home_nav_route",     emoji: "🧭", path: "/route",        bg: C.ice,       tagBg: C.royal, tag: "ROUTE" },
-  { id: "mystery",  labelKey: "home_nav_mystery",   emoji: "🎲", path: "/mystery-route",bg: C.mint+"55", tagBg: C.purple,tag: "LUCKY" },
-  { id: "custom",   labelKey: "home_nav_custom",    emoji: "🧩", path: "/custom-route", bg: C.cream,     tagBg: C.sky,   tag: "DIY"   },
+  { id: "mystery",  labelKey: "home_nav_mystery",   emoji: "🎲", path: "/mystery-route",bg: C.mint+"55", tagBg: C.purple,tag: "LUCKY", useRouteIconStyle: true },
+  { id: "custom",   labelKey: "home_nav_custom",    emoji: "🧩", path: "/custom-route", bg: C.cream,     tagBg: C.sky,   tag: "DIY",   useRouteIconStyle: true },
 ];
 
 type UserSchoolComment = {
@@ -561,14 +562,29 @@ export function HomeScreen() {
             <button
               key={card.id}
               onClick={() => navigate(card.path)}
-              style={{ backgroundColor: card.bg, border: `2.5px solid ${C.navy}`, borderRadius: "16px", boxShadow: `4px 4px 0 ${C.navy}`, padding: "14px 12px", textAlign: "left", cursor: "pointer", display: "flex", flexDirection: "column", gap: "6px", minHeight: "108px" }}
+              style={{ backgroundColor: card.bg, border: `2.5px solid ${C.navy}`, borderRadius: "16px", boxShadow: `4px 4px 0 ${C.navy}`, padding: "14px 12px", textAlign: "left", cursor: "pointer", display: "flex", flexDirection: "column", gap: "6px", minHeight: "108px", position: "relative", overflow: "hidden" }}
               onMouseDown={(e) => (e.currentTarget.style.transform = "translate(2px,2px)")}
               onMouseUp={(e) => (e.currentTarget.style.transform = "translate(0,0)")}
             >
-              <div style={{ display: "inline-block", backgroundColor: card.tagBg, border: `1.5px solid ${C.navy}`, borderRadius: "6px", padding: "1px 7px", fontSize: "10px", fontWeight: 900, color: C.white, letterSpacing: "0.5px", alignSelf: "flex-start" }}>
-                {card.tag}
-              </div>
-              <span style={{ fontSize: "30px" }}>{card.emoji}</span>
+              {card.useRouteIconStyle ? (
+                <>
+                  {card.id === "mystery" && (
+                    <div style={{ position: "absolute", top: "8px", right: "8px" }}>
+                      <Burst size={34} color={C.yellow} text="LUCKY" textColor={C.navy} />
+                    </div>
+                  )}
+                  <div style={{ marginTop: "22px" }}>
+                    <EmojiDisplay emoji={card.emoji} size={32} />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div style={{ display: "inline-block", backgroundColor: card.tagBg, border: `1.5px solid ${C.navy}`, borderRadius: "6px", padding: "1px 7px", fontSize: "10px", fontWeight: 900, color: C.white, letterSpacing: "0.5px", alignSelf: "flex-start" }}>
+                    {card.tag}
+                  </div>
+                  <span style={{ fontSize: "30px" }}>{card.emoji}</span>
+                </>
+              )}
               <span style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>{t(card.labelKey)}</span>
             </button>
           ))}
