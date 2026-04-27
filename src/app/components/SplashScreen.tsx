@@ -96,7 +96,18 @@ export function SplashScreen() {
               fontSize: "clamp(56px, 12vw, 72px)",
               margin: "0 auto",
             }}
-          >🎓</div>
+          >
+            <img
+              src={`${import.meta.env.BASE_URL}bode.png`}
+              alt="bode"
+              style={{
+                width: "74%",
+                height: "74%",
+                objectFit: "contain",
+                display: "block",
+              }}
+            />
+          </div>
         </div>
 
         {/* ── Bottom white panel ── */}
