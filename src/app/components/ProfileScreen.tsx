@@ -185,7 +185,7 @@ export function ProfileScreen() {
               { label: t("profile_photos"), value: `${photos.length}`,     bg: C.ice,  color: C.royal },
               { label: t("profile_favs"),   value: `${favorites.length}`,  bg: C.mint, color: C.navy  },
             ].map((s) => (
-              <div key={s.label} style={{ flex: 1, backgroundColor: s.bg, border: `2px solid ${C.navy}`, borderRadius: "12px", boxShadow: `2px 2px 0 ${C.navy}`, padding: "8px 0", textAlign: "center" }}>
+              <div key={s.label} style={{ flex: 1, backgroundColor: s.bg, border: "none", borderRadius: "12px", boxShadow: "none", padding: "8px 0", textAlign: "center" }}>
                 <p style={{ fontSize: "20px", fontWeight: 900, color: s.color, lineHeight: 1 }}>{s.value}</p>
                 <p style={{ fontSize: "10px", fontWeight: 700, color: C.navy, marginTop: "2px" }}>{s.label}</p>
               </div>
