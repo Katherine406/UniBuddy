@@ -1164,11 +1164,11 @@ export function PicturesAndMapScreen() {
                       position: "absolute",
                       left: `${pin.x}%`,
                       top: `${pin.y}%`,
-                      transform: "translate(-50%, -50%)",
+                      transform: activeHotspotId === pin.id ? "translate(-50%, -50%) scale(1.14)" : "translate(-50%, -50%) scale(1)",
                       minWidth: "24px",
                       minHeight: "22px",
                       borderRadius: "7px",
-                      border: activeHotspotId === pin.id ? `2px solid ${C.yellow}` : "2px solid rgba(255,255,255,0.95)",
+                      border: activeHotspotId === pin.id ? `2.5px solid ${C.yellow}` : "2px solid rgba(255,255,255,0.95)",
                       backgroundColor: pin.color,
                       color: C.white,
                       fontSize: "9px",
@@ -1176,12 +1176,20 @@ export function PicturesAndMapScreen() {
                       padding: "0 5px",
                       lineHeight: 1,
                       cursor: "pointer",
-                      boxShadow: activeHotspotId === pin.id ? `0 0 0 2px ${C.navy}, 0 6px 14px rgba(0,0,0,0.28)` : "0 4px 12px rgba(0,0,0,0.25)",
+                      zIndex: activeHotspotId === pin.id ? 8 : 4,
+                      opacity: activeHotspotId === pin.id ? 1 : 0.62,
+                      filter: activeHotspotId === pin.id ? "saturate(1.12) brightness(1.02)" : "saturate(0.78) brightness(0.96)",
+                      boxShadow: activeHotspotId === pin.id
+                        ? `0 0 0 2px ${C.navy}, 0 0 0 8px rgba(255,217,61,0.22), 0 7px 16px rgba(0,0,0,0.28)`
+                        : "0 4px 12px rgba(0,0,0,0.25)",
+                      animation: activeHotspotId === pin.id ? "mapPinPulse 1.15s ease-in-out infinite alternate" : "none",
+                      transition: "transform 0.18s ease, opacity 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease",
                     }}
                   >
                     {pin.label}
                   </button>
                 ))}
+                <style>{`@keyframes mapPinPulse { from { box-shadow: 0 0 0 2px #0E1B4D, 0 0 0 4px rgba(255,217,61,0.14), 0 5px 12px rgba(0,0,0,0.24); } to { box-shadow: 0 0 0 2px #0E1B4D, 0 0 0 10px rgba(255,217,61,0.28), 0 8px 18px rgba(0,0,0,0.3); } }`}</style>
                 {guidedPolyline && (
                   <svg
                     viewBox="0 0 100 100"
