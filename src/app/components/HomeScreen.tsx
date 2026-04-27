@@ -751,9 +751,6 @@ export function HomeScreen() {
                         </p>
 
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px", maxHeight: "160px", overflowY: "auto", paddingRight: "4px" }}>
-                          <p style={{ fontSize: "11px", fontWeight: 900, color: "#4B6898", marginBottom: "-2px" }}>
-                            {lang === "zh" ? "系统评论" : "System comments"}
-                          </p>
                           {systemList.map((c, idx) => (
                             <div
                               key={`sys-${p}-${idx}`}
