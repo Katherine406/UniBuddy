@@ -541,8 +541,8 @@ export function HomeScreen() {
                   borderRadius: "12px",
                   cursor: "pointer",
                   backgroundColor: C.royal,
-                  border: `2px solid ${C.navy}`,
-                  boxShadow: `2px 2px 0 ${C.navy}`,
+                  border: "none",
+                  boxShadow: "none",
                   color: C.white,
                   fontSize: "12px",
                   fontWeight: 900,
@@ -562,9 +562,7 @@ export function HomeScreen() {
             <button
               key={card.id}
               onClick={() => navigate(card.path)}
-              style={{ backgroundColor: card.bg, border: `2.5px solid ${C.navy}`, borderRadius: "16px", boxShadow: `4px 4px 0 ${C.navy}`, padding: "14px 12px", textAlign: "left", cursor: "pointer", display: "flex", flexDirection: "column", gap: "6px", minHeight: "108px", position: "relative", overflow: "hidden" }}
-              onMouseDown={(e) => (e.currentTarget.style.transform = "translate(2px,2px)")}
-              onMouseUp={(e) => (e.currentTarget.style.transform = "translate(0,0)")}
+              style={{ backgroundColor: card.bg, border: "none", borderRadius: "16px", boxShadow: "none", padding: "14px 12px", textAlign: "left", cursor: "pointer", display: "flex", flexDirection: "column", gap: "6px", minHeight: "108px", position: "relative", overflow: "hidden" }}
             >
               {card.useRouteIconStyle ? (
                 <>
@@ -618,8 +616,8 @@ export function HomeScreen() {
                 padding: "0 10px",
                 borderRadius: "10px",
                 backgroundColor: C.ice,
-                border: `2px solid ${C.navy}`,
-                boxShadow: `2px 2px 0 ${C.navy}`,
+                border: "none",
+                boxShadow: "none",
                 color: C.navy,
                 fontSize: "11px",
                 fontWeight: 900,
@@ -829,8 +827,8 @@ export function HomeScreen() {
             <span style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>{t("home_stamp_label")}</span>
             <span style={{ fontSize: "13px", fontWeight: 900, color: C.royal }}>{checkedCount} / {BADGE_DEFS.length}</span>
           </div>
-          <div style={{ width: "100%", height: "12px", backgroundColor: C.ice, border: `2px solid ${C.navy}`, borderRadius: "20px", overflow: "hidden", marginBottom: "12px" }}>
-            <div style={{ height: "100%", backgroundColor: C.royal, width: `${(checkedCount / BADGE_DEFS.length) * 100}%`, borderRight: checkedCount < BADGE_DEFS.length ? `2px solid ${C.navy}` : "none" }} />
+          <div style={{ width: "100%", height: "12px", backgroundColor: C.ice, border: "none", borderRadius: "20px", overflow: "hidden", marginBottom: "12px" }}>
+            <div style={{ height: "100%", backgroundColor: C.royal, width: `${(checkedCount / BADGE_DEFS.length) * 100}%`, borderRight: "none" }} />
           </div>
           <div style={{ display: "flex", gap: "8px", justifyContent: "space-between" }}>
             {badgePreview.map((badge) => (
@@ -847,7 +845,7 @@ export function HomeScreen() {
           </div>
           <button
             onClick={() => navigate("/profile")}
-            style={{ width: "100%", marginTop: "12px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", backgroundColor: C.ice, border: `2px solid ${C.navy}`, borderRadius: "10px", boxShadow: `2px 2px 0 ${C.navy}`, fontSize: "12px", fontWeight: 800, color: C.navy, cursor: "pointer" }}
+            style={{ width: "100%", marginTop: "12px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", backgroundColor: C.ice, border: "none", borderRadius: "10px", boxShadow: "none", fontSize: "12px", fontWeight: 800, color: C.navy, cursor: "pointer" }}
           >
             {t("home_stamp_view")} <IconChevronRight size={14} />
           </button>
@@ -860,7 +858,7 @@ export function HomeScreen() {
               <span style={{ fontSize: "32px", display: "block", marginBottom: "8px" }}>💫</span>
               <p style={{ fontSize: "13px", fontWeight: 700, color: "#4B6898" }}>{t("home_no_favs")}</p>
               <p style={{ fontSize: "12px", fontWeight: 500, color: "#94A3B8", marginTop: "4px" }}>{t("home_no_favs_sub")}</p>
-              <button onClick={() => navigate("/route")} style={{ marginTop: "12px", padding: "6px 18px", backgroundColor: C.royal, border: `2px solid ${C.navy}`, borderRadius: "10px", boxShadow: `2px 2px 0 ${C.navy}`, color: C.white, fontSize: "12px", fontWeight: 800, cursor: "pointer" }}>
+              <button onClick={() => navigate("/route")} style={{ marginTop: "12px", padding: "6px 18px", backgroundColor: C.royal, border: "none", borderRadius: "10px", boxShadow: "none", color: C.white, fontSize: "12px", fontWeight: 800, cursor: "pointer" }}>
                 {t("home_explore")}
               </button>
             </ComicCard>
