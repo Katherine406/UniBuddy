@@ -501,7 +501,7 @@ export function HomeScreen() {
       {/* ── Body ── */}
       <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: "28px" }}>
 
-        <ComicCard style={{ padding: "14px", backgroundColor: C.cream, marginBottom: "18px" }}>
+        <ComicCard style={{ padding: "14px", backgroundColor: C.cream, marginBottom: "18px", border: "none", boxShadow: "none" }}>
             <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
               <span style={{ fontSize: "26px", flexShrink: 0 }}>🏫</span>
               <div>
@@ -516,7 +516,7 @@ export function HomeScreen() {
         <SectionLabel color={C.purple} text="UniAIBuddy" icon={<IconSparkle size={18} />} />
 
         <div ref={aiGuideCardRef}>
-          <ComicCard style={{ padding: "14px", backgroundColor: "#EFE8FF", marginBottom: "18px" }}>
+          <ComicCard style={{ padding: "14px", backgroundColor: "#EFE8FF", marginBottom: "18px", border: "none", boxShadow: "none" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
               <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
                 <span style={{ fontSize: "24px", lineHeight: 1 }}>🤖</span>
@@ -541,8 +541,8 @@ export function HomeScreen() {
                   borderRadius: "12px",
                   cursor: "pointer",
                   backgroundColor: C.royal,
-                  border: "none",
-                  boxShadow: "none",
+                  border: `2px solid ${C.navy}`,
+                  boxShadow: `2px 2px 0 ${C.navy}`,
                   color: C.white,
                   fontSize: "12px",
                   fontWeight: 900,
@@ -562,7 +562,9 @@ export function HomeScreen() {
             <button
               key={card.id}
               onClick={() => navigate(card.path)}
-              style={{ backgroundColor: card.bg, border: "none", borderRadius: "16px", boxShadow: "none", padding: "14px 12px", textAlign: "left", cursor: "pointer", display: "flex", flexDirection: "column", gap: "6px", minHeight: "108px", position: "relative", overflow: "hidden" }}
+              style={{ backgroundColor: card.bg, border: `2.5px solid ${C.navy}`, borderRadius: "16px", boxShadow: `4px 4px 0 ${C.navy}`, padding: "14px 12px", textAlign: "left", cursor: "pointer", display: "flex", flexDirection: "column", gap: "6px", minHeight: "108px", position: "relative", overflow: "hidden" }}
+              onMouseDown={(e) => (e.currentTarget.style.transform = "translate(2px,2px)")}
+              onMouseUp={(e) => (e.currentTarget.style.transform = "translate(0,0)")}
             >
               {card.useRouteIconStyle ? (
                 <>
@@ -596,7 +598,7 @@ export function HomeScreen() {
           icon={<IconBell size={18} />}
         />
 
-        <ComicCard style={{ padding: "14px", backgroundColor: "#F1EEFF", marginBottom: "18px" }}>
+        <ComicCard style={{ padding: "14px", backgroundColor: "#F1EEFF", marginBottom: "18px", border: "none", boxShadow: "none" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "10px", marginBottom: "10px" }}>
             <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
               <span style={{ fontSize: "22px", lineHeight: 1, marginTop: "2px" }}>💬</span>
@@ -616,8 +618,8 @@ export function HomeScreen() {
                 padding: "0 10px",
                 borderRadius: "10px",
                 backgroundColor: C.ice,
-                border: "none",
-                boxShadow: "none",
+                border: `2px solid ${C.navy}`,
+                boxShadow: `2px 2px 0 ${C.navy}`,
                 color: C.navy,
                 fontSize: "11px",
                 fontWeight: 900,
@@ -822,13 +824,13 @@ export function HomeScreen() {
 
         <SectionLabel color={C.sky} text={t("home_stamp_section")} icon={<IconBadge size={18} filled />} />
 
-        <ComicCard style={{ padding: "14px", marginBottom: "6px" }}>
+        <ComicCard style={{ padding: "14px", marginBottom: "6px", border: "none", boxShadow: "none" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
             <span style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>{t("home_stamp_label")}</span>
             <span style={{ fontSize: "13px", fontWeight: 900, color: C.royal }}>{checkedCount} / {BADGE_DEFS.length}</span>
           </div>
-          <div style={{ width: "100%", height: "12px", backgroundColor: C.ice, border: "none", borderRadius: "20px", overflow: "hidden", marginBottom: "12px" }}>
-            <div style={{ height: "100%", backgroundColor: C.royal, width: `${(checkedCount / BADGE_DEFS.length) * 100}%`, borderRight: "none" }} />
+          <div style={{ width: "100%", height: "12px", backgroundColor: C.ice, border: `2px solid ${C.navy}`, borderRadius: "20px", overflow: "hidden", marginBottom: "12px" }}>
+            <div style={{ height: "100%", backgroundColor: C.royal, width: `${(checkedCount / BADGE_DEFS.length) * 100}%`, borderRight: checkedCount < BADGE_DEFS.length ? `2px solid ${C.navy}` : "none" }} />
           </div>
           <div style={{ display: "flex", gap: "8px", justifyContent: "space-between" }}>
             {badgePreview.map((badge) => (
@@ -845,7 +847,7 @@ export function HomeScreen() {
           </div>
           <button
             onClick={() => navigate("/profile")}
-            style={{ width: "100%", marginTop: "12px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", backgroundColor: C.ice, border: "none", borderRadius: "10px", boxShadow: "none", fontSize: "12px", fontWeight: 800, color: C.navy, cursor: "pointer" }}
+            style={{ width: "100%", marginTop: "12px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", backgroundColor: C.ice, border: `2px solid ${C.navy}`, borderRadius: "10px", boxShadow: `2px 2px 0 ${C.navy}`, fontSize: "12px", fontWeight: 800, color: C.navy, cursor: "pointer" }}
           >
             {t("home_stamp_view")} <IconChevronRight size={14} />
           </button>
@@ -854,18 +856,18 @@ export function HomeScreen() {
         <div style={{ marginTop: "18px" }}>
           <SectionLabel color={C.coral} text={t("home_favs")} icon={<IconHeart size={18} filled color={C.coral} />} />
           {favorites.length === 0 ? (
-            <ComicCard style={{ padding: "20px", textAlign: "center", backgroundColor: C.cream }}>
+            <ComicCard style={{ padding: "20px", textAlign: "center", backgroundColor: C.cream, border: "none", boxShadow: "none" }}>
               <span style={{ fontSize: "32px", display: "block", marginBottom: "8px" }}>💫</span>
               <p style={{ fontSize: "13px", fontWeight: 700, color: "#4B6898" }}>{t("home_no_favs")}</p>
               <p style={{ fontSize: "12px", fontWeight: 500, color: "#94A3B8", marginTop: "4px" }}>{t("home_no_favs_sub")}</p>
-              <button onClick={() => navigate("/route")} style={{ marginTop: "12px", padding: "6px 18px", backgroundColor: C.royal, border: "none", borderRadius: "10px", boxShadow: "none", color: C.white, fontSize: "12px", fontWeight: 800, cursor: "pointer" }}>
+              <button onClick={() => navigate("/route")} style={{ marginTop: "12px", padding: "6px 18px", backgroundColor: C.royal, border: `2px solid ${C.navy}`, borderRadius: "10px", boxShadow: `2px 2px 0 ${C.navy}`, color: C.white, fontSize: "12px", fontWeight: 800, cursor: "pointer" }}>
                 {t("home_explore")}
               </button>
             </ComicCard>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {favorites.map((fav) => (
-                <ComicCard key={fav.id} style={{ padding: "14px", backgroundColor: fav.bg || C.pale }}>
+                <ComicCard key={fav.id} style={{ padding: "14px", backgroundColor: fav.bg || C.pale, border: "none", boxShadow: "none" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                     <div style={{ width: "48px", height: "48px", backgroundColor: C.white, border: `2.5px solid ${C.navy}`, borderRadius: "14px", boxShadow: `2px 2px 0 ${C.navy}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", flexShrink: 0 }}>
                       {fav.emoji}
@@ -949,7 +951,7 @@ export function HomeScreen() {
                   <span style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>{t("home_walk")}</span>
                 </div>
 
-                <ComicCard style={{ padding: "14px", marginBottom: "14px", backgroundColor: C.cream }}>
+                <ComicCard style={{ padding: "14px", marginBottom: "14px", backgroundColor: C.cream, border: "none", boxShadow: "none" }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
                     {getLocale(selectedRoom).steps.map((step, i) => (
                       <div key={i} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
@@ -983,7 +985,7 @@ export function HomeScreen() {
                   <span style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>{t("home_floor_nav")}</span>
                 </div>
 
-                <ComicCard style={{ padding: "14px", marginBottom: "12px", backgroundColor: selectedRoom.access === "elevator" ? C.pale : selectedRoom.access === "stairs" ? "#E8D5FF" : C.mint + "55" }}>
+                <ComicCard style={{ padding: "14px", marginBottom: "12px", backgroundColor: selectedRoom.access === "elevator" ? C.pale : selectedRoom.access === "stairs" ? "#E8D5FF" : C.mint + "55", border: "none", boxShadow: "none" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <div style={{
                       width: "46px", height: "46px", flexShrink: 0,
@@ -1002,7 +1004,7 @@ export function HomeScreen() {
                   </div>
                 </ComicCard>
 
-                <ComicCard style={{ padding: "14px", backgroundColor: C.ice }}>
+                <ComicCard style={{ padding: "14px", backgroundColor: C.ice, border: "none", boxShadow: "none" }}>
                   <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
                     <span style={{ fontSize: "22px", flexShrink: 0 }}>📌</span>
                     <div>
@@ -1019,7 +1021,7 @@ export function HomeScreen() {
                   </span>
                 </div>
 
-                <ComicCard style={{ padding: "12px", backgroundColor: "#F1EEFF" }}>
+                <ComicCard style={{ padding: "12px", backgroundColor: "#F1EEFF", border: "none", boxShadow: "none" }}>
                   <p style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898", marginBottom: "10px" }}>
                     {lang === "zh"
                       ? `当前楼宇：${getLocale(selectedRoom).building}`
@@ -1235,7 +1237,7 @@ export function HomeScreen() {
                   </p>
                 )}
                 {filtered.length === 0 ? (
-                  <ComicCard style={{ padding: "24px", textAlign: "center", backgroundColor: C.cream }}>
+                  <ComicCard style={{ padding: "24px", textAlign: "center", backgroundColor: C.cream, border: "none", boxShadow: "none" }}>
                     <span style={{ fontSize: "36px", display: "block", marginBottom: "8px" }}>🔍</span>
                     <p style={{ fontSize: "14px", fontWeight: 800, color: C.navy }}>{t("home_not_found")}</p>
                     <p style={{ fontSize: "12px", fontWeight: 500, color: "#4B6898", marginTop: "4px" }}>{t("home_not_found_sub")}</p>
