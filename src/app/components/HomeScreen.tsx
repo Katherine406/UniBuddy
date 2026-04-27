@@ -582,7 +582,9 @@ export function HomeScreen() {
                   <div style={{ display: "inline-block", backgroundColor: card.tagBg, border: `1.5px solid ${C.navy}`, borderRadius: "6px", padding: "1px 7px", fontSize: "10px", fontWeight: 900, color: C.white, letterSpacing: "0.5px", alignSelf: "flex-start" }}>
                     {card.tag}
                   </div>
-                  <span style={{ fontSize: "30px" }}>{card.emoji}</span>
+                  <div style={{ marginTop: "2px" }}>
+                    <EmojiDisplay emoji={card.emoji} size={32} />
+                  </div>
                 </>
               )}
               <span style={{ fontSize: "13px", fontWeight: 800, color: C.navy }}>{t(card.labelKey)}</span>
