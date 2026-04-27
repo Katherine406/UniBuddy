@@ -1243,8 +1243,8 @@ export function PicturesAndMapScreen() {
                   padding: "10px",
                   borderRadius: "10px",
                   backgroundColor: C.white,
-                  border: `2px solid ${C.navy}`,
-                  boxShadow: `2px 2px 0 ${C.pale}`,
+                  border: "none",
+                  boxShadow: "none",
                   position: "relative",
                   paddingRight: activeLocation ? (mascotGuideOpen ? "58px" : "min(calc(100% - 96px), 138px)") : "10px",
                 }}
@@ -1435,7 +1435,7 @@ export function PicturesAndMapScreen() {
                 </p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "8px" }}>
                   {(activeLocation?.tags ?? []).map((tag) => (
-                    <span key={tag} style={{ backgroundColor: C.pale, border: `1.5px solid ${C.navy}`, borderRadius: "999px", padding: "1px 8px", fontSize: "10px", fontWeight: 800, color: C.navy }}>
+                    <span key={tag} style={{ backgroundColor: C.pale, border: "none", borderRadius: "999px", padding: "1px 8px", fontSize: "10px", fontWeight: 800, color: C.navy }}>
                       {tag}
                     </span>
                   ))}
