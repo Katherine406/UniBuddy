@@ -203,15 +203,15 @@ export function MysteryRouteScreen() {
         {phase === "result" && resultDef && selOpt && (
           <>
             <div style={{
-              backgroundColor: resultDef.bg, border: `2.5px solid ${C.navy}`, borderRadius: "16px",
-              boxShadow: `5px 5px 0 ${C.navy}`, padding: "18px", marginBottom: "12px",
+              backgroundColor: resultDef.bg, border: "none", borderRadius: "16px",
+              boxShadow: "none", padding: "18px", marginBottom: "12px",
               textAlign: "center", position: "relative", overflow: "hidden",
             }}>
               <div style={{ position: "absolute", top: "8px", right: "12px" }}><Burst size={40} color={C.yellow} /></div>
               <span style={{ fontSize: "46px" }}>{resultDef.emoji}</span>
               <p style={{ fontSize: "20px", fontWeight: 900, color: C.navy, marginTop: "6px" }}>{t(resultDef.titleKey)}</p>
               <p style={{ fontSize: "12px", fontWeight: 600, color: "#4B6898", marginTop: "4px", marginBottom: "10px" }}>{t(resultDef.taglineKey)}</p>
-              <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", backgroundColor: C.white, border: `2px solid ${C.navy}`, borderRadius: "20px", padding: "3px 12px", boxShadow: `2px 2px 0 ${C.navy}` }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", backgroundColor: C.white, border: "none", borderRadius: "20px", padding: "3px 12px", boxShadow: "none" }}>
                 <span style={{ fontSize: "14px" }}>{selOpt.emoji}</span>
                 <span style={{ fontSize: "12px", fontWeight: 800, color: C.navy }}>{t(selOpt.titleKey)}</span>
               </div>
