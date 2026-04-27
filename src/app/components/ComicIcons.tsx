@@ -288,18 +288,18 @@ export function IconCheck({ size = 14, color = "white" }: { size?: number; color
 }
 
 /* ── CAMERA ── */
-export function IconCamera({ size = 26 }: { size?: number }) {
+export function IconCamera({ size = 26, color = "white" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 28 28" fill="none">
       {/* body */}
-      <rect x="2" y="9" width="24" height="16" rx="3.5" fill="none" stroke="white" strokeWidth={2.8} strokeLinejoin="round" />
+      <rect x="2" y="9" width="24" height="16" rx="3.5" fill="none" stroke={color} strokeWidth={2.8} strokeLinejoin="round" />
       {/* lens */}
-      <circle cx="14" cy="17" r="4.5" fill="none" stroke="white" strokeWidth={2.4} />
-      <circle cx="14" cy="17" r="1.8" fill="white" />
+      <circle cx="14" cy="17" r="4.5" fill="none" stroke={color} strokeWidth={2.4} />
+      <circle cx="14" cy="17" r="1.8" fill={color} />
       {/* notch / viewfinder bump */}
-      <path d="M9 9V7C9 5.9 9.9 5 11 5H17C18.1 5 19 5.9 19 7V9" stroke="white" strokeWidth={2.4} strokeLinejoin="round" />
+      <path d="M9 9V7C9 5.9 9.9 5 11 5H17C18.1 5 19 5.9 19 7V9" stroke={color} strokeWidth={2.4} strokeLinejoin="round" />
       {/* flash dot */}
-      <circle cx="22" cy="13" r="1.4" fill="white" />
+      <circle cx="22" cy="13" r="1.4" fill={color} />
     </svg>
   );
 }
