@@ -33,7 +33,7 @@ const routeResultsDefs: Record<string, {
     id: "mystery-food", titleKey: "mystery_res_food", emoji: "🍜", taglineKey: "mystery_res_food_tag",
     bg: "#9BD1F6", stopDot: C.navy,
     stops: [
-      { nameKey: "stop_food_south_north_Hope", note: "start", mapId: "mb" },
+      { nameKey: "stop_food_south_north_hongyuan", note: "start", mapId: "mb" },
       { nameKey: "stop_food_tongfa", note: "mystery_note_stop_2", mapId: "ir" },
       { nameKey: "stop_food_mersey_cafe", note: "mystery_note_stop_3", mapId: "cb" },
       { nameKey: "stop_food_west_hall", note: "mystery_note_stop_4", mapId: "ir" },
