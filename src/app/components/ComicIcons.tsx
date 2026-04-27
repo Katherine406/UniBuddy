@@ -31,9 +31,6 @@ export function IconHome({ size = 26, active = false }: IconProps) {
       {/* door */}
       <rect x="10.5" y="17" width="7" height="8" rx="2"
         fill={doorFill} stroke={stroke} strokeWidth={sw} strokeLinejoin="round" />
-      {/* chimney */}
-      <rect x="18" y="6" width="4" height="7" rx="1.5"
-        fill={fill} stroke={stroke} strokeWidth={2.2} strokeLinejoin="round" />
     </svg>
   );
 }
@@ -88,11 +85,9 @@ export function IconRoute({ size = 26, active = false }: IconProps) {
       <circle cx="23" cy="23" r="3.5" fill={active ? "#A8D4FF" : "none"} stroke={stroke} strokeWidth={2} />
       {/* path */}
       <path
-        d="M5 8.5C5 8.5 5 14 12 14C19 14 23 14 23 19.5"
+        d="M5 8.5C5 13.5 10 13.5 14 17C17.2 19.8 20.2 19.8 23 19.5"
         stroke={lineFill} strokeWidth={sw} strokeLinecap={sc} strokeDasharray="0"
       />
-      {/* arrow */}
-      <path d="M19.5 21L23 23.5L20 26" stroke={stroke} strokeWidth={2.2} strokeLinecap={sc} strokeLinejoin="round" />
     </svg>
   );
 }
@@ -110,9 +105,6 @@ export function IconProfile({ size = 26, active = false }: IconProps) {
         d="M4 26C4 20 8 17 14 17C20 17 24 20 24 26"
         fill={bodyFill} stroke={stroke} strokeWidth={sw} strokeLinecap={sc} strokeLinejoin="round"
       />
-      {/* ear detail */}
-      <path d="M8.5 10C8.5 10 7 9 7 7" stroke={stroke} strokeWidth={1.8} strokeLinecap={sc} />
-      <path d="M19.5 10C19.5 10 21 9 21 7" stroke={stroke} strokeWidth={1.8} strokeLinecap={sc} />
     </svg>
   );
 }
