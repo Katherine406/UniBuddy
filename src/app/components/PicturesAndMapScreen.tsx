@@ -1177,8 +1177,8 @@ export function PicturesAndMapScreen() {
                       lineHeight: 1,
                       cursor: "pointer",
                       zIndex: activeHotspotId === pin.id ? 8 : 4,
-                      opacity: activeHotspotId === pin.id ? 1 : 0.62,
-                      filter: activeHotspotId === pin.id ? "saturate(1.12) brightness(1.02)" : "saturate(0.78) brightness(0.96)",
+                      opacity: 1,
+                      filter: activeHotspotId === pin.id ? "saturate(1.12) brightness(1.02)" : "none",
                       boxShadow: activeHotspotId === pin.id
                         ? `0 0 0 2px ${C.navy}, 0 0 0 8px rgba(255,217,61,0.22), 0 7px 16px rgba(0,0,0,0.28)`
                         : "0 4px 12px rgba(0,0,0,0.25)",
