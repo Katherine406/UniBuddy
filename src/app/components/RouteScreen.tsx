@@ -137,7 +137,6 @@ export function RouteScreen() {
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
               <EmojiDisplay emoji="🎲" size={26} />
               <span style={{ fontSize: "18px", fontWeight: 900, color: C.white, textShadow: `2px 2px 0 ${C.navy}` }}>{t("route_mystery")}</span>
-              <span style={{ backgroundColor: C.yellow, border: `1.5px solid ${C.navy}`, borderRadius: "6px", padding: "1px 7px", fontSize: "10px", fontWeight: 900, color: C.navy }}>{t("route_new")}</span>
             </div>
             <p style={{ fontSize: "12px", fontWeight: 600, color: "rgba(255,255,255,0.85)" }}>{t("route_mystery_sub")}</p>
           </div>
