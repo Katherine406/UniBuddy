@@ -1194,7 +1194,7 @@ export function PicturesAndMapScreen() {
                     viewBox="0 0 100 100"
                     preserveAspectRatio="none"
                     aria-hidden
-                    style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+                    style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 9 }}
                   >
                     <polyline
                       fill="none"
@@ -1236,6 +1236,7 @@ export function PicturesAndMapScreen() {
                       lineHeight: 1,
                       cursor: "pointer",
                       boxShadow: `0 2px 6px rgba(0,0,0,0.28)`,
+                      zIndex: 10,
                     }}
                     aria-label={`${mapCopy.guidedSteps} ${idx + 1}: ${p.label}`}
                   >
