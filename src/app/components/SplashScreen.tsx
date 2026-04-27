@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router";
 import { Burst } from "./PhoneShell";
+import { IconCamera, IconMap, IconRoute, IconBadge } from "./ComicIcons";
 import { useLanguage } from "../context/LanguageContext";
 
 /* halftone dots bg */
@@ -13,10 +14,10 @@ export function SplashScreen() {
   const { tPair } = useLanguage();
 
   const featureChips = [
-    { emoji: "📸", key: "splash_f1" },
-    { emoji: "🗺️", key: "splash_f2" },
-    { emoji: "🧭", key: "splash_f3" },
-    { emoji: "🏅", key: "splash_f4" },
+    { key: "splash_f1", icon: <IconCamera size={14} /> },
+    { key: "splash_f2", icon: <IconMap size={14} active /> },
+    { key: "splash_f3", icon: <IconRoute size={14} active /> },
+    { key: "splash_f4", icon: <IconBadge size={14} filled /> },
   ];
 
   return (
@@ -213,9 +214,15 @@ export function SplashScreen() {
                   fontWeight: 700,
                   color: "#0E1B4D",
                   boxShadow: "2px 2px 0px #0E1B4D",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
                 }}
               >
-                {f.emoji} {tPair(f.key).zh}
+                <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "14px", height: "14px", flexShrink: 0 }}>
+                  {f.icon}
+                </span>
+                {tPair(f.key).zh}
                 <span style={{ opacity: 0.75, fontWeight: 600 }}> · {tPair(f.key).en}</span>
               </div>
             ))}
