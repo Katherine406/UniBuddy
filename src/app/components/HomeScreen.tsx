@@ -88,13 +88,14 @@ export function HomeScreen() {
   const [selectedRoom, setSelectedRoom] = useState<typeof classrooms[0] | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const normalizeBuildingName = (text: string) => text.replace(/科技楼/g, "理科楼");
   const getLocale = (room: typeof classrooms[0]) => room[lang];
 
   const filtered = query.trim().length > 0
     ? classrooms.filter(
         (c) =>
           c.room.toLowerCase().includes(query.toLowerCase()) ||
-          getLocale(c).building.toLowerCase().includes(query.toLowerCase())
+          normalizeBuildingName(getLocale(c).building).toLowerCase().includes(query.toLowerCase())
       )
     : classrooms.slice(0, 6);
 
@@ -933,7 +934,7 @@ export function HomeScreen() {
                 </div>
                 <div style={{ position: "relative", zIndex: 1, display: "flex", gap: "6px" }}>
                   <span style={{ backgroundColor: C.pale, border: `1.5px solid ${C.navy}`, borderRadius: "6px", padding: "2px 8px", fontSize: "11px", fontWeight: 800, color: C.navy }}>
-                    {getLocale(selectedRoom).building}
+                    {normalizeBuildingName(getLocale(selectedRoom).building)}
                   </span>
                   <span style={{ backgroundColor: C.yellow, border: `1.5px solid ${C.navy}`, borderRadius: "6px", padding: "2px 8px", fontSize: "11px", fontWeight: 800, color: C.navy }}>
                     {t("home_floor", { n: selectedRoom.floor })}
@@ -1021,8 +1022,8 @@ export function HomeScreen() {
                 <ComicCard style={{ padding: "12px", backgroundColor: "#F1EEFF", border: "none", boxShadow: "none" }}>
                   <p style={{ fontSize: "11px", fontWeight: 800, color: "#4B6898", marginBottom: "10px" }}>
                     {lang === "zh"
-                      ? `当前楼宇：${getLocale(selectedRoom).building}`
-                      : `Building: ${getLocale(selectedRoom).building}`}
+                      ? `当前楼宇：${normalizeBuildingName(getLocale(selectedRoom).building)}`
+                      : `Building: ${normalizeBuildingName(getLocale(selectedRoom).building)}`}
                   </p>
 
                   <div style={{ display: "flex", gap: "8px", marginBottom: "10px" }}>
@@ -1207,7 +1208,7 @@ export function HomeScreen() {
                     ref={inputRef}
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder={t("home_search_ph")}
+                    placeholder={normalizeBuildingName(t("home_search_ph"))}
                     style={{
                       width: "100%", height: "44px",
                       backgroundColor: C.white, border: `2.5px solid ${C.navy}`,
@@ -1262,7 +1263,7 @@ export function HomeScreen() {
                             <span style={{ fontSize: "15px", fontWeight: 900, color: C.navy }}>{room.room}</span>
                             <span style={{ backgroundColor: C.sky, border: `1.5px solid ${C.navy}`, borderRadius: "6px", padding: "0 6px", fontSize: "10px", fontWeight: 900, color: C.white }}>{t("home_floor", { n: room.floor })}</span>
                           </div>
-                          <p style={{ fontSize: "12px", fontWeight: 600, color: "#4B6898" }}>{getLocale(room).building}</p>
+                          <p style={{ fontSize: "12px", fontWeight: 600, color: "#4B6898" }}>{normalizeBuildingName(getLocale(room).building)}</p>
                         </div>
                         <IconChevronRight size={16} color={C.navy} />
                       </button>
