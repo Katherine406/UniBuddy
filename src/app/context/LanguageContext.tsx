@@ -514,7 +514,7 @@ const en: Texts = {
   name1: "CB", name2: "Study Space", name3: "Study Walkway", name4: "Teaching Blocks", name5: "Sports",
   pin_library: "Library", pin_square: "Square", pin_teaching: "Teaching Bldg",
   pin_canteen: "Canteen", pin_gym: "Gymnasium",
-  cl_sa: "Science Bldg A (SA)", cl_sb: "Science Bldg B (SB)", cl_cb: "Central Bldg (CB)",
+  cl_sa: "Science Building A (SA)", cl_sb: "Science Building B (SB)", cl_cb: "Central Bldg (CB)",
   cl_ee: "Electronics Bldg (EE)", cl_ms: "Math Bldg (MS)", cl_lb: "Library (LB)",
   cl_ib: "International Bldg (IB)", cl_es: "Engineering Bldg (ES)",
   route_freshman: "Freshman Route", route_parent: "Parent Visit Route", route_deep: "Deep Exploration Route",
