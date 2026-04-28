@@ -500,8 +500,8 @@ const campusLocationInfoZh: Record<string, CampusLocationInfo> = {
   },
   as: {
     type: "📍 南校区",
-    title: "影视与创意科技楼",
-    subtitle: "影视创意科技楼",
+    title: "影视与创意理科楼",
+    subtitle: "影视创意理科楼",
     desc: "融合影视、创意与技术的实践教学空间，服务媒体相关专业。",
     story: "入口位于东南侧，靠近 IR 后方。",
     tags: ["媒体", "创意", "工作室"],
@@ -987,7 +987,7 @@ export function PicturesAndMapScreen() {
     ? classrooms.filter(
         (c) =>
           c.room.toLowerCase().includes(query.toLowerCase()) ||
-          getLocale(c).building.toLowerCase().includes(query.toLowerCase())
+          normalizeBuildingName(getLocale(c).building).toLowerCase().includes(query.toLowerCase())
       )
     : classrooms.slice(0, 5);
 
@@ -1737,7 +1737,7 @@ export function PicturesAndMapScreen() {
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={t("map_search_ph")}
+            placeholder={normalizeBuildingName(t("map_search_ph"))}
             style={{
               width: "100%", height: "46px",
               backgroundColor: C.white,
@@ -1799,7 +1799,7 @@ export function PicturesAndMapScreen() {
                         {room.access === "elevator" ? t("acc_elev_tag") : room.access === "stairs" ? t("acc_stairs_tag") : t("acc_direct_tag")}
                       </span>
                     </div>
-                    <p style={{ fontSize: "11px", fontWeight: 600, color: "#4B6898" }}>{locale.building}</p>
+                    <p style={{ fontSize: "11px", fontWeight: 600, color: "#4B6898" }}>{normalizeBuildingName(locale.building)}</p>
                   </div>
                   <IconArrow size={15} color={C.navy} />
                 </button>
@@ -1881,7 +1881,7 @@ export function PicturesAndMapScreen() {
         <div style={{ position: "absolute", inset: 0, zIndex: 50, backgroundColor: C.ice, display: "flex", flexDirection: "column" }}>
           {(() => {
             const locale = getLocale(selected);
-            const destinationCode = extractBuildingCode(locale.building);
+            const destinationCode = extractBuildingCode(normalizeBuildingName(locale.building));
             const walkAdj = campusWalkAdjacency();
             const endGraphId = (routePointAlias[destinationCode] ?? destinationCode).toLowerCase();
             const graphRoute =
@@ -1933,7 +1933,7 @@ export function PicturesAndMapScreen() {
                     </div>
                   </div>
                   <div style={{ position: "relative", zIndex: 1, display: "flex", gap: "6px" }}>
-                    <span style={{ backgroundColor: C.pale, border: "none", borderRadius: "6px", padding: "2px 8px", fontSize: "11px", fontWeight: 800, color: C.navy }}>{locale.building}</span>
+                    <span style={{ backgroundColor: C.pale, border: "none", borderRadius: "6px", padding: "2px 8px", fontSize: "11px", fontWeight: 800, color: C.navy }}>{normalizeBuildingName(locale.building)}</span>
                     <span style={{ backgroundColor: C.yellow, border: "none", borderRadius: "6px", padding: "2px 8px", fontSize: "11px", fontWeight: 800, color: C.navy }}>{t("map_floor", { n: selected.floor })}</span>
                   </div>
                 </div>
