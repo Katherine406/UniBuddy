@@ -21,13 +21,13 @@ export const classrooms: Classroom[] = [
   {
     id: 1, room: "SA169", floor: 1, access: "none",
     zh: {
-      building: "科技楼A (SA)", duration: "约3分钟",
+      building: "理科楼A (SA)", duration: "约3分钟",
       steps: ["📍 从CB出发", "➡️ 向东直行约60米", "🏛️ 到达SA楼正门"],
       floorGuide: "从西门进，1楼教室，进门后左侧走廊。",
       accessDetail: "无需乘梯，1楼直接进入",
     },
     en: {
-      building: "Science Bldg A (SA)", duration: "~3 min",
+      building: "Science Building A (SA)", duration: "~3 min",
       steps: ["📍 Start from CB", "➡️ Head east ~60 m", "🏛️ Arrive at SA main entrance"],
       floorGuide: "Enter through the west gate, Floor 1. Use the left corridor after entering.",
       accessDetail: "No elevator needed — direct entry on Floor 1",
@@ -36,13 +36,13 @@ export const classrooms: Classroom[] = [
   {
     id: 2, room: "SB123", floor: 1, access: "none",
     zh: {
-      building: "科技楼B (SB)", duration: "约4分钟",
+      building: "理科楼B (SB)", duration: "约4分钟",
       steps: ["📍 从CB出发", "➡️ 向东直行约100米", "🏛️ 到达SB楼正门"],
       floorGuide: "从东门进，1楼教室，进门后右侧走廊。",
       accessDetail: "无需乘梯，1楼直接进入",
     },
     en: {
-      building: "Science Bldg B (SB)", duration: "~4 min",
+      building: "Science Building B (SB)", duration: "~4 min",
       steps: ["📍 Start from CB", "➡️ Head east ~100 m", "🏛️ Arrive at SB main entrance"],
       floorGuide: "Enter through the east gate, Floor 1. Take the right corridor after entering.",
       accessDetail: "No elevator needed — direct entry on Floor 1",
@@ -51,13 +51,13 @@ export const classrooms: Classroom[] = [
   {
     id: 3, room: "SC176", floor: 1, access: "none",
     zh: {
-      building: "科技楼C (SC)", duration: "约3分钟",
+      building: "理科楼C (SC)", duration: "约3分钟",
       steps: ["📍 从CB出发", "➡️ 向东直行约60米", "🏛️ 到达SC楼北门"],
       floorGuide: "从西门进，1楼教室，进门后右侧走廊。",
       accessDetail: "无需乘梯，1楼直接进入",
     },
     en: {
-      building: "Science Bldg C (SC)", duration: "~3 min",
+      building: "Science Building C (SC)", duration: "~3 min",
       steps: ["📍 Start from CB", "➡️ Head east ~60 m", "🏛️ Arrive at SC north entrance"],
       floorGuide: "Enter through the west gate, Floor 1. Take the right corridor after entering.",
       accessDetail: "No elevator needed — direct entry on Floor 1",
@@ -66,13 +66,13 @@ export const classrooms: Classroom[] = [
   {
     id: 4, room: "SC169", floor: 1, access: "none",
     zh: {
-      building: "科技楼C (SC)", duration: "约4分钟",
+      building: "理科楼C (SC)", duration: "约4分钟",
       steps: ["📍 从CB出发", "➡️ 向东直行约60米", "↩️ 向南直行30米后向东拐", "🏛️ 到达SC楼南门"],
       floorGuide: "从西门进，1楼教室，进门后左侧走廊。",
       accessDetail: "无需乘梯，1楼直接进入",
     },
     en: {
-      building: "Science Bldg C (SC)", duration: "~4 min",
+      building: "Science Building C (SC)", duration: "~4 min",
       steps: ["📍 Start from CB", "➡️ Head east ~60 m", "↩️ Go south ~30 m then turn east", "🏛️ Arrive at SC south entrance"],
       floorGuide: "Enter through the west gate, Floor 1. Use the left corridor after entering.",
       accessDetail: "No elevator needed — direct entry on Floor 1",
@@ -81,13 +81,13 @@ export const classrooms: Classroom[] = [
   {
     id: 5, room: "SD102", floor: 1, access: "none",
     zh: {
-      building: "科技楼D (SD)", duration: "约5分钟",
+      building: "理科楼D (SD)", duration: "约5分钟",
       steps: ["📍 从CB出发", "➡️ 向东直行约100米", "↩️ 向南直行60米", "🏛️ 到达SD楼正门"],
       floorGuide: "从东门进，1楼教室，进门后左侧走廊。",
       accessDetail: "无需乘梯，1楼直接进入",
     },
     en: {
-      building: "Science Bldg D (SD)", duration: "~5 min",
+      building: "Science Building D (SD)", duration: "~5 min",
       steps: ["📍 Start from CB", "➡️ Head east ~100 m", "↩️ Head south ~60 m", "🏛️ Arrive at SD main entrance"],
       floorGuide: "Enter through the east gate, Floor 1. Use the left corridor after entering.",
       accessDetail: "No elevator needed — direct entry on Floor 1",
@@ -96,13 +96,13 @@ export const classrooms: Classroom[] = [
   {
     id: 6, room: "SB252", floor: 2, access: "elevator",
     zh: {
-      building: "科技楼B (SB)", duration: "约4分钟",
+      building: "理科楼B (SB)", duration: "约4分钟",
       steps: ["📍 从CB出发", "➡️ 向东直行约60米", "🏛️ 到达SB楼正门", "⬆️ 前往2楼"],
       floorGuide: "从西门进，2楼教室，出电梯右转，走廊第1间。",
       accessDetail: "推荐乘坐中央电梯至2楼",
     },
     en: {
-      building: "Science Bldg B (SB)", duration: "~4 min",
+      building: "Science Building B (SB)", duration: "~4 min",
       steps: ["📍 Start from CB", "➡️ Head east ~60 m", "🏛️ Arrive at SB main entrance", "⬆️ Go to Floor 2"],
       floorGuide: "Enter through the west gate, Floor 2. Turn right out of the elevator; 1st room in the corridor.",
       accessDetail: "Recommended: take the central elevator to Floor 2",
@@ -111,13 +111,13 @@ export const classrooms: Classroom[] = [
   {
     id: 7, room: "SB214", floor: 2, access: "elevator",
     zh: {
-      building: "科技楼B (SB)", duration: "约4分钟",
+      building: "理科楼B (SB)", duration: "约4分钟",
       steps: ["📍 从CB出发", "➡️ 向东直行约60米", "🏛️ 到达SB楼正门", "⬆️ 前往2楼"],
       floorGuide: "从西门进，2楼教室，出电梯右转，走廊第10间。",
       accessDetail: "推荐乘坐中央电梯至2楼",
     },
     en: {
-      building: "Science Bldg B (SB)", duration: "~4 min",
+      building: "Science Building B (SB)", duration: "~4 min",
       steps: ["📍 Start from CB", "➡️ Head east ~60 m", "🏛️ Arrive at SB main entrance", "⬆️ Go to Floor 2"],
       floorGuide: "Enter through the west gate, Floor 2. Turn right out of the elevator; 10th room in the corridor.",
       accessDetail: "Recommended: take the central elevator to Floor 2",
