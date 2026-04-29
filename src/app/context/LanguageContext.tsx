@@ -41,7 +41,7 @@ const zh: Texts = {
   home_lang_onboard_body: "先选择页面语言：可切换回中文，或保持英文。",
   home_lang_onboard_switch_zh: "切换中文",
   home_lang_onboard_keep_en: "Keep English",
-  home_tutorial_btn: "Tutorial",
+  home_tutorial_btn: "重看教程",
   home_about_title: "关于 XJTLU",
   home_about_text: "西交利物浦大学坐落于苏州工业园区，融汇中西方教育精华，是中英合办的国际化研究型大学。",
   home_search_title: "搜索教室", home_search_ph: "输入教室号或楼栋，如 SA101 / 理科楼",
