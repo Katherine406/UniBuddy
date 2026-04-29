@@ -107,6 +107,10 @@ export function HomeScreen() {
 
   const openSearch = () => { setShowSearch(true); setQuery(""); setSelectedRoom(null); };
   const closeSearch = () => { setShowSearch(false); setQuery(""); setSelectedRoom(null); };
+  const restartTutorial = () => {
+    setShowAiBuddy(false);
+    setOnboardingStep(ONBOARDING_LANG_STEP);
+  };
 
   const USER_COMMENTS_KEY = "unibuddy_school_comments_v1";
   const BUILDING_COMMENTS_KEY = "unibuddy_building_comments_v1";
@@ -463,37 +467,57 @@ export function HomeScreen() {
               </h1>
             </div>
 
-            {/* Language toggle pill */}
-            <button
-              ref={langToggleRef}
-              type="button"
-              onClick={toggle}
-              style={{
-                display: "flex", alignItems: "center",
-                backgroundColor: C.navy, border: `2px solid ${C.pale}`,
-                borderRadius: "20px", overflow: "hidden",
-                boxShadow: `2px 2px 0 rgba(255,255,255,0.15)`,
-                cursor: "pointer", padding: 0,
-                flexShrink: 0,
-              }}
-            >
-              {(["zh", "en"] as const).map((l) => (
-                <span
-                  key={l}
-                  style={{
-                    padding: "4px 11px",
-                    fontSize: "11px",
-                    fontWeight: 900,
-                    color: lang === l ? C.navy : "rgba(255,255,255,0.5)",
-                    backgroundColor: lang === l ? C.yellow : "transparent",
-                    transition: "background 0.2s",
-                    pointerEvents: "none",
-                  }}
-                >
-                  {l === "zh" ? "中文" : "EN"}
-                </span>
-              ))}
-            </button>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px", flexShrink: 0 }}>
+              {/* Language toggle pill */}
+              <button
+                ref={langToggleRef}
+                type="button"
+                onClick={toggle}
+                style={{
+                  display: "flex", alignItems: "center",
+                  backgroundColor: C.navy, border: `2px solid ${C.pale}`,
+                  borderRadius: "20px", overflow: "hidden",
+                  boxShadow: `2px 2px 0 rgba(255,255,255,0.15)`,
+                  cursor: "pointer", padding: 0,
+                  flexShrink: 0,
+                }}
+              >
+                {(["zh", "en"] as const).map((l) => (
+                  <span
+                    key={l}
+                    style={{
+                      padding: "4px 11px",
+                      fontSize: "11px",
+                      fontWeight: 900,
+                      color: lang === l ? C.navy : "rgba(255,255,255,0.5)",
+                      backgroundColor: lang === l ? C.yellow : "transparent",
+                      transition: "background 0.2s",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    {l === "zh" ? "中文" : "EN"}
+                  </span>
+                ))}
+              </button>
+              <button
+                type="button"
+                onClick={restartTutorial}
+                style={{
+                  height: "26px",
+                  padding: "0 10px",
+                  borderRadius: "10px",
+                  backgroundColor: C.white,
+                  border: `2px solid ${C.navy}`,
+                  boxShadow: `2px 2px 0 ${C.navy}`,
+                  color: C.navy,
+                  fontSize: "10px",
+                  fontWeight: 900,
+                  cursor: "pointer",
+                }}
+              >
+                {t("home_tutorial_btn")}
+              </button>
+            </div>
           </div>
 
         </div>
