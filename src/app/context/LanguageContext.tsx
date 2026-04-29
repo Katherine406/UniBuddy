@@ -424,7 +424,7 @@ const en: Texts = {
   profile_tab_stamps: "Badges", profile_tab_favs: "Favorites",
   profile_progress: "Overall Progress",
   profile_remaining: "{n} more to complete all! 🚀",
-  profile_photo_hint: "Photos run building-sign OCR: match → intro popup + badge; no match → random badge",
+  profile_photo_hint: "Photos → match building → intro popup + badge; no match → random badge",
   profile_photo_hint2: "Tap the Camera button below",
   profile_go_photo: "Take Photo",
   profile_start_route: "Start New Route",
