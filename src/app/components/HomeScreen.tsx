@@ -598,6 +598,9 @@ export function HomeScreen() {
           text={lang === "zh" ? "学校评论（全校视角）" : "School Comments (All Campus)"}
           icon={<IconBell size={18} />}
         />
+        <p style={{ fontSize: "11px", fontWeight: 700, color: "#4B6898", margin: "-4px 2px 10px" }}>
+          {t("home_school_comments_intro")}
+        </p>
 
         <ComicCard style={{ padding: "14px", backgroundColor: "#F1EEFF", marginBottom: "18px", border: "none", boxShadow: "none" }}>
           <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "10px", marginBottom: "10px" }}>
