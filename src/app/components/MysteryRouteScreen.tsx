@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { PhoneShell, StatusBar, ComicCard, Burst } from "./PhoneShell";
 import { BottomNav } from "./BottomNav";
@@ -100,25 +100,56 @@ const routeResultsDefs: Record<string, {
   },
 };
 
-type Phase = "question" | "revealing" | "result";
+type Phase = "revealing" | "result";
 
 export function MysteryRouteScreen() {
   const navigate = useNavigate();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { t } = useLanguage();
   const [selected, setSelected] = useState<string | null>(null);
-  const [phase, setPhase] = useState<Phase>("question");
+  const [phase, setPhase] = useState<Phase>("revealing");
+  const revealTimeoutRef = useRef<number | null>(null);
 
-  const handleSelect = (id: string) => {
+  const getRandomOptionId = (excludeId?: string) => {
+    const ids = optionsDefs.map((opt) => opt.id);
+    const pool = ids.filter((id) => id !== excludeId);
+    const candidates = pool.length > 0 ? pool : ids;
+    return candidates[Math.floor(Math.random() * candidates.length)];
+  };
+
+  const revealRoute = (id: string) => {
+    if (revealTimeoutRef.current) {
+      window.clearTimeout(revealTimeoutRef.current);
+    }
     setSelected(id);
     setPhase("revealing");
-    setTimeout(() => setPhase("result"), 1800);
+    revealTimeoutRef.current = window.setTimeout(() => setPhase("result"), 1800);
   };
+
+  const handleInitialDraw = () => {
+    revealRoute(getRandomOptionId());
+  };
+
+  const handleReroll = () => {
+    if (!selected) return;
+    revealRoute(getRandomOptionId(selected));
+  };
+
   const resultDef = selected ? routeResultsDefs[selected] : null;
   const selOpt = optionsDefs.find((o) => o.id === selected);
   const fav = resultDef ? isFavorite(resultDef.id) : false;
 
   const stopNote = (note: string) => note === "start" ? t("nav_start_pt") : t(note);
+
+  useEffect(() => {
+    handleInitialDraw();
+    return () => {
+      if (revealTimeoutRef.current) {
+        window.clearTimeout(revealTimeoutRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <PhoneShell bg={C.ice}>
@@ -145,38 +176,6 @@ export function MysteryRouteScreen() {
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 pt-4" style={{ paddingBottom: "28px" }}>
-
-        {/* QUESTION */}
-        {phase === "question" && (
-          <>
-            <div style={{ textAlign: "center", marginBottom: "16px" }}>
-              <div style={{ display: "inline-block", backgroundColor: C.yellow, border: "none", borderRadius: "12px", padding: "8px 16px", boxShadow: "none" }}>
-                <p style={{ fontSize: "16px", fontWeight: 900, color: C.navy }}>{t("mystery_q")}</p>
-              </div>
-              <p style={{ fontSize: "12px", fontWeight: 600, color: "#4B6898", marginTop: "8px" }}>{t("mystery_q_sub")}</p>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-              {optionsDefs.map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => handleSelect(opt.id)}
-                  style={{
-                    backgroundColor: opt.bg, border: `2.5px solid ${opt.border}`, borderRadius: "16px",
-                    boxShadow: `4px 4px 0 ${opt.border}`, padding: "16px 12px",
-                    textAlign: "left", cursor: "pointer",
-                    display: "flex", flexDirection: "column", gap: "6px", minHeight: "120px",
-                  }}
-                  onMouseDown={(e) => (e.currentTarget.style.transform = "translate(2px,2px)")}
-                  onMouseUp={(e) => (e.currentTarget.style.transform = "translate(0,0)")}
-                >
-                  <span style={{ fontSize: "34px" }}>{opt.emoji}</span>
-                  <p style={{ fontSize: "14px", fontWeight: 900, color: C.navy }}>{t(opt.titleKey)}</p>
-                  <p style={{ fontSize: "11px", fontWeight: 600, color: "#4B6898", lineHeight: 1.4 }}>{t(opt.descKey)}</p>
-                </button>
-              ))}
-            </div>
-          </>
-        )}
 
         {/* REVEALING */}
         {phase === "revealing" && (
@@ -238,48 +237,73 @@ export function MysteryRouteScreen() {
             </ComicCard>
 
             {/* Buttons */}
-            <div style={{ display: "flex", gap: "10px" }}>
-              <button
-                onClick={() =>
-                  navigate("/pictures", {
-                    state: {
-                      guidedTour: {
-                        title: t(resultDef.titleKey),
-                        subtitle: t(resultDef.taglineKey),
-                        points: resultDef.stops.map((stop) => ({
-                          id: stop.mapId,
-                          label: t(stop.nameKey),
-                        })),
+            <div>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <button
+                  onClick={() =>
+                    navigate("/pictures", {
+                      state: {
+                        guidedTour: {
+                          title: t(resultDef.titleKey),
+                          subtitle: t(resultDef.taglineKey),
+                          points: resultDef.stops.map((stop) => ({
+                            id: stop.mapId,
+                            label: t(stop.nameKey),
+                          })),
+                        },
                       },
+                    })
+                  }
+                  style={{ flex: 1, height: "50px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", backgroundColor: C.royal, border: `2.5px solid ${C.navy}`, borderRadius: "14px", boxShadow: `4px 4px 0 ${C.navy}`, color: C.white, fontSize: "15px", fontWeight: 900, cursor: "pointer" }}
+                  onMouseDown={(e) => (e.currentTarget.style.transform = "translate(2px,2px)")}
+                  onMouseUp={(e) => (e.currentTarget.style.transform = "translate(0,0)")}
+                >
+                  <IconPlay size={15} />
+                  {t("mystery_start")}
+                </button>
+                <button
+                  onClick={() => resultDef && toggleFavorite({
+                    id: resultDef.id, title: t(resultDef.titleKey), emoji: resultDef.emoji,
+                    type: "mystery", stops: resultDef.stops.map((s) => t(s.nameKey)),
+                    bg: resultDef.bg, tagBg: C.purple, tagLabel: t("type_mystery"),
+                    guidedTour: {
+                      title: t(resultDef.titleKey),
+                      subtitle: t(resultDef.taglineKey),
+                      points: resultDef.stops.map((stop) => ({
+                        id: stop.mapId,
+                        label: t(stop.nameKey),
+                      })),
                     },
-                  })
-                }
-                style={{ flex: 1, height: "50px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", backgroundColor: C.royal, border: `2.5px solid ${C.navy}`, borderRadius: "14px", boxShadow: `4px 4px 0 ${C.navy}`, color: C.white, fontSize: "15px", fontWeight: 900, cursor: "pointer" }}
-                onMouseDown={(e) => (e.currentTarget.style.transform = "translate(2px,2px)")}
-                onMouseUp={(e) => (e.currentTarget.style.transform = "translate(0,0)")}
-              >
-                <IconPlay size={15} />
-                {t("mystery_start")}
-              </button>
+                  })}
+                  style={{ width: "50px", height: "50px", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: fav ? "#FFF0F0" : C.white, border: `2.5px solid ${C.navy}`, borderRadius: "14px", boxShadow: `4px 4px 0 ${C.navy}`, cursor: "pointer" }}
+                  onMouseDown={(e) => (e.currentTarget.style.transform = "translate(2px,2px)")}
+                  onMouseUp={(e) => (e.currentTarget.style.transform = "translate(0,0)")}
+                >
+                  <IconHeart size={20} filled={fav} color={C.coral} />
+                </button>
+              </div>
               <button
-                onClick={() => resultDef && toggleFavorite({
-                  id: resultDef.id, title: t(resultDef.titleKey), emoji: resultDef.emoji,
-                  type: "mystery", stops: resultDef.stops.map((s) => t(s.nameKey)),
-                  bg: resultDef.bg, tagBg: C.purple, tagLabel: t("type_mystery"),
-                  guidedTour: {
-                    title: t(resultDef.titleKey),
-                    subtitle: t(resultDef.taglineKey),
-                    points: resultDef.stops.map((stop) => ({
-                      id: stop.mapId,
-                      label: t(stop.nameKey),
-                    })),
-                  },
-                })}
-                style={{ width: "50px", height: "50px", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: fav ? "#FFF0F0" : C.white, border: `2.5px solid ${C.navy}`, borderRadius: "14px", boxShadow: `4px 4px 0 ${C.navy}`, cursor: "pointer" }}
+                onClick={handleReroll}
+                style={{
+                  marginTop: "10px",
+                  width: "100%",
+                  height: "44px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: C.white,
+                  border: `2.5px solid ${C.navy}`,
+                  borderRadius: "14px",
+                  boxShadow: `4px 4px 0 ${C.navy}`,
+                  color: C.navy,
+                  fontSize: "13px",
+                  fontWeight: 900,
+                  cursor: "pointer",
+                }}
                 onMouseDown={(e) => (e.currentTarget.style.transform = "translate(2px,2px)")}
                 onMouseUp={(e) => (e.currentTarget.style.transform = "translate(0,0)")}
               >
-                <IconHeart size={20} filled={fav} color={C.coral} />
+                {t("mystery_reroll_cta")}
               </button>
             </div>
           </>
