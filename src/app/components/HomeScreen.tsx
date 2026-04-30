@@ -135,7 +135,7 @@ export function HomeScreen() {
   const langToggleRef = useRef<HTMLButtonElement | null>(null);
   const aiInputRef = useRef<HTMLTextAreaElement>(null);
   const aiMessagesScrollRef = useRef<HTMLDivElement | null>(null);
-  const aiPresetQuestions = useMemo(() => getUniAIBuddyPresetQuestions(lang, 24), [lang]);
+  const aiPresetQuestions = useMemo(() => getUniAIBuddyPresetQuestions(lang, 23), [lang]);
 
   const handleAskUniAIBuddy = async (presetQuestion?: string) => {
     const q = (presetQuestion ?? aiQuestion).trim();
