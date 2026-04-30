@@ -134,6 +134,7 @@ export function HomeScreen() {
   const aiGuideCardRef = useRef<HTMLDivElement | null>(null);
   const langToggleRef = useRef<HTMLButtonElement | null>(null);
   const aiInputRef = useRef<HTMLTextAreaElement>(null);
+  const aiMessagesScrollRef = useRef<HTMLDivElement | null>(null);
   const aiPresetQuestions = useMemo(() => getUniAIBuddyPresetQuestions(lang, 25), [lang]);
 
   const handleAskUniAIBuddy = async (presetQuestion?: string) => {
@@ -156,6 +157,13 @@ export function HomeScreen() {
     const timer = window.setTimeout(() => aiInputRef.current?.focus(), 120);
     return () => window.clearTimeout(timer);
   }, [showAiBuddy]);
+
+  useEffect(() => {
+    if (!showAiBuddy) return;
+    const container = aiMessagesScrollRef.current;
+    if (!container) return;
+    container.scrollTop = container.scrollHeight;
+  }, [aiMessages, aiLoading, showAiBuddy]);
 
   useEffect(() => {
     const syncOnboardingUi = () => {
@@ -1327,7 +1335,10 @@ export function HomeScreen() {
               </button>
             </div>
 
-            <div style={{ flex: 1, overflowY: "auto", backgroundColor: "#F7FAFF", padding: "10px", display: "flex", flexDirection: "column", gap: "8px" }}>
+            <div
+              ref={aiMessagesScrollRef}
+              style={{ flex: 1, overflowY: "auto", backgroundColor: "#F7FAFF", padding: "10px", display: "flex", flexDirection: "column", gap: "8px" }}
+            >
               {aiMessages.length === 0 && (
                 <div style={{ backgroundColor: C.white, border: `1.5px solid ${C.pale}`, borderRadius: "10px", padding: "8px 10px" }}>
                   <p style={{ fontSize: "11px", fontWeight: 700, color: "#4B6898", lineHeight: 1.5 }}>
