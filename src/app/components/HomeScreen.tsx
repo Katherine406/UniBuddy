@@ -1409,33 +1409,35 @@ export function HomeScreen() {
                   </div>
                 </div>
               )}
-              <textarea
-                ref={aiInputRef}
-                value={aiQuestion}
-                onChange={(e) => setAiQuestion(e.target.value)}
-                rows={2}
-                placeholder={lang === "zh" ? "输入问题，Ctrl/Cmd + Enter 发送" : "Type your question, Ctrl/Cmd + Enter to send"}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-                    e.preventDefault();
-                    void handleAskUniAIBuddy();
-                  }
-                }}
-                style={{
-                  width: "100%",
-                  backgroundColor: C.white,
-                  border: `2px solid ${C.navy}`,
-                  borderRadius: "10px",
-                  padding: "8px 10px",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                  color: C.navy,
-                  outline: "none",
-                  resize: "none",
-                  boxSizing: "border-box",
-                }}
-              />
-              <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "8px" }}>
+              <div style={{ display: "flex", alignItems: "flex-end", gap: "8px" }}>
+                <textarea
+                  ref={aiInputRef}
+                  value={aiQuestion}
+                  onChange={(e) => setAiQuestion(e.target.value)}
+                  rows={1}
+                  placeholder={lang === "zh" ? "输入问题，Ctrl/Cmd + Enter 发送" : "Type your question, Ctrl/Cmd + Enter to send"}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                      e.preventDefault();
+                      void handleAskUniAIBuddy();
+                    }
+                  }}
+                  style={{
+                    flex: 1,
+                    minHeight: "34px",
+                    maxHeight: "74px",
+                    backgroundColor: C.white,
+                    border: `2px solid ${C.navy}`,
+                    borderRadius: "10px",
+                    padding: "7px 10px",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    color: C.navy,
+                    outline: "none",
+                    resize: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
                 <button
                   type="button"
                   onClick={() => void handleAskUniAIBuddy()}
