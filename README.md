@@ -91,7 +91,7 @@ Clickable_Interface_Design/
 
 ---
 
-## 🔮 Future Improvements
+## Future Improvements
 
 *  Integration with real map APIs & GPS positioning
 *  Advanced route planning (accessibility-aware, crowd-aware navigation)
